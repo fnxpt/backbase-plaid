@@ -1,0 +1,28 @@
+@startuml
+
+
+actor User as U
+participant App as A
+boundary Edge as E
+participant "Backbase Plais" as BP
+database Credentials
+participant Plaid
+collections Banks
+
+
+U -> A: Link Accounts
+activate A
+
+
+
+deactivate A
+A -> U: Accounts
+
+
+
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
+
+Alice -> Bob: Another authentication Request
+Alice <-- Bob: another authentication Response
+@enduml
