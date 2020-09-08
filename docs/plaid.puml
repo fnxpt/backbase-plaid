@@ -5,24 +5,48 @@ actor User as U
 participant App as A
 boundary Edge as E
 participant "Backbase Plais" as BP
-database Credentials
-participant Plaid
+database Credentials as C
+participant Plaid as P
 collections Banks
 
 
 U -> A: Link Accounts
+
 activate A
 
 
 
 deactivate A
+BP->P: Request link_token
+P-->BP:link_token
+note left
+should pass
+link_token to apps client
+and use initialise Link
+end note
+BP->A:open link (initialise)????
+note left
+user authenticates
+and creates item?
+end note
+
+A->BP:onSuccess()
+note left
+in the on success call back
+public_token is sent to apps
+server
+end note
+BP->P: public_token
+
+note right
+exchanged for
+access_token
+end note
+P-->BP: access_token & item_id
+
+BP->C: access_token & item_id
+BP->Banks:product requests using access_token & item_id
 A -> U: Accounts
 
 
-
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
-
-Alice -> Bob: Another authentication Request
-Alice <-- Bob: another authentication Response
 @enduml
