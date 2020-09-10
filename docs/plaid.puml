@@ -4,49 +4,71 @@
 actor User as U
 participant App as A
 boundary Edge as E
-participant "Backbase Plais" as BP
+participant "Backbase blade" as BB
 database Credentials as C
 participant Plaid as P
 collections Banks
 
 
-U -> A: Link Accounts
+U -> A: Link Accounts (Create item)
+note left
+select wanted products
+(fills credentials)
+available banks returned
+select wanted bank
 
+end note
 activate A
 
+A->P: Request link_token
+activate P
+P-->A:return link_token
+deactivate P
 
-
-deactivate A
-BP->P: Request link_token
-P-->BP:link_token
 note left
 should pass
 link_token to apps client
-and use initialise Link
+and used to initialise Link
 end note
-BP->A:open link (initialise)????
+
+BB->A:open link (initialise)????
+activate A
+
 note left
 user authenticates
 and creates item?
 end note
 
-A->BP:onSuccess()
+A->BB:onSuccess()
+note right
+once item created public
+and access token exchange
+end note
+deactivate A
+
 note left
 in the on success call back
 public_token is sent to apps
 server
 end note
-BP->P: public_token
+
+BB->P: public_token
+activate P
 
 note right
 exchanged for
 access_token
 end note
-P-->BP: access_token & item_id
 
-BP->C: access_token & item_id
-BP->Banks:product requests using access_token & item_id
+P-->BB: access_token & item_id
+deactivate P
+
+BB->C: store access_token & item_id
+BB->Banks:product requests using access_token & item_id & secret
+activate Banks
+Banks--> BB: response to request
+deactivate Banks
+deactivate A
 A -> U: Accounts
-
 
 @enduml
