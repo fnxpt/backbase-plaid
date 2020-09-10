@@ -30,7 +30,7 @@ should pass
 link_token to apps client
 and used to initialise Link
 end note
-
+A->U: ask user to connect
 BB->A:open link (initialise)????
 activate A
 
