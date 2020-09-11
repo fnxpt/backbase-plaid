@@ -19,10 +19,33 @@ select wanted bank
 
 end note
 activate A
-
-A->P: Request link_token
+A -> P: link initialise https://cdn.plaid.com/link/v2/stable/link-initialize.js
 activate P
-P-->A:return link_token
+P-->A: complete
+BB->P:POST info http://localhost:8000/api/info
+P-->BB: response item info
+
+deactivate
+BB->P: Request link_token POST http://localhost:8000/api/create_link_token
+activate P
+P-->BB:return link_token
+deactivate P
+BB->A: open link
+activate A
+P->A: display banks to user https://sandbox.plaid.com/link/client/get
+deactivate A
+A->P:create item https://sandbox.plaid.com/link/item/create
+activate P
+P-> A : Public_token
+note right
+cant be going
+to and from the right place
+but definatly happens
+end note
+deactivate P
+A->P:https://sandbox.plaid.com/link/item/mfa
+activate P
+P->A:response
 deactivate P
 
 note left
@@ -51,14 +74,15 @@ in the on success call back
 public_token is sent to apps
 server
 end note
+BB->P:http://localhost:8000/api/set_access_token pulic token
 
-BB->P: public_token
 activate P
 
 note right
 exchanged for
 access_token
 end note
+
 
 P-->BB: access_token & item_id
 deactivate P
