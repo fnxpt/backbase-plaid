@@ -2,8 +2,8 @@
 Alice -> Bob: Request Get URL: http://localhost:8000/
 Bob --> Alice: Response, index.html
 
-Alice -> Bob: Request Get https://threads.plaid.com/threads.css
-Alice <-- Bob: Response CSS file for page
+Alice -> Plaid: Request Get https://threads.plaid.com/threads.css
+Alice <-- Plaid: Response CSS file for page
 
 Alice -> Bob: Request Get http://localhost:8000/static/style.css
 Alice <-- Bob: Response CSS file for page
@@ -51,8 +51,8 @@ Alice <-- Bob: Response java script
 Alice -> Bob: get https://cdn.plaid.com/link/2.0.693/link-dynamic-loader.js
 Alice <-- Bob: Response java script
 
-Alice -> Bob: post https://sandbox.plaid.com/link/client/get with linktoken
-Alice <-- Bob: Response from https://cdn.plaid.com
+Alice -> Plaid: post https://sandbox.plaid.com/link/client/get with linktoken
+Alice <-- Plaid: Response from https://cdn.plaid.com
 
 Alice -> Bob: get https://cdn.plaid.com/link/2.0.693/assets/images/legal-logo.png
 Alice <-- Bob: Response logo image
@@ -63,8 +63,8 @@ Alice <-- Bob: Response binary/octet-stream
 Alice -> Bob: get https://cdn.plaid.com/link/2.0.693/assets/fonts/vaud-extrabold.woff2
 Alice <-- Bob: Response binary/octet-stream
 
-Alice -> Bob: POST https://sandbox.plaid.com/link/item/create
-Alice <-- Bob: Response json public token
+Alice -> Plaid: POST https://sandbox.plaid.com/link/item/create
+Alice <-- Plaid: Response json public token
 
 Alice -> Plaid: POST https://sandbox.plaid.com/link/oauth/complete
 Alice <-- Plaid: Response json
@@ -79,5 +79,5 @@ Alice -> Bob: POST http://localhost:8000/api/set_access_token with public token
 Alice <-- Bob: Response access token
 
 Alice -> Plaid: POST https://sandbox.plaid.com/link/client_visible_event/create
-Alice <-- Bob: Response json
+Alice <-- Plaid: Response json
 @enduml
