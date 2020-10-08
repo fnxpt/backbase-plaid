@@ -1,0 +1,14 @@
+eureka:
+  client:
+    enabled: false
+
+logging:
+  level:
+    root: debug
+
+backbase:
+  security:
+    public:
+      paths:
+        - /links
+        - /api/plaid-service/links

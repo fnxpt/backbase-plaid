@@ -1,0 +1,61 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Backbase Plaid Integration Service
+  license:
+    name: MIT
+servers:
+  - url:
+paths:
+  /links:
+    post:
+      summary: Request plaid link
+      operationId: requestPlaidLink
+      tags:
+        - plaid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaidLinkRequest'
+      responses:
+        '200':
+          description: A paged array of pets
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlaidLinkResponse"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    PlaidLinkRequest:
+      type: object
+      properties:
+        name:
+          type: string
+    PlaidLinkResponse:
+      type: object
+      properties:
+        link:
+          type: string
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
