@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plaid-service
+  labels:
+    app: plaid-service
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: plaid-service
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: plaid-service
+        tier: backend
+    spec:
+      containers:
+        - name: plaid-service
+          image: plaid-service
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: spring.zipkin.baseUrl
+              valueFrom:
+                configMapKeyRef:
+                  key:
+                  name: zipkin-config
+            - name: JAVA_TOOL_OPTIONS
+              value: "-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=n,quiet=y -Deureka.client.enabled=true"

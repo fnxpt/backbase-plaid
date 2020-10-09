@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: plaid-service
+  labels:
+    app: plaid-service
+    tier: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: plaid-service
+    tier: backend
+  ports:
+    - port: 8080
+      targetPort: http

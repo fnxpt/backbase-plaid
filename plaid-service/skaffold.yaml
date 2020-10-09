@@ -1,0 +1,18 @@
+apiVersion: skaffold/v1
+kind: Config
+build:
+  tagPolicy:
+    sha256: {}
+  artifacts:
+    - image: "plaid-service"
+      context: .
+      jib: {
+        args: [ "-Pdocker-image" ]
+      }
+deploy:
+  kubectl:
+    flags:
+      global:
+        - --namespace=dope
+    manifests:
+      - ./kubernetes-manifests/**.yaml

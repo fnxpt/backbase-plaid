@@ -41,6 +41,8 @@ components:
     PlaidLinkRequest:
       type: object
       properties:
+        language:
+          type: string
         name:
           type: string
     PlaidLinkResponse:

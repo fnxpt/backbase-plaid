@@ -13,20 +13,20 @@ public class PlaidConfiguration {
     public PlaidClient plaidClient(PlaidConfigurationProperties configuration) {
 
         PlaidClient.Builder builder = PlaidClient.newBuilder()
-            .clientIdAndSecret(configuration.getPlaidClientID(), configuration.getPlaidSecret());
+            .clientIdAndSecret(configuration.getClientId(), configuration.getSecret());
 
-        switch (configuration.getPlaidEnv()) {
-            case "sandbox":
+        switch (configuration.getEnv()) {
+            case SANDBOX:
                 builder = builder.sandboxBaseUrl();
                 break;
-            case "development":
+            case DEVELOPMENT:
                 builder = builder.developmentBaseUrl();
                 break;
-            case "production":
+            case PRODUCTION:
                 builder = builder.productionBaseUrl();
                 break;
             default:
-                throw new IllegalArgumentException("unknown environment: " + configuration.getPlaidEnv());
+                throw new IllegalArgumentException("unknown environment: " + configuration.getEnv());
         }
 
         return builder.build();

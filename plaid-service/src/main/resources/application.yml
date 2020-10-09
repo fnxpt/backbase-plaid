@@ -12,3 +12,15 @@ backbase:
       paths:
         - /links
         - /api/plaid-service/links
+
+  plaid:
+    client-id:
+    secret:
+    env: sandbox
+    country-codes:
+      - nl
+      - ca
+    products:
+      - auth
+
+
