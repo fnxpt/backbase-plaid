@@ -4,7 +4,7 @@ eureka:
 
 logging:
   level:
-    root: debug
+    root: info
 
 backbase:
   security:
@@ -22,5 +22,10 @@ backbase:
       - CA
     products:
       - auth
+management:
+  endpoints:
+    web:
+      exposure:
+        include: *
 
 

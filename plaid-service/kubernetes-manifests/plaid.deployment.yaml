@@ -29,5 +29,33 @@ spec:
                 configMapKeyRef:
                   key:
                   name: zipkin-config
+            - name: SIG_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  key:
+                  name: backbase-env-dope-jwt
+            - name: USERCTX_KEY
+              valueFrom:
+                secretKeyRef:
+                  key:
+                  name: backbase-env-dope-jwt
+            - name: SPRING_ACTIVEMQ_BROKER_URL
+              value: tcp://activemq:61616
+            - name: EUREKA_CLIENT_ENABLED
+              value: "false"
+            - name: SPRING_CLOUD_KUBERNETES_ENABLED
+              value: "true"
+            - name: SPRING_CLOUD_KUBERNETES_RELOAD_ENABLED
+              value: "true"
+            - name: SPRING_CLOUD_KUBERNETES_RIBBON_MODE
+              value: SERVICE
+            - name: SPRING_DATASOURCE_VALIDATIONQUERY
+              value: SELECT 1
+            - name: SPRING_LIQUIBASE_ENABLED
+              value: "false"
+            - name: spring.autoconfigure.exclude
+              value: org.springframework.cloud.netflix.eureka.loadbalancer.LoadBalancerEurekaAutoConfiguration
+            - name: spring.cloud.loadbalancer.ribbon.enabled
+              value: "false"
             - name: JAVA_TOOL_OPTIONS
               value: "-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=n,quiet=y -Deureka.client.enabled=true"
