@@ -18,8 +18,8 @@ backbase:
     secret:
     env: sandbox
     country-codes:
-      - nl
-      - ca
+      - NL
+      - CA
     products:
       - auth
 

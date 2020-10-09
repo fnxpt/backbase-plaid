@@ -13,17 +13,16 @@ public class PlaidLinkServiceTest {
     public void testCreateToken() {
 
         PlaidConfigurationProperties plaidConfigurationProperties = new PlaidConfigurationProperties();
-        plaidConfigurationProperties.setPlaidClientID("fskdlfdl");
+        plaidConfigurationProperties.setClientId("fskdlfdl");
 
         PlaidConfiguration plaidConfiguration = new PlaidConfiguration();
 
         PlaidClient plaidClient = plaidConfiguration.plaidClient(plaidConfigurationProperties);
 
 
-        PlaidLinkService plaidLinkService = new PlaidLinkService(plaidClient,plaidConfigurationProperties);
+        PlaidLinkService plaidLinkService = new PlaidLinkService(plaidClient, plaidConfigurationProperties, null);
 
         plaidLinkService.createPlaidLink(new PlaidLinkRequest());
-
 
 
     }

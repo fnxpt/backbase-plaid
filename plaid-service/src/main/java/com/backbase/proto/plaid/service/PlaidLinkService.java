@@ -42,7 +42,7 @@ public class PlaidLinkService {
                     user,
                     "Plaid Quickstart",
                     Arrays.stream(plaidConfigurationProperties.getProducts()).map(PlaidConfigurationProperties.Product::toString).map(String::toLowerCase).collect(Collectors.toList()),
-                    Arrays.stream(plaidConfigurationProperties.getCountryCodes()).map(String::toLowerCase).collect(Collectors.toList()),
+                    Arrays.stream(plaidConfigurationProperties.getCountryCodes()).map(PlaidConfigurationProperties.CountryCode::toString).collect(Collectors.toList()),
                     plaidLinkRequest.getLanguage()
                 ).withRedirectUri(redirectUrl))
                     .execute();

@@ -23,7 +23,7 @@ public class PlaidConfigurationProperties {
     private Product[] products;
 
     @NotNull
-    private String[] countryCodes;
+    private CountryCode[] countryCodes;
 
 
     public enum Environment {
@@ -32,6 +32,10 @@ public class PlaidConfigurationProperties {
 
     public enum Product {
         TRANSACTIONS, AUTH, IDENTITY, ASSETS, INVESTMENTS, LIABILITIES, PAYMENT_INITIATION
+    }
+
+    public enum CountryCode {
+        US, CA, ES, FR, GB, IE, NL
     }
 
 }
