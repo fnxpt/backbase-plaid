@@ -23,15 +23,20 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>com.backbase.buildingblocks</groupId>
-            <artifactId>service-sdk-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>com.backbase.buildingblocks</groupId>
             <artifactId>service-sdk-starter-mapping</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.backbase.buildingblocks</groupId>
+            <artifactId>communication</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.backbase.buildingblocks</groupId>
+            <artifactId>auth-security</artifactId>
         </dependency>
 
         <dependency>
@@ -69,15 +74,18 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.backbase.buildingblocks</groupId>
-            <artifactId>auth-security</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.backbase.buildingblocks</groupId>
+            <artifactId>service-sdk-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

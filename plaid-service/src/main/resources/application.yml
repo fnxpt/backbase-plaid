@@ -7,11 +7,11 @@ logging:
     root: info
 
 backbase:
-  security:
-    public:
-      paths:
-        - /links
-        - /api/plaid-service/links
+#  security:
+#    public:
+#      paths:
+#        - /links
+#        - /api/plaid-service/links
 
   plaid:
     client-id:
@@ -22,10 +22,13 @@ backbase:
       - CA
     products:
       - auth
+
 management:
   endpoints:
     web:
       exposure:
-        include: *
-
+        include: "*"
+  health:
+    jms:
+      enabled: false
 

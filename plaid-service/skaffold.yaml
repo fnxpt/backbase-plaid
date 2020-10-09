@@ -7,7 +7,7 @@ build:
     - image: "plaid-service"
       context: .
       jib: {
-        args: [ "-Pdocker-image" ]
+        args: [ "-Pdocker-image,no-scs" ]
       }
 deploy:
   kubectl:

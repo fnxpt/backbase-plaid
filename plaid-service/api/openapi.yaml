@@ -3,11 +3,11 @@ info:
   version: 1.0.0
   title: Backbase Plaid Integration Service
   license:
-    name: MIT
+    name: Backbase
 servers:
   - url:
 paths:
-  /links:
+  /links/request_plaid_link:
     post:
       summary: Request plaid link
       operationId: requestPlaidLink
@@ -20,12 +20,7 @@ paths:
               $ref: '#/components/schemas/PlaidLinkRequest'
       responses:
         '200':
-          description: A paged array of pets
-          headers:
-            x-next:
-              description: A link to the next page of responses
-              schema:
-                type: string
+          description: Plaid Link to use in when invoking the Plaid Link UI
           content:
             application/json:
               schema:
@@ -36,6 +31,31 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /links/set_access_token:
+    post:
+      summary: Set Public Access Token
+      operationId: setPublicAccessToken
+      tags:
+        - plaid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicTokenRequest'
+      responses:
+        '200':
+          description: A paged array of pets
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlaidLinkResponse"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 components:
   schemas:
     PlaidLinkRequest:
@@ -45,10 +65,17 @@ components:
           type: string
         name:
           type: string
+    PublicTokenRequest:
+      type: object
+      properties:
+        public-token:
+          type: string
+      required:
+        - public-token
     PlaidLinkResponse:
       type: object
       properties:
-        link:
+        token:
           type: string
     Error:
       type: object
