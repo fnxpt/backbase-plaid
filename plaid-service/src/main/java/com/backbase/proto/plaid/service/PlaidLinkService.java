@@ -11,9 +11,13 @@ import com.backbase.stream.configuration.AccessControlConfiguration;
 import com.backbase.stream.legalentity.model.AvailableBalance;
 import com.backbase.stream.legalentity.model.BookedBalance;
 import com.backbase.stream.legalentity.model.CreditLimit;
+import com.backbase.stream.legalentity.model.JobProfileUser;
 import com.backbase.stream.legalentity.model.LegalEntity;
+import com.backbase.stream.legalentity.model.LegalEntityReference;
 import com.backbase.stream.legalentity.model.Product;
 import com.backbase.stream.legalentity.model.ProductGroup;
+import com.backbase.stream.legalentity.model.ServiceAgreement;
+import com.backbase.stream.legalentity.model.User;
 import com.backbase.stream.product.ProductIngestionSaga;
 import com.backbase.stream.product.ProductIngestionSagaConfiguration;
 import com.backbase.stream.product.task.ProductGroupTask;
@@ -24,6 +28,7 @@ import com.backbase.stream.productcatalog.model.ProductKind;
 import com.backbase.stream.productcatalog.model.ProductType;
 import com.backbase.stream.service.AccessGroupService;
 import com.backbase.stream.service.LegalEntityService;
+import com.backbase.stream.worker.exception.StreamTaskException;
 import com.backbase.stream.worker.model.StreamTask;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.AccountsBalanceGetRequest;
@@ -39,6 +44,7 @@ import com.plaid.client.response.ItemStatus;
 import com.plaid.client.response.LinkTokenCreateResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +57,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 import retrofit2.Response;
 
 @Service
@@ -139,19 +144,39 @@ public class PlaidLinkService {
 
         ItemStatus item = plaidAccounts.getItem();
         String institutionId = item.getInstitutionId();
-
         Institution institution = getInstitution(institutionId);
 
 
-        Mono<LegalEntity> legalEntityByInternalId = legalEntityService.getLegalEntityByInternalId(legalEntityId);
+        LegalEntity legalEntityByInternalId = legalEntityService.getLegalEntityByInternalId(legalEntityId)
+            .blockOptional()
+            .orElseThrow(() -> new BadRequestException("Legal Entity does not exist"));
+
+        JobProfileUser jobProfileUser = new JobProfileUser();
+        jobProfileUser.setReferenceJobRoleNames(plaidConfigurationProperties.getDefaultReferenceJobRoleNames());
+        jobProfileUser.setLegalEntityReference(new LegalEntityReference()
+            .internalId(legalEntityId)
+            .externalId(legalEntityByInternalId.getExternalId()));
+        jobProfileUser.setUser(new User().externalId(userId));
+
+        ServiceAgreement serviceAgreement = legalEntityService.getMasterServiceAgreementForInternalLegalEntityId(legalEntityId)
+            .blockOptional()
+            .orElseThrow(() -> new BadRequestException("Legal Entity does not have a valid service agreement"));
+
+
         ProductGroup productGroup = new ProductGroup();
+        productGroup.setServiceAgreement(serviceAgreement);
+        productGroup.setName("Linked Plaid Products");
+        productGroup.setDescription("External Products Linked with Plaid");
+        productGroup.addUsersItem(jobProfileUser);
         productGroup.setCustomProducts(accounts.stream()
             .map(account -> mapAccount(accessToken, item, institution, account)).collect(Collectors.toList()));
 
-
         productIngestionSaga.process(new ProductGroupTask().data(productGroup))
             .doOnNext(StreamTask::logSummary)
-            .doOnError(e -> log.error("Failed ot setup Product Group: {}", e.getMessage(), e))
+            .doOnError(StreamTaskException.class, e -> {
+                log.error("Failed ot setup Product Group: {}", e.getMessage(), e);
+                e.getTask().logSummary();
+            })
             .block();
 
     }
@@ -161,15 +186,18 @@ public class PlaidLinkService {
         additions.put("plaidAccessToken", accessToken);
         additions.put("plaidItemId", item.getItemId());
         additions.put("plaidInstitutionId", institution.getInstitutionId());
+        additions.put("plaidAccountOfficialName", account.getOfficialName());
         additions.put("institutionName", institution.getName());
         additions.put("institutionLogo", institution.getLogo());
 
         Product product = new Product();
         product.setExternalId(account.getAccountId());
         product.setName(account.getName());
-        product.setBankAlias(account.getOfficialName());
+//        product.setBankAlias(account.getOfficialName());
         product.setAdditions(additions);
-        product.setProductTypeExternalId(mapSubTypeId(account.getSubtype()));
+        String productTypeExternalId = mapSubTypeId(account.getSubtype());
+        product.setProductTypeExternalId(productTypeExternalId);
+        product.setBBAN(account.getMask());
 
         Account.Balances balances = account.getBalances();
         if (balances != null) {
@@ -203,12 +231,12 @@ public class PlaidLinkService {
         } catch (IOException e) {
             throw new BadRequestException("Failed to get institution by Id: " + institutionId);
         }
-        Institution institution = institutionsGetResponse.getInstitution();
-        return institution;
+        return institutionsGetResponse.getInstitution();
     }
 
-    public ProductCatalog createProductCatalogFrom(List<Account> plaidAccounts) {
+    public void createProductCatalogFrom(List<Account> plaidAccounts) {
         ProductCatalog productCatalog = new ProductCatalog();
+        productCatalog.setProductTypes(new ArrayList<>());
         plaidAccounts.stream()
             .collect(Collectors.groupingBy(Account::getType))
             .forEach((type, accounts) -> {
@@ -218,20 +246,20 @@ public class PlaidLinkService {
                     .kindUri(kindId)
                     .kindName("External " + StringUtils.capitalize(type));
                 productCatalog.addProductKindsItem(productKindsItem);
-                productCatalog.setProductTypes(accounts.stream()
+                productCatalog.getProductTypes().addAll((accounts.stream()
                     .map(Account::getSubtype).collect(Collectors.toSet())
                     .stream().map(subtype -> {
                         String productTypeId = mapSubTypeId(subtype);
                         return new ProductType()
                             .externalId(productTypeId)
-                            .externalProductId(subtype)
+                            .externalProductId(productTypeId)
                             .externalProductKindId(kindId)
                             .productTypeName(StringUtils.capitalize(subtype));
                     })
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toList())));
             });
+        log.info("Setting up Product Catalog");
         productCatalogService.setupProductCatalog(productCatalog);
-        return productCatalog;
     }
 
     private String mapSubTypeId(String subtype) {

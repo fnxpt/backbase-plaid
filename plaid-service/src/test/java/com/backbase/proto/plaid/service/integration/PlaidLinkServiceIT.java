@@ -6,6 +6,7 @@ import com.backbase.proto.plaid.configuration.PlaidConfigurationProperties;
 import com.backbase.proto.plaid.model.PlaidLinkRequest;
 import com.backbase.proto.plaid.service.PlaidLinkService;
 import com.plaid.client.PlaidClient;
+import com.plaid.client.response.AccountsBalanceGetResponse;
 import java.util.Arrays;
 import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
@@ -32,13 +33,9 @@ public class PlaidLinkServiceIT {
     private PlaidLinkService plaidLinkService;
 
     @Test
-    public void testCreateToken() {
-        System.out.println("Hello World");
-    }
-
-    @Test
     public void testGetAccounts() {
-        plaidLinkService.requestPlaidAccounts("access-testing");
+        AccountsBalanceGetResponse accountsBalanceGetResponse = plaidLinkService.requestPlaidAccounts("access-testing");
+        System.out.println(accountsBalanceGetResponse);
     }
 
     @Test

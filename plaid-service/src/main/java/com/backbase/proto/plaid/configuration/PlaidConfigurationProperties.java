@@ -29,6 +29,9 @@ public class PlaidConfigurationProperties {
     @NotNull
     private List<CountryCode> countryCodes;
 
+    @NotNull
+    private List<String> defaultReferenceJobRoleNames;
+
 
     public enum Environment {
         SANDBOX, DEVELOPMENT, PRODUCTION

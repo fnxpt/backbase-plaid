@@ -44,6 +44,8 @@ backbase:
     products:
       - auth
       - transactions
+    default-reference-job-role-names:
+      - "Retail User - EU"
 
 management:
   endpoints:
