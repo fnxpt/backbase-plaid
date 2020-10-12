@@ -4,6 +4,7 @@ import com.backbase.proto.plaid.api.PlaidApi;
 import com.backbase.proto.plaid.model.PlaidLinkRequest;
 import com.backbase.proto.plaid.model.PlaidLinkResponse;
 import com.backbase.proto.plaid.model.PublicTokenRequest;
+import com.backbase.proto.plaid.model.SetAccessTokenRequest;
 import com.backbase.proto.plaid.service.PlaidLinkService;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -29,15 +30,12 @@ public class PlaidController implements PlaidApi {
     }
 
     @Override
-    public ResponseEntity<PlaidLinkResponse> setPublicAccessToken(@Valid PublicTokenRequest publicTokenRequest) {
-
-        log.info("Set Plaid Public Token: {}", publicTokenRequest);
-        plaidLinkService.setPublicAccessToken(publicTokenRequest);
-
-
-
-        return null;
+    public ResponseEntity<Void> setPublicAccessToken(@Valid SetAccessTokenRequest setAccessTokenRequest) {
+        log.info("Set Plaid Public Token: {}", setAccessTokenRequest);
+        plaidLinkService.setPublicAccessToken(setAccessTokenRequest);
+        return ResponseEntity.accepted().build();
     }
+
 
 
 }

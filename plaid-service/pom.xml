@@ -7,7 +7,7 @@
         <groupId>com.backbase.buildingblocks</groupId>
         <version>11.2.1</version>
         <artifactId>service-sdk-starter-core</artifactId>
-        <relativePath />
+        <relativePath/>
     </parent>
 
     <groupId>com.backbase.proto.plaid</groupId>
@@ -20,9 +20,33 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <!-- Properties for the frontend code generation-->
+        <codegen.angularVersion>8.0.0</codegen.angularVersion>
+        <codegen.npmPackage.name>@tp/plaid-service-http-module-ang</codegen.npmPackage.name>
+        <codegen.npmPackage.version>${project.version}</codegen.npmPackage.version>
+        <codegen.generateMocks>true</codegen.generateMocks>
+        <boat-maven-plugin.output>${project.build.directory}/angular</boat-maven-plugin.output>
+        <stream.version>2.7.0</stream.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.backbase.dbs</groupId>
+                <artifactId>banking-services-bom</artifactId>
+                <version>2.19.1.1</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
+
+<!--        <dependency>-->
+<!--            <groupId>com.backbase.buildingblocks</groupId>-->
+<!--            <artifactId>persistence</artifactId>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>com.backbase.buildingblocks</groupId>
@@ -50,6 +74,18 @@
             <groupId>com.plaid</groupId>
             <artifactId>plaid-java</artifactId>
             <version>7.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.backbase.stream</groupId>
+            <artifactId>product-ingestion-saga</artifactId>
+            <version>${stream.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.backbase.stream</groupId>
+            <artifactId>product-catalog-core</artifactId>
+            <version>${stream.version}</version>
         </dependency>
 
         <dependency>
@@ -81,12 +117,13 @@
             <optional>true</optional>
         </dependency>
 
-
         <dependency>
             <groupId>com.backbase.buildingblocks</groupId>
             <artifactId>service-sdk-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+
 
         <dependency>
             <groupId>junit</groupId>
@@ -101,7 +138,7 @@
             <plugin>
                 <groupId>com.backbase.oss</groupId>
                 <artifactId>boat-maven-plugin</artifactId>
-                <version>0.2.5</version>
+                <version>0.2.6</version>
                 <executions>
                     <execution>
                         <id>generete-stub</id>
@@ -115,8 +152,36 @@
                             <modelPackage>com.backbase.proto.plaid.model</modelPackage>
                         </configuration>
                     </execution>
+
+                    <execution>
+                        <id>generete-angular</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/api/openapi.yaml</inputSpec>
+                            <generatorName>typescript-angular</generatorName>
+                            <output>${boat-maven-plugin.output}</output>
+                            <generatorName>backbase-typescript-angular</generatorName>
+                            <generateSupportingFiles>true</generateSupportingFiles>
+                            <supportingFilesToGenerate>api.module.ts,configuration.ts,encoder.ts,variables.ts,models.ts,api.ts</supportingFilesToGenerate>
+                            <additionalProperties>
+                                ngVersion=${codegen.angularVersion},npmName=${codegen.npmPackage.name},npmVersion=${codegen.npmPackage.version},withMocks=${codegen.generateMocks}
+                            </additionalProperties>
+                        </configuration>
+                    </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.backbase.bb-cli</groupId>
+                        <artifactId>backbase-typescript-angular-openapi-template</artifactId>
+                        <version>1.0.5</version>
+                    </dependency>
+                </dependencies>
             </plugin>
+
+
         </plugins>
     </build>
 </project>

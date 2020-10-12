@@ -41,14 +41,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PublicTokenRequest'
+              $ref: '#/components/schemas/SetAccessTokenRequest'
       responses:
-        '200':
+        '201':
           description: A paged array of pets
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PlaidLinkResponse"
         default:
           description: unexpected error
           content:
@@ -77,6 +73,48 @@ components:
       properties:
         token:
           type: string
+    SetAccessTokenRequest:
+      properties:
+        public_token:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+
+    Metadata:
+      type: object
+      properties:
+        account:
+          $ref: '#/components/schemas/PlaidAccount'
+        account_id:
+          type: string
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaidAccount'
+        institution:
+          $ref: '#/components/schemas/PlaidInstitution'
+
+    PlaidAccount:
+      type: object
+      properties:
+        id:
+          type: string
+        mask:
+          type: string
+        name:
+          type: string
+        subtype:
+          type: string
+        type:
+          type: string
+    PlaidInstitution:
+      type: object
+      properties:
+        institution_id:
+          type: string
+        name:
+          type: string
+
     Error:
       type: object
       required:

@@ -1,5 +1,6 @@
 package com.backbase.proto.plaid.configuration;
 
+import java.util.List;
 import javax.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -11,6 +12,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class PlaidConfigurationProperties {
 
     @NotNull
+    private String clientName;
+
+    @NotNull
     private String clientId;
 
     @NotNull
@@ -20,10 +24,10 @@ public class PlaidConfigurationProperties {
     private Environment env;
 
     @NotNull
-    private Product[] products;
+    private List<Product> products;
 
     @NotNull
-    private CountryCode[] countryCodes;
+    private List<CountryCode> countryCodes;
 
 
     public enum Environment {
