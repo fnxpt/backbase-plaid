@@ -41,7 +41,8 @@ public class PlaidLinkServiceIT {
         plaidLinkService.requestPlaidAccounts("access-testing");
     }
 
-    @Test void testIngestAccounts() {
+    @Test
+    public void testIngestAccounts() {
         plaidLinkService.ingestPlaidAccounts(
             "access-testing",
             "lesley.knope",

@@ -11,7 +11,6 @@ import org.junit.Test;
 public class PlaidLinkServiceTest {
 
     @Test
-    @Ignore
     public void testCreateToken() {
 
         PlaidConfigurationProperties plaidConfigurationProperties = new PlaidConfigurationProperties();
