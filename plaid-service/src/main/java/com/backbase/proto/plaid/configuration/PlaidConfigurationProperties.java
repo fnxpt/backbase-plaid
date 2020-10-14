@@ -1,6 +1,8 @@
 package com.backbase.proto.plaid.configuration;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -43,6 +45,23 @@ public class PlaidConfigurationProperties {
 
     public enum CountryCode {
         US, CA, ES, FR, GB, IE, NL
+    }
+
+    private TransactionConfigurationProperties transactions;
+
+    @Data
+    public static class TransactionConfigurationProperties {
+
+        /**
+         * Mapping between Mambu Transaction Type Groups and Backbase DBS Transaction Type Groups.
+         */
+        private Map<String, String> transactionTypeGroupMap = new HashMap<>();
+
+        /**
+         * Mapping between Mambu Transaction Type and Backbase DBS Transaction Type.
+         */
+        private Map<String, String> transactionTypeMap = new HashMap<>();
+
     }
 
 }

@@ -58,7 +58,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
-
+import static org.mockito.Mockito.*;
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -106,8 +106,11 @@ public class PlaidLinkService {
                     .withRedirectUri(redirectUrl))
                     .execute();
             LinkTokenCreateResponse body = response.body();
+            log.info("plaid link response{}",body);
+
             assert body != null;
             String linkToken = body.getLinkToken();
+            log.info("link token {}", linkToken);
             return new PlaidLinkResponse().token(linkToken);
         } catch (IOException e) {
             throw new BadRequestException(e);

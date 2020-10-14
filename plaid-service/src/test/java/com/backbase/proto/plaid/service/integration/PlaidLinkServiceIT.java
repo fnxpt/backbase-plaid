@@ -5,11 +5,13 @@ import com.backbase.proto.plaid.configuration.PlaidConfiguration;
 import com.backbase.proto.plaid.configuration.PlaidConfigurationProperties;
 import com.backbase.proto.plaid.model.PlaidLinkRequest;
 import com.backbase.proto.plaid.service.PlaidLinkService;
+import com.backbase.proto.plaid.service.PlaidTransactionsService;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.response.AccountsBalanceGetResponse;
 import java.util.Arrays;
 import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.runner.RunWith;
@@ -31,7 +33,13 @@ public class PlaidLinkServiceIT {
 
     @Autowired
     private PlaidLinkService plaidLinkService;
+    @Autowired
+    private PlaidTransactionsService plaidTransactionsService;
 
+    @Test
+    public void testGetTransactions(){
+        plaidTransactionsService.ingestTransactions("access-testing");
+    }
     @Test
     public void testGetAccounts() {
         AccountsBalanceGetResponse accountsBalanceGetResponse = plaidLinkService.requestPlaidAccounts("access-testing");
@@ -39,6 +47,7 @@ public class PlaidLinkServiceIT {
     }
 
     @Test
+    @Ignore
     public void testIngestAccounts() {
         plaidLinkService.ingestPlaidAccounts(
             "access-testing",

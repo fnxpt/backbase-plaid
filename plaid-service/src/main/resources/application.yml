@@ -45,6 +45,18 @@ backbase:
     products:
       - auth
       - transactions
+    transactions:
+      transactionTypeGroupMap:
+        online: "Payment"
+        in_store: "Payment"
+        other: "Fees"
+      transactionTypeMap:
+        online: "Credit/Debit Card"
+        in_store: "Credit/Debit Card"
+        other: "Fee"
+
+
+
 
 management:
   endpoints:

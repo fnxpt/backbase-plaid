@@ -51,6 +51,43 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /transactions/get:
+    get:
+      summary: Get Transactions
+      operationId: getTransactions
+      description: Get List of transactions for user
+      tags:
+        - plaid
+      parameters:
+        - in: query
+          name: client_id
+          schema:
+            type: string
+        - in: query
+          name: access_token
+          schema:
+            type: string
+        - in: query
+          name: secret
+          schema:
+            type: string
+        - in: query
+          name: start_date
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: end_date
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: list of transactions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaidGetTransactionsResponse'
 
 components:
   schemas:
@@ -79,6 +116,54 @@ components:
           type: string
         metadata:
           $ref: '#/components/schemas/Metadata'
+    PlaidGetTransactionsRequest:
+      properties:
+        access_token:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+    PlaidGetTransactionsResponse:
+      type: object
+      properties:
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaidAccount'
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaidTransaction'
+        item:
+          $ref: '#/components/schemas/PlaidItem'
+        total_transactions:
+          type: integer
+        request_id:
+          type: string
+    PlaidItem:
+      type: object
+      properties:
+        available_products:
+          type: array
+          items:
+            type: string
+        billed_products:
+          type: array
+          items:
+            type: string
+        consent_expiration_time:
+          type: string
+        error:
+          $ref: '#/components/schemas/Error'
+        institution_id:
+          type: string
+        item_id:
+          type: string
+        webhook:
+          type: string
 
     Metadata:
       type: object
@@ -114,6 +199,85 @@ components:
           type: string
         name:
           type: string
+    PlaidTransaction:
+      type: object
+      properties:
+        account_id:
+          type: string
+        amount:
+          type: number
+        iso_currency_code:
+          type: string
+        category:
+          type: array
+          items:
+            type: string
+        category_id:
+          type: string
+        date:
+          type: string
+          format: date
+        authorized_date:
+          type: string
+          format: date
+        location:
+          $ref: '#/components/schemas/Location'
+        name:
+          type: string
+        merchant_name:
+          type: string
+        payment_meta:
+          $ref: '#/components/schemas/Payment_meta'
+        payment_channel:
+          type: string
+        pending:
+          type: boolean
+        pending_transaction_id:
+          type: string
+        account_owner:
+          type: string
+        transaction_code:
+          type: string
+        transaction_type:
+          type: string
+    Payment_meta:
+      type: object
+      properties:
+        by_order_of:
+          type: string
+        payee:
+          type: string
+        payer:
+          type: string
+        payment_method:
+          type: string
+        payment_processor:
+          type: string
+        ppd_id:
+          type: string
+        reason:
+          type: string
+        reference:
+          type: string
+    Location:
+      type: object
+      properties:
+        address:
+          type: string
+        city:
+          type: string
+        region:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
+        lat:
+          type: number
+        lon:
+          type: number
+        store_number:
+          type: integer
 
     Error:
       type: object
