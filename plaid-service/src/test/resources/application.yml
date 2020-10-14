@@ -47,13 +47,16 @@ backbase:
     default-reference-job-role-names:
       - "Retail User - EU"
     transactions:
+      # Payment,Withdrawal,Loans,Fees
       transactionTypeGroupMap:
-        online: "Payment"
-        in_store: "Payment"
+        online: "Withdrawal"
+        store: "Withdrawal"
+        "in store": "Withdrawal"
         other: "Fees"
+      # ATM, ACH, Bill Payment, Cash, Cheques, Credit/Debit Card, Check, Deposit, Fee, POS, Withdrawal
       transactionTypeMap:
         online: "Credit/Debit Card"
-        in_store: "Credit/Debit Card"
+        store: "Credit/Debit Card"
         other: "Fee"
 
 management:

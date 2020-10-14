@@ -37,8 +37,8 @@ public class TransactionMapper {
         transactionAmountCurrency.setCurrencyCode(transaction.getIsoCurrencyCode());
 
         TransactionItemPost bbTransaction = new TransactionItemPost();
-        bbTransaction.setArrangementId(transaction.getAccountId());
-        bbTransaction.setArrangementId(transaction.getTransactionId());
+        bbTransaction.setExternalArrangementId(arrangementId);
+        bbTransaction.setExternalId(transaction.getTransactionId());
 
         bbTransaction.setBookingDate(LocalDate.parse(transaction.getDate()));
         bbTransaction.setCreditDebitIndicator(CreditDebitIndicator.CRDT);
@@ -76,14 +76,19 @@ public class TransactionMapper {
 
 
     private String getTransactionTypeGroup(TransactionsGetResponse.Transaction transaction) {
-        String typeGroup = transactionTypeGroupMap.getOrDefault(transaction.getPaymentChannel(), "other");
+        String typeGroup = transactionTypeGroupMap.getOrDefault(transaction.getPaymentChannel().replace(" ", ""), transaction.getPaymentChannel());
         log.info("Mapped Type Group: {} to: {}", transaction.getPaymentChannel(), typeGroup);
         return typeGroup;
     }
 
     private String getTransactionType(TransactionsGetResponse.Transaction transaction) {
-        String type = transactionTypeMap.getOrDefault(transaction.getTransactionCode(), "other");
+        String type = transactionTypeMap.getOrDefault(transaction.getTransactionCode(), transaction.getTransactionCode());
+        if(type == null) {
+            type = "Credit/Debit Card";
+        }
+
         log.info("Mapped Type: {} to: {}", transaction.getTransactionCode(), type);
+
         return type;
     }
 

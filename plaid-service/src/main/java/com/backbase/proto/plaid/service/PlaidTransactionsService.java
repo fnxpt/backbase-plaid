@@ -63,7 +63,7 @@ public class PlaidTransactionsService {
 
         List<TransactionItemPost> transactionItemPosts = null;
         if (body != null) {
-            transactionItemPosts = body.getTransactions().stream().map(transaction -> transactionMapper.map(transaction)).collect(Collectors.toList());
+            transactionItemPosts = body.getTransactions().stream().map(transactionMapper::map).collect(Collectors.toList());
             transactionService.processTransactions(Flux.fromIterable(transactionItemPosts))
                     .doOnNext(transactionIds -> log.info("Ingested transactionIds: {}", transactionIds))
                     .collectList()
