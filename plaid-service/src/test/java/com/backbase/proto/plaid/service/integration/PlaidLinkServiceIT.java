@@ -31,9 +31,18 @@ public class PlaidLinkServiceIT {
     @Autowired
     private PlaidTransactionsService plaidTransactionsService;
 
+    @Autowired
+    private MambuBootstrapConfiguration mambuBootstrapConfiguration;
+
     @Test
     public void testGetTransactions(){
         plaidTransactionsService.ingestTransactions("access-testing");
+    }
+    @Test
+    public void testMambuBootstrap() throws Exception {
+
+        ReactorDebugAgent.init();
+        mambuBootstrapConfiguration.execute();
     }
 
     @Test

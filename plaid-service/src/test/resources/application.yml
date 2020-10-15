@@ -314,6 +314,7 @@ bootstrap:
         realmName: "backbase"
         externalId: "mambu-bank"
   ingest-product-catalog: false
+  ingest-mambu-transactions: true
 management:
   endpoints:
     web:

@@ -23,6 +23,9 @@ public class PlaidConfigurationProperties {
     private String secret;
 
     @NotNull
+    private String webhookBaseUrl;
+
+    @NotNull
     private Environment env;
 
     @NotNull

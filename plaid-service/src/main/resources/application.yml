@@ -41,6 +41,7 @@ backbase:
     client-id:
     secret:
     env: sandbox
+    webhook-base-url:
     country-codes:
       - NL
       - CA

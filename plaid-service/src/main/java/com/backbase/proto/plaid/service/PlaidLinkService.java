@@ -35,6 +35,7 @@ import com.plaid.client.PlaidClient;
 import com.plaid.client.request.AccountsBalanceGetRequest;
 import com.plaid.client.request.InstitutionsGetByIdRequest;
 import com.plaid.client.request.ItemPublicTokenExchangeRequest;
+import com.plaid.client.request.ItemWebhookUpdateRequest;
 import com.plaid.client.request.LinkTokenCreateRequest;
 import com.plaid.client.response.Account;
 import com.plaid.client.response.AccountsBalanceGetResponse;
@@ -136,6 +137,14 @@ public class PlaidLinkService {
         String userId = getLoggedInUserId(internalJwt);
         String legalEntityId = getLoggedInLegalEntityInternal(internalJwt);
         ingestPlaidAccounts(accessToken.getAccessToken(), userId, legalEntityId);
+        setupWebHook(accessToken);
+    }
+
+    private void setupWebHook(ItemPublicTokenExchangeResponse accessToken) {
+
+
+
+
     }
 
     public void ingestPlaidAccounts(String accessToken, String userId, String legalEntityId) {
@@ -181,6 +190,8 @@ public class PlaidLinkService {
                 e.getTask().logSummary();
             })
             .block();
+
+
     }
 
     private Product mapAccount(String accessToken, ItemStatus item, Institution institution, Account account) {
