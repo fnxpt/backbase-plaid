@@ -19,6 +19,8 @@ spring:
         provider:
           dbs:
             token-uri:
+  mvc:
+    log-request-details: true
 
 backbase:
   stream:

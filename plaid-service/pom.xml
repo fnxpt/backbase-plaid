@@ -26,7 +26,7 @@
         <codegen.npmPackage.version>${project.version}</codegen.npmPackage.version>
         <codegen.generateMocks>true</codegen.generateMocks>
         <boat-maven-plugin.output>${project.build.directory}/angular</boat-maven-plugin.output>
-        <stream.version>2.7.0</stream.version>
+        <stream.version>2.8.0</stream.version>
     </properties>
 
     <dependencyManagement>
@@ -76,6 +76,12 @@
             <version>7.0.1</version>
         </dependency>
 
+<!--        <dependency>-->
+<!--            <groupId>com.backbase.stream</groupId>-->
+<!--            <artifactId>mambu-bootstrap-task</artifactId>-->
+<!--            <version>1.0.0-SNAPSHOT</version>-->
+<!--        </dependency>-->
+
         <dependency>
             <groupId>com.backbase.stream</groupId>
             <artifactId>product-ingestion-saga</artifactId>
@@ -115,6 +121,18 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>20.1.0</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -127,8 +145,11 @@
             <artifactId>service-sdk-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
-
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-tools</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>

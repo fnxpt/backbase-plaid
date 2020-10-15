@@ -1,18 +1,14 @@
-apiVersion: skaffold/v1
+apiVersion: skaffold/v2beta7
 kind: Config
+metadata:
+  name: plaid-service
 build:
-  tagPolicy:
-    sha256: {}
   artifacts:
-    - image: "plaid-service"
-      context: .
-      jib: {
-        args: [ "-Pdocker-image,no-scs"]
-      }
+  - image: plaid-service
+    buildpacks:
+      builder: gcr.io/buildpacks/builder:v1
 deploy:
   kubectl:
-    flags:
-      global:
-        - --namespace=dope
     manifests:
-      - ./kubernetes-manifests/**.yaml
+    - kubernetes-manifests/plaid.deployment.yaml
+    - kubernetes-manifests/plaid.service.yaml

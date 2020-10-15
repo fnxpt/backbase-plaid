@@ -18,6 +18,7 @@ import com.backbase.stream.legalentity.model.Product;
 import com.backbase.stream.legalentity.model.ProductGroup;
 import com.backbase.stream.legalentity.model.ServiceAgreement;
 import com.backbase.stream.legalentity.model.User;
+import com.backbase.stream.product.BatchProductIngestionSaga;
 import com.backbase.stream.product.ProductIngestionSaga;
 import com.backbase.stream.product.ProductIngestionSagaConfiguration;
 import com.backbase.stream.product.task.ProductGroupTask;
@@ -74,10 +75,9 @@ public class PlaidLinkService {
     private final PlaidConfigurationProperties plaidConfigurationProperties;
     private final SecurityContextUtil securityContextUtil;
 
-    private final ProductIngestionSaga productIngestionSaga;
     private final ProductCatalogService productCatalogService;
 
-    private final AccessGroupService accessGroupService;
+    private final BatchProductIngestionSaga batchProductIngestionSaga;
 
     private final LegalEntityService legalEntityService;
 
@@ -143,7 +143,7 @@ public class PlaidLinkService {
         AccountsBalanceGetResponse plaidAccounts = requestPlaidAccounts(accessToken);
         List<Account> accounts = plaidAccounts.getAccounts();
 
-        createProductCatalogFrom(accounts);
+//        createProductCatalogFrom(accounts);
 
         ItemStatus item = plaidAccounts.getItem();
         String institutionId = item.getInstitutionId();
@@ -174,14 +174,13 @@ public class PlaidLinkService {
         productGroup.setCustomProducts(accounts.stream()
             .map(account -> mapAccount(accessToken, item, institution, account)).collect(Collectors.toList()));
 
-        productIngestionSaga.process(new ProductGroupTask().data(productGroup))
+        batchProductIngestionSaga.process(new ProductGroupTask().data(productGroup))
             .doOnNext(StreamTask::logSummary)
             .doOnError(StreamTaskException.class, e -> {
                 log.error("Failed ot setup Product Group: {}", e.getMessage(), e);
                 e.getTask().logSummary();
             })
             .block();
-
     }
 
     private Product mapAccount(String accessToken, ItemStatus item, Institution institution, Account account) {
@@ -196,7 +195,7 @@ public class PlaidLinkService {
         Product product = new Product();
         product.setExternalId(account.getAccountId());
         product.setName(account.getName());
-//        product.setBankAlias(account.getOfficialName());
+        product.setBankAlias(account.getName());
         product.setAdditions(additions);
         String productTypeExternalId = mapSubTypeId(account.getSubtype());
         product.setProductTypeExternalId(productTypeExternalId);

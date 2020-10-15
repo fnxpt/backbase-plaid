@@ -5,7 +5,6 @@ import com.backbase.proto.plaid.configuration.PlaidConfigurationProperties;
 import com.backbase.proto.plaid.model.PlaidLinkRequest;
 import com.backbase.proto.plaid.model.PlaidLinkResponse;
 import com.plaid.client.PlaidClient;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito.*;
@@ -35,7 +34,7 @@ public class PlaidLinkServiceTest {
 
         PlaidClient plaidClient = plaidConfiguration.plaidClient(plaidConfigurationProperties);
 
-        PlaidLinkService plaidLinkService = new PlaidLinkService(plaidClient, plaidConfigurationProperties, null,null,null,null,null);
+        PlaidLinkService plaidLinkService = new PlaidLinkService(plaidClient, plaidConfigurationProperties, null,null,null,null);
 
        //plaidLinkService.createPlaidLink(new PlaidLinkRequest().language("en"));
     }
