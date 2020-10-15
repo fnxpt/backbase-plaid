@@ -3,8 +3,6 @@ package com.backbase.proto.plaid.service.integration;
 import com.backbase.proto.plaid.PlaidApplication;
 import com.backbase.proto.plaid.service.PlaidLinkService;
 import com.backbase.proto.plaid.service.PlaidTransactionsService;
-import com.backbase.stream.mambu.configuration.MambuBootstrapConfiguration;
-import com.backbase.stream.mambu.configuration.MambuConfiguration;
 import com.plaid.client.response.AccountsBalanceGetResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Ignore;

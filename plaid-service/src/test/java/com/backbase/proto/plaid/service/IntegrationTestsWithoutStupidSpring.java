@@ -1,6 +1,5 @@
 package com.backbase.proto.plaid.service;
 
-import com.backbase.stream.mambu.configuration.MambuBootstrapConfiguration;
 import com.backbase.stream.product.ProductIngestionSaga;
 import com.backbase.stream.product.configuration.ProductIngestionSagaConfigurationProperties;
 import com.backbase.stream.product.service.ArrangementService;

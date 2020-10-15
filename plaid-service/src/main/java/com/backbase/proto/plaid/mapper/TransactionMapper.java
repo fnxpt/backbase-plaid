@@ -37,15 +37,15 @@ public class TransactionMapper {
         transactionAmountCurrency.setCurrencyCode(transaction.getIsoCurrencyCode());
 
         TransactionItemPost bbTransaction = new TransactionItemPost();
+        //set required data
         bbTransaction.setExternalArrangementId(arrangementId);
         bbTransaction.setExternalId(transaction.getTransactionId());
-
         bbTransaction.setBookingDate(LocalDate.parse(transaction.getDate()));
         bbTransaction.setCreditDebitIndicator(CreditDebitIndicator.CRDT);
         bbTransaction.setTransactionAmountCurrency(transactionAmountCurrency);
 
-
-        String description = (transaction.getPaymentMeta().getReason() == null) ? "" : transaction.getPaymentMeta().getReason();
+        // name or reason??
+        String description = (transaction.getName() == null) ? "" : transaction.getName();
         BigDecimal amount = BigDecimal.valueOf(transaction.getAmount());
         bbTransaction.setDescription(description);
 
@@ -68,6 +68,36 @@ public class TransactionMapper {
 
         bbTransaction.setTypeGroup(transactionTypeGroup);
         bbTransaction.setType(transactionType);
+        // nullable data
+        bbTransaction.setCategory(transaction.getCategory().get(0));
+        bbTransaction.setReference(transaction.getPaymentMeta().getReferenceNumber());
+        // counter party data
+        String counterpartyName =transaction.getName();
+        if (transaction.getMerchantName()!=null){
+            counterpartyName=transaction.getMerchantName();
+        }else if (transaction.getPaymentMeta().getPayee()!= null){
+            counterpartyName=transaction.getPaymentMeta().getPayee();
+        }
+        bbTransaction.setCounterPartyName(counterpartyName);
+        bbTransaction.setCounterPartyCity(transaction.getLocation().getCity());
+        bbTransaction.setCounterPartyAddress(transaction.getLocation().getAddress());
+        bbTransaction.setCounterPartyCountry(transaction.getLocation().getCountry());
+        //sepa stuff, not relevant for this project, is a US bank
+        // only European so is there any point (creator ID)
+        if (transaction.getPaymentMeta().getPaymentMethod() == "SEPA DD"){
+
+        }
+
+        if (transaction.getPending())
+            bbTransaction.setBillingStatus("PENDING");
+        else if (transaction.getAuthorizedDate()==null)
+            bbTransaction.setBillingStatus("UNBILLED");
+        else
+            bbTransaction.setBillingStatus("BILLED");
+        if(transaction.getAuthorizedDate()!=null)
+          bbTransaction.setValueDate(LocalDate.parse(transaction.getAuthorizedDate()));
+
+
 
 
         return bbTransaction;
