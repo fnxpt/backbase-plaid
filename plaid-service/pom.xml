@@ -78,12 +78,6 @@
 
         <dependency>
             <groupId>com.backbase.stream</groupId>
-            <artifactId>mambu-bootstrap-task</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.backbase.stream</groupId>
             <artifactId>product-ingestion-saga</artifactId>
             <version>${stream.version}</version>
         </dependency>

@@ -26,7 +26,6 @@ public class TransactionMapper {
         this.transactionTypeMap = transactionConfigurationProperties.getTransactions().getTransactionTypeMap();
     }
 
-
     public TransactionItemPost map(TransactionsGetResponse.Transaction transaction) {
         // CreditDebitIndicator credit = new CreditDebitIndicator();
 
@@ -49,7 +48,6 @@ public class TransactionMapper {
         BigDecimal amount = BigDecimal.valueOf(transaction.getAmount());
         bbTransaction.setDescription(description);
 
-
         CreditDebitIndicator indicator;
         boolean amountIsNegative = amount.compareTo(BigDecimal.ZERO) < 0;
         if (amountIsNegative) {
@@ -62,7 +60,6 @@ public class TransactionMapper {
 
         bbTransaction.setCreditDebitIndicator(indicator);
 
-
         String transactionTypeGroup = getTransactionTypeGroup(transaction);
         String transactionType = getTransactionType(transaction);
 
@@ -72,32 +69,37 @@ public class TransactionMapper {
         bbTransaction.setCategory(transaction.getCategory().get(0));
         bbTransaction.setReference(transaction.getPaymentMeta().getReferenceNumber());
         // counter party data
-        String counterpartyName =transaction.getName();
-        if (transaction.getMerchantName()!=null){
-            counterpartyName=transaction.getMerchantName();
-        }else if (transaction.getPaymentMeta().getPayee()!= null){
-            counterpartyName=transaction.getPaymentMeta().getPayee();
+        String counterpartyName = transaction.getName();
+
+        if (transaction.getMerchantName() != null) {
+            counterpartyName = transaction.getMerchantName();
+        } else if (transaction.getPaymentMeta().getPayee() != null) {
+            counterpartyName = transaction.getPaymentMeta().getPayee();
         }
+
         bbTransaction.setCounterPartyName(counterpartyName);
         bbTransaction.setCounterPartyCity(transaction.getLocation().getCity());
         bbTransaction.setCounterPartyAddress(transaction.getLocation().getAddress());
         bbTransaction.setCounterPartyCountry(transaction.getLocation().getCountry());
         //sepa stuff, not relevant for this project, is a US bank
         // only European so is there any point (creator ID)
-        if (transaction.getPaymentMeta().getPaymentMethod() == "SEPA DD"){
+//        if (transaction.getPaymentMeta().getPaymentMethod() == "SEPA DD"){
+//
+//        }
 
-        }
+        String billingStatus;
 
         if (transaction.getPending())
-            bbTransaction.setBillingStatus("PENDING");
-        else if (transaction.getAuthorizedDate()==null)
-            bbTransaction.setBillingStatus("UNBILLED");
+            billingStatus = "PENDING";
+        else if (transaction.getAuthorizedDate() == null)
+            billingStatus = "UNBILLED";
         else
-            bbTransaction.setBillingStatus("BILLED");
-        if(transaction.getAuthorizedDate()!=null)
-          bbTransaction.setValueDate(LocalDate.parse(transaction.getAuthorizedDate()));
+            billingStatus = "BILLED";
 
+        bbTransaction.setBillingStatus(billingStatus);
 
+        if (transaction.getAuthorizedDate() != null)
+            bbTransaction.setValueDate(LocalDate.parse(transaction.getAuthorizedDate()));
 
 
         return bbTransaction;
@@ -113,7 +115,7 @@ public class TransactionMapper {
 
     private String getTransactionType(TransactionsGetResponse.Transaction transaction) {
         String type = transactionTypeMap.getOrDefault(transaction.getTransactionCode(), transaction.getTransactionCode());
-        if(type == null) {
+        if (type == null) {
             type = "Credit/Debit Card";
         }
 

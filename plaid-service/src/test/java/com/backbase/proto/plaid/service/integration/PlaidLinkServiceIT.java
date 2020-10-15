@@ -3,16 +3,12 @@ package com.backbase.proto.plaid.service.integration;
 import com.backbase.proto.plaid.PlaidApplication;
 import com.backbase.proto.plaid.service.PlaidLinkService;
 import com.backbase.proto.plaid.service.PlaidTransactionsService;
-import com.plaid.client.response.AccountsBalanceGetResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
-import reactor.tools.agent.ReactorDebugAgent;
 
 
 @RunWith(SpringRunner.class)
@@ -31,18 +27,9 @@ public class PlaidLinkServiceIT {
     @Autowired
     private PlaidTransactionsService plaidTransactionsService;
 
-    @Autowired
-    private MambuBootstrapConfiguration mambuBootstrapConfiguration;
-
     @Test
     public void testGetTransactions(){
         plaidTransactionsService.ingestTransactions("access-testing");
-    }
-    @Test
-    public void testMambuBootstrap() throws Exception {
-
-        ReactorDebugAgent.init();
-        mambuBootstrapConfiguration.execute();
     }
 
     @Test
