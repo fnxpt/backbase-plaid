@@ -4,9 +4,24 @@ eureka:
 
 logging:
   level:
-    root: info
+    root: debug
 
 spring:
+  h2:
+    console:
+      enabled: true
+    datasource:
+      url:
+      platform: h2
+      continue-on-error: true
+    jpa:
+      generate-ddl: false
+    liquibase:
+      enabled: true
+      change-log: classpath:db/changelog.yml
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-persistence.yaml
+    enabled: true
   security:
     oauth2:
       client:

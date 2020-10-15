@@ -60,6 +60,8 @@ public class PlaidTransactionsService {
     @SneakyThrows
     private void ingestTransactions(String accessToken, LocalDate startDate, LocalDate endDate, int batchSize, int offset) {
 
+
+
         TransactionsGetRequest transactionsGetRequest = new TransactionsGetRequest(
             accessToken,
             convertToDateViaInstant(startDate),
@@ -89,9 +91,10 @@ public class PlaidTransactionsService {
                 .block();
         }
         Integer totalTransactions = body.getTotalTransactions();
-        // loop over incrementing index by 100 (but what am I doing in the loop ?
 
-
+        if(totalTransactions > batchSize) {
+            ingestTransactions(accessToken, startDate,endDate, batchSize, offset+batchSize);
+        }
 
 
     }

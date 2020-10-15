@@ -52,10 +52,21 @@ spec:
             - name: SPRING_DATASOURCE_VALIDATIONQUERY
               value: SELECT 1
             - name: SPRING_LIQUIBASE_ENABLED
-              value: "false"
+              value: "true"
             - name: SPRING_AUTOCONFIGURE_EXCLUDE
               value: org.springframework.cloud.netflix.eureka.loadbalancer.LoadBalancerEurekaAutoConfiguration
             - name: spring.cloud.loadbalancer.ribbon.enabled
               value: "false"
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://proto.cdem7uw0kede.eu-central-1.rds.amazonaws.com/plaid?useSSL=false
+            - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+              value: com.mysql.jdbc.Driver
+            - name: SPRING_DATASOURCE_USERNAME
+              value: backbase
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key:
+                  name: backbase-env-mysql
             - name: JAVA_TOOL_OPTIONS
               value: "-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=n,quiet=y"

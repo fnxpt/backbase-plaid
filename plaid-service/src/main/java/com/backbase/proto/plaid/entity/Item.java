@@ -4,22 +4,29 @@ import com.backbase.proto.plaid.model.PlaidAccount;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
-import org.springframework.data.annotation.Id;
 
-@Table
+@Getter
+@Setter
+@Entity
+@Table(name = "item")
 public class Item {
 
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "item_id_generator")
     @GenericGenerator(
         name = "item_id_generator",
         strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
-        parameters = @Parameter(name = "sequence_name", value = "plaid_item_seq")
+        parameters = @Parameter(name = "sequence_name", value = "item_seq")
     )
     private Long id;
 
@@ -34,8 +41,5 @@ public class Item {
 
     @Column(name = "created_by")
     private String createdBy;
-
-
-    private List<Account> accounts;
 
 }
