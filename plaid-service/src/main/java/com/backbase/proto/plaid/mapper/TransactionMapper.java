@@ -32,8 +32,7 @@ public class TransactionMapper {
         String arrangementId = transaction.getAccountId();
 
         Currency transactionAmountCurrency = new Currency();
-        transactionAmountCurrency.setAmount(Double.toString(transaction.getAmount()));
-        transactionAmountCurrency.setCurrencyCode(transaction.getIsoCurrencyCode());
+
 
         TransactionItemPost bbTransaction = new TransactionItemPost();
         //set required data
@@ -41,7 +40,6 @@ public class TransactionMapper {
         bbTransaction.setExternalId(transaction.getTransactionId());
         bbTransaction.setBookingDate(LocalDate.parse(transaction.getDate()));
         bbTransaction.setCreditDebitIndicator(CreditDebitIndicator.CRDT);
-        bbTransaction.setTransactionAmountCurrency(transactionAmountCurrency);
 
         // name or reason??
         String description = (transaction.getName() == null) ? "" : transaction.getName();
@@ -57,6 +55,10 @@ public class TransactionMapper {
         } else {
             indicator = CreditDebitIndicator.CRDT;
         }
+        transactionAmountCurrency.setAmount(String.valueOf(amount));
+        transactionAmountCurrency.setCurrencyCode(transaction.getIsoCurrencyCode());
+        bbTransaction.setTransactionAmountCurrency(transactionAmountCurrency);
+
 
         bbTransaction.setCreditDebitIndicator(indicator);
 
@@ -97,6 +99,7 @@ public class TransactionMapper {
             billingStatus = "BILLED";
 
         bbTransaction.setBillingStatus(billingStatus);
+        log.info("Mapped Billing Status: {}", billingStatus);
 
         if (transaction.getAuthorizedDate() != null)
             bbTransaction.setValueDate(LocalDate.parse(transaction.getAuthorizedDate()));

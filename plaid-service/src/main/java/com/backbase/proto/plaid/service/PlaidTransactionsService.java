@@ -69,6 +69,11 @@ public class PlaidTransactionsService {
                     .collectList()
                     .block();
         }
+        Integer totalTransactions = body.getTotalTransactions();
+        // loop over incrementing index by 100 (but what am I doing in the loop ?
+
+
+
 
     }
 
