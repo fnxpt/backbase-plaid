@@ -308,7 +308,6 @@ bootstrap:
         referenceJobRoleNames:
           - "Entitlements - Manager"
           - "User Profile Manager"
-        isSuperStar: "true"
     subsidiaries:
       - name: "Mambu Bank"
         realmName: "backbase"

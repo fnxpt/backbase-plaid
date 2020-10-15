@@ -51,44 +51,26 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /transactions/get:
-    get:
-      summary: Get Transactions
-      operationId: getTransactions
-      description: Get List of transactions for user
+  /webhook:
+    post:
+      summary: Allow PLAID to push updates into DBS
+      operationId: processWebHook
       tags:
-        - plaid
-      parameters:
-        - in: query
-          name: client_id
-          schema:
-            type: string
-        - in: query
-          name: access_token
-          schema:
-            type: string
-        - in: query
-          name: secret
-          schema:
-            type: string
-        - in: query
-          name: start_date
-          schema:
-            type: string
-            format: date
-        - in: query
-          name: end_date
-          schema:
-            type: string
-            format: date
+        - webhook
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaidWebhook'
       responses:
-        '200':
-          description: list of transactions
+        '202':
+          description: "Accepted webhook"
+        default:
+          description: unexpected error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PlaidGetTransactionsResponse'
-
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     PlaidLinkRequest:
@@ -116,33 +98,6 @@ components:
           type: string
         metadata:
           $ref: '#/components/schemas/Metadata'
-    PlaidGetTransactionsRequest:
-      properties:
-        access_token:
-          type: string
-        start_date:
-          type: string
-          format: date
-        end_date:
-          type: string
-          format: date
-    PlaidGetTransactionsResponse:
-      type: object
-      properties:
-        accounts:
-          type: array
-          items:
-            $ref: '#/components/schemas/PlaidAccount'
-        transactions:
-          type: array
-          items:
-            $ref: '#/components/schemas/PlaidTransaction'
-        item:
-          $ref: '#/components/schemas/PlaidItem'
-        total_transactions:
-          type: integer
-        request_id:
-          type: string
     PlaidItem:
       type: object
       properties:
@@ -164,7 +119,33 @@ components:
           type: string
         webhook:
           type: string
-
+    PlaidWebhook:
+      type: object
+      properties:
+        webhook_type:
+          type: string
+          enum:
+            - TRANSACTIONS
+            - ITEM
+        webhook_code:
+          type: string
+          enum:
+            - INITIAL_UPDATE
+            - HISTORICAL_UPDATE
+            - DEFAULT_UPDATE
+            - TRANSACTIONS_REMOVED
+            - WEBHOOK_UPDATE_ACKNOWLEDGED
+            - ERROR
+        item_id:
+          type: string
+        error:
+          type: string
+        new_transactions:
+          type: integer
+        removed_transactions:
+          type: array
+          items:
+            type: string
     Metadata:
       type: object
       properties:
