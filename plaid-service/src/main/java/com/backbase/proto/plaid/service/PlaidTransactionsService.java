@@ -39,7 +39,6 @@ public class PlaidTransactionsService {
     private final TransactionMapper transactionMapper;
 
 
-
     public void ingestTransactions(String itemId) {
         LocalDate startDate = LocalDate.now().minusDays(30);
         LocalDate endDate = LocalDate.now();
@@ -53,13 +52,11 @@ public class PlaidTransactionsService {
     public void ingestTransactions(String accessToken, LocalDate startDate, LocalDate endDate) {
 
 
-
         this.ingestTransactions(accessToken, startDate, endDate, 100, 0);
     }
 
     @SneakyThrows
     private void ingestTransactions(String accessToken, LocalDate startDate, LocalDate endDate, int batchSize, int offset) {
-
 
 
         TransactionsGetRequest transactionsGetRequest = new TransactionsGetRequest(
@@ -92,8 +89,8 @@ public class PlaidTransactionsService {
         }
         Integer totalTransactions = body.getTotalTransactions();
 
-        if(totalTransactions > batchSize) {
-            ingestTransactions(accessToken, startDate,endDate, batchSize, offset+batchSize);
+        if (totalTransactions > batchSize) {
+            ingestTransactions(accessToken, startDate, endDate, batchSize, offset + batchSize);
         }
 
 

@@ -1,6 +1,5 @@
 package com.backbase.proto.plaid.converter;
 
-import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

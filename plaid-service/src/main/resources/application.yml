@@ -4,7 +4,8 @@ eureka:
 
 logging:
   level:
-    root: debug
+    root: info
+
 
 spring:
   h2:
@@ -38,6 +39,10 @@ spring:
     log-request-details: true
 
 backbase:
+  security:
+    public:
+      paths:
+        - /webhook/*
   stream:
     dbs:
       user-manager-base-url:
@@ -45,12 +50,6 @@ backbase:
       arrangement-manager-base-url:
       transaction-manager-base-url:
       limits-manager-base-url:
-  #  security:
-  #    public:
-  #      paths:
-  #        - /links
-  #        - /api/plaid-service/links
-
   plaid:
     client-name: "Backbase"
     client-id:
@@ -72,9 +71,6 @@ backbase:
         online: "Credit/Debit Card"
         in_store: "Credit/Debit Card"
         other: "Fee"
-
-
-
 
 management:
   endpoints:

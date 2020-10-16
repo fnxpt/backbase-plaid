@@ -6,7 +6,7 @@ eureka:
 
 logging:
   level:
-    root: info
+    root: debug
 #    root: warn
     com.backbase: debug
 #    org.springframework: warn

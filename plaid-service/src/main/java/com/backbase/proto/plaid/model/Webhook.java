@@ -1,10 +1,10 @@
-package com.backbase.proto.plaid.entity;
+package com.backbase.proto.plaid.model;
 
 import com.backbase.proto.plaid.converter.StringListConverter;
+import java.time.LocalDateTime;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Convert;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -13,7 +13,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
@@ -30,7 +29,7 @@ public class Webhook {
         ITEM
     }
 
-    public enum WebhookCode{
+    public enum WebhookCode {
         INITIAL_UPDATE,
         HISTORICAL_UPDATE,
         DEFAULT_UPDATE,
@@ -42,7 +41,7 @@ public class Webhook {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "webhook_id_generator")
     @GenericGenerator(
-        name = "webghoo_id_generator",
+        name = "webhook_id_generator",
         strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
         parameters = @Parameter(name = "sequence_name", value = "webhook_seq")
     )
@@ -69,6 +68,9 @@ public class Webhook {
     @Lob
     @Convert(converter = StringListConverter.class)
     private List<String> removedTransactions;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     @Column(name = "completed")
     private boolean completed;

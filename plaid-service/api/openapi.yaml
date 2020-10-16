@@ -12,7 +12,7 @@ paths:
       summary: Request plaid link
       operationId: requestPlaidLink
       tags:
-        - plaid
+        - link
       requestBody:
         content:
           application/json:
@@ -36,7 +36,7 @@ paths:
       summary: Set Public Access Token
       operationId: setPublicAccessToken
       tags:
-        - plaid
+        - link
       requestBody:
         content:
           application/json:
@@ -51,10 +51,17 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /webhook:
+  /webhook/{itemId}:
     post:
       summary: Allow PLAID to push updates into DBS
       operationId: processWebHook
+      parameters:
+        - name: itemId
+          description: The plaid item id to apply the webhook to
+          in: path
+          required: true
+          schema:
+            type: string
       tags:
         - webhook
       requestBody:

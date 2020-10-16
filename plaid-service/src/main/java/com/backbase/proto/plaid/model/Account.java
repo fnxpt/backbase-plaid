@@ -1,13 +1,11 @@
-package com.backbase.proto.plaid.entity;
+package com.backbase.proto.plaid.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
@@ -29,10 +27,10 @@ public class Account {
     )
     private Long id;
 
-    @Column(name ="item_id")
+    @Column(name = "item_id")
     private String itemId;
 
-    @Column(name ="account_id")
+    @Column(name = "account_id")
     private String accountId;
 
     @Column(name = "mask")
@@ -48,5 +46,9 @@ public class Account {
     private String type;
 
 
+    public Account withItemId(String itemId) {
+        this.itemId = itemId;
+        return this;
+    }
 
 }

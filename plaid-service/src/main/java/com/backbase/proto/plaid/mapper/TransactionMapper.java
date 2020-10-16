@@ -5,12 +5,11 @@ import com.backbase.dbs.transaction.presentation.service.model.Currency;
 import com.backbase.dbs.transaction.presentation.service.model.TransactionItemPost;
 import com.backbase.proto.plaid.configuration.PlaidConfigurationProperties;
 import com.plaid.client.response.TransactionsGetResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component

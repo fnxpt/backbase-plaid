@@ -1,8 +1,6 @@
-package com.backbase.proto.plaid.entity;
+package com.backbase.proto.plaid.model;
 
-import com.backbase.proto.plaid.model.PlaidAccount;
 import java.time.LocalDateTime;
-import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -41,5 +39,8 @@ public class Item {
 
     @Column(name = "created_by")
     private String createdBy;
+
+    @Column(name = "institution_id")
+    private String institutionId;
 
 }

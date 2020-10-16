@@ -1,29 +1,25 @@
 package com.backbase.proto.plaid.controller;
 
-import com.backbase.proto.plaid.api.PlaidApi;
-import com.backbase.proto.plaid.model.*;
+import com.backbase.proto.plaid.api.LinkApi;
+import com.backbase.proto.plaid.model.PlaidLinkRequest;
+import com.backbase.proto.plaid.model.PlaidLinkResponse;
+import com.backbase.proto.plaid.model.SetAccessTokenRequest;
 import com.backbase.proto.plaid.service.PlaidLinkService;
+import java.time.LocalDate;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
-
 @RestController
 @Slf4j
-public class PlaidController implements PlaidApi {
+public class LinkController implements LinkApi {
 
     private final PlaidLinkService plaidLinkService;
 
-    public PlaidController(PlaidLinkService plaidLinkService) {
+    public LinkController(PlaidLinkService plaidLinkService) {
         this.plaidLinkService = plaidLinkService;
         log.info("Plaid Controller created");
-    }
-
-    @Override
-    public ResponseEntity<PlaidGetTransactionsResponse> getTransactions(@Valid String clientId, @Valid String accessToken, @Valid String secret, @Valid LocalDate startDate, @Valid LocalDate endDate) {
-        return null;
     }
 
     @Override
@@ -39,7 +35,6 @@ public class PlaidController implements PlaidApi {
         plaidLinkService.setPublicAccessToken(setAccessTokenRequest);
         return ResponseEntity.accepted().build();
     }
-
 
 
 }
