@@ -11,16 +11,22 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.NullValueMappingStrategy;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper
+import static com.backbase.proto.plaid.utils.ProductTypeUtils.mapSubTypeId;
+
+@Mapper(unmappedTargetPolicy = ReportingPolicy.ERROR,
+    nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
+    nullValueMappingStrategy = NullValueMappingStrategy.RETURN_NULL)
 public interface AccountMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "itemId", ignore = true)
-    Account mapToDomain(com.plaid.client.response.Account source);
-
+    Account mapToDomain(com.plaid.client.response.Account source, String itemId);
 
     default Product mapToStream(String accessToken, ItemStatus item, Institution institution, com.plaid.client.response.Account account) {
         Map<String, Object> additions = new HashMap<>();
@@ -62,12 +68,6 @@ public interface AccountMapper {
         return product;
     }
 
-    default String mapSubTypeId(String subtype) {
-        return "external-" + subtype.replace(" ", "-");
-    }
 
-    default String mapProductType(String type, String s) {
-        return s + type;
-    }
 
 }

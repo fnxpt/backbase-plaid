@@ -18,6 +18,7 @@ databaseChangeLog:
                   type: VARCHAR(64)
                   constraints:
                     nullable: false
+                    unique: true
               - column:
                   name: access_token
                   type: VARCHAR(128)
@@ -53,6 +54,7 @@ databaseChangeLog:
                   type: VARCHAR(128)
                   constraints:
                     nullable: false
+                    unique: true
               - column:
                   name: mask
                   type: VARCHAR(128)
@@ -135,6 +137,7 @@ databaseChangeLog:
                   type: VARCHAR(64)
                   constraints:
                     nullable: false
+                    unique: true
               - column:
                   name: name
                   type: VARCHAR(256)

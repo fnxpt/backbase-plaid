@@ -40,10 +40,4 @@ public class Account {
     @Column(name = "type")
     private String type;
 
-
-    public Account withItemId(String itemId) {
-        this.itemId = itemId;
-        return this;
-    }
-
 }

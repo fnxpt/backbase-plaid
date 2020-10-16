@@ -39,6 +39,9 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
 
+import static com.backbase.proto.plaid.utils.ProductTypeUtils.mapProductType;
+import static com.backbase.proto.plaid.utils.ProductTypeUtils.mapSubTypeId;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -79,9 +82,14 @@ public class AccountService {
 
         setupProductCatalog(accounts);
 
-        accountRepository.saveAll(accounts.stream()
-            .map(account -> accountMapper.mapToDomain(account).withItemId(plaidAccounts.getItem().getItemId()))
-            .collect(Collectors.toList()));
+        accounts.forEach(account -> {
+            if(!accountRepository.existsByAccountId(account.getAccountId())) {
+                log.info("Saving account: {}", account.getName());
+                accountRepository.save(accountMapper.mapToDomain(account, plaidAccounts.getItem().getItemId()));
+            } else {
+                log.info("Account: {} already exists", account.getName());
+            }
+        });
 
         ItemStatus itemStatus = plaidAccounts.getItem();
         String institutionId = itemStatus.getInstitutionId();
@@ -131,7 +139,7 @@ public class AccountService {
         plaidAccounts.stream()
             .collect(Collectors.groupingBy(Account::getType))
             .forEach((type, accounts) -> {
-                String kindId = accountMapper.mapProductType(type, "external-");
+                String kindId = mapProductType(type, "external-");
                 ProductKind productKindsItem = new ProductKind()
                     .externalKindId(kindId)
                     .kindUri(kindId)
@@ -140,7 +148,7 @@ public class AccountService {
                 productCatalog.getProductTypes().addAll((accounts.stream()
                     .map(Account::getSubtype).collect(Collectors.toSet())
                     .stream().map(subtype -> {
-                        String productTypeId = accountMapper.mapSubTypeId(subtype);
+                        String productTypeId = mapSubTypeId(subtype);
                         return new ProductType()
                             .externalId(productTypeId)
                             .externalProductId(productTypeId)
@@ -149,9 +157,9 @@ public class AccountService {
                     })
                     .collect(Collectors.toList())));
             });
-        log.info("Setting up Product Catalog with: {}", productCatalog);
+//        log.info("Setting up Product Catalog with: {}", productCatalog);
         ProductCatalog productCatalog1 = productCatalogService.setupProductCatalog(productCatalog);
-        log.info("Finished setting up Product Catalog: {}", productCatalog);
+//        log.info("Finished setting up Product Catalog: {}", productCatalog);
     }
 
 

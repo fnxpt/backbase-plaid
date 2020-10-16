@@ -8,5 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ItemRepository extends CrudRepository<Item, Long> {
 
+    boolean existsByItemId(String itemId);
+
     Optional<Item> findByItemId(String itemId);
 }

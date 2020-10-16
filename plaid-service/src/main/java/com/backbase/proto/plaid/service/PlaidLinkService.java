@@ -89,21 +89,25 @@ public class PlaidLinkService {
         String userId = getLoggedInUserId(internalJwt);
         String legalEntityId = getLoggedInLegalEntityInternal(internalJwt);
 
-        itemRepository.findByItemId(accessToken.getItemId())
-            .orElseGet(() -> createItem(accessToken, userId));
+        String itemId = accessToken.getItemId();
+        if(!itemRepository.existsByItemId(itemId)) {
+            log.info("Saving item: {}", itemId);
+            createItem(accessToken, userId);
+        } else {
+            log.info("Item already exists: {}", itemId);
+        }
 
         accountService.ingestPlaidAccounts(accessToken.getAccessToken(), userId, legalEntityId);
-        webhookService.setupWebhook(accessToken.getAccessToken(), accessToken.getItemId());
+        webhookService.setupWebhook(accessToken.getAccessToken(), itemId);
 
         setupWebHook(accessToken);
     }
 
-    @NotNull
-    private Item createItem(ItemPublicTokenExchangeResponse accessToken, String userId) {
+    private void createItem(ItemPublicTokenExchangeResponse accessToken, String userId) {
         Item newItem = itemMapper.map(accessToken);
         newItem.setCreatedAt(LocalDateTime.now());
         newItem.setCreatedBy(userId);
-        return itemRepository.save(newItem);
+        itemRepository.save(newItem);
     }
 
     private void setupWebHook(ItemPublicTokenExchangeResponse accessToken) {
