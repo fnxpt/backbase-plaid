@@ -19,13 +19,8 @@ import org.hibernate.annotations.Parameter;
 public class Item {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "item_id_generator")
-    @GenericGenerator(
-        name = "item_id_generator",
-        strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
-        parameters = @Parameter(name = "sequence_name", value = "item_seq")
-    )
     private Long id;
 
     @Column(name = "item_id")

@@ -3,25 +3,13 @@ databaseChangeLog:
       id: create-table
       author: lesley.knope
       changes:
-        - createSequence:
-            sequenceName: item_seq
-            startValue: 1
-            incrementBy: 1
-        - createSequence:
-            sequenceName: account_seq
-            startValue: 1
-            incrementBy: 1
-        - createSequence:
-            sequenceName: webhook_seq
-            startValue: 1
-            incrementBy: 1
         - createTable:
             tableName: item
             columns:
               - column:
                   name: id
                   type: BIGINT
-                  autoIncrement: ${autoIncrement}
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
                     primaryKeyName: pk_item
@@ -51,7 +39,7 @@ databaseChangeLog:
               - column:
                   name: id
                   type: BIGINT
-                  autoIncrement: ${autoIncrement}
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
                     primaryKeyName: pk_account
@@ -91,22 +79,22 @@ databaseChangeLog:
               - column:
                   name: id
                   type: BIGINT
-                  autoIncrement: ${autoIncrement}
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
                     primaryKeyName: pk_webhook
               - column:
-                  name: webhookType
+                  name: webhook_type
                   type: VARCHAR(32)
                   constraints:
                     nullable: false
               - column:
-                  name: webhookCode
+                  name: webhook_code
                   type: VARCHAR(32)
                   constraints:
                     nullable: false
               - column:
-                  name: itemId
+                  name: item_id
                   type: VARCHAR(128)
                   constraints:
                     nullable: false
@@ -114,10 +102,10 @@ databaseChangeLog:
                   name: error
                   type: VARCHAR(256)
               - column:
-                  name: newTransactions
+                  name: new_transactions
                   type: INT
               - column:
-                  name: removedTransactions
+                  name: removed_transactions
                   type: NCLOB
               - column:
                   name: createdAt
@@ -132,17 +120,13 @@ databaseChangeLog:
       id: create-institution-table
       author: lesley.knope
       changes:
-        - createSequence:
-            sequenceName: institution_seq
-            startValue: 1
-            incrementBy: 1
         - createTable:
             tableName: institution
             columns:
               - column:
                   name: id
                   type: BIGINT
-                  autoIncrement: ${autoIncrement}
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
                     primaryKeyName: pk_institution
@@ -159,16 +143,12 @@ databaseChangeLog:
               - column:
                   name: url
                   type: VARCHAR(512)
-                  constraints:
-                    nullable: false
               - column:
                   name: logo
                   type: VARCHAR(512)
               - column:
-                  name: primaryColor
+                  name: primary_color
                   type: VARCHAR(32)
-                  constraints:
-                    nullable: false
               - column:
                   name: first_created_at
                   type: DATETIME
@@ -192,11 +172,3 @@ databaseChangeLog:
               - column:
                   name: institution_id
                   type: VARCHAR(64)
-  - property:
-      name: autoIncrement
-      value: true
-      dbms: "mysql"
-  - property:
-      name: autoIncrement
-      value: false
-      dbms: "!mysql"

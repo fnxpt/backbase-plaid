@@ -85,7 +85,7 @@ public class AccountService {
 
         ItemStatus itemStatus = plaidAccounts.getItem();
         String institutionId = itemStatus.getInstitutionId();
-        Institution institution = institutionService.getInstitution(institutionId);
+        Institution institution = institutionService.getInstitution(institutionId, userId);
 
         LegalEntity legalEntityByInternalId = legalEntityService.getLegalEntityByInternalId(legalEntityId)
             .blockOptional()

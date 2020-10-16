@@ -8,6 +8,7 @@ import com.plaid.client.PlaidClient;
 import com.plaid.client.request.InstitutionsGetByIdRequest;
 import com.plaid.client.response.InstitutionsGetByIdResponse;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -25,16 +26,14 @@ public class InstitutionService {
 
     private final PlaidClient plaidClient;
 
-    public Institution register(Institution institution) {
-        return getInstitution(institution.getInstitutionId());
-    }
-
-    public Institution getInstitution(String institutionId) {
+    public Institution getInstitution(String institutionId, String userId) {
         return institutionRepository.getByInstitutionId(institutionId)
             .orElseGet(() -> {
                 InstitutionsGetByIdResponse institutionsGetResponse = null;
                 institutionsGetResponse = requestInstitution(institutionId);
                 Institution institution = institutionMapper.map(institutionsGetResponse.getInstitution());
+                institution.setFirstCreatedBy(userId);
+                institution.setFirstRegisteredAt(LocalDateTime.now());
                 return institutionRepository.save(institution);
             });
     }

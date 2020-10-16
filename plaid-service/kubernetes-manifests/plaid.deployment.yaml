@@ -63,6 +63,8 @@ spec:
               value: com.mysql.jdbc.Driver
             - name: SPRING_DATASOURCE_USERNAME
               value: backbase
+            - name: SPRING_DATASOURCE_PLATFORM
+              value: mysql
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
