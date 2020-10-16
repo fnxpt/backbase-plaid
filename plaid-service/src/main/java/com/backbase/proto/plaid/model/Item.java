@@ -31,7 +31,7 @@ public class Item {
     @Column(name = "item_id")
     private String itemId;
 
-    @Column(name = "access_tokne")
+    @Column(name = "access_token")
     private String accessToken;
 
     @Column(name = "created_at")

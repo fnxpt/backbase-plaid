@@ -182,6 +182,16 @@ databaseChangeLog:
               - column:
                   name: routing_numbers
                   type: NCLOB
+  - changeSet:
+      id: add-instition-column
+      author: lesley.knope
+      changes:
+        - addColumn:
+            tableName: item
+            columns:
+              - column:
+                  name: institution_id
+                  type: VARCHAR(64)
   - property:
       name: autoIncrement
       value: true

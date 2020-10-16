@@ -6,13 +6,26 @@ eureka:
 
 logging:
   level:
-    root: debug
-#    root: warn
+    io.netty.util: info
+    root: info
     com.backbase: debug
 #    org.springframework: warn
-#    io.netty: trace
+#    org.hibernate: debug
 
 spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+  h2:
+    console:
+      enabled: true
+  datasource:
+    url:
+    platform: h2
+    continue-on-error: false
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-persistence.yaml
+    enabled: true
   security:
     oauth2:
       client:
