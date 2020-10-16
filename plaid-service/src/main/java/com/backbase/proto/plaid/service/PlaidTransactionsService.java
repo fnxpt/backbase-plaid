@@ -37,7 +37,7 @@ public class PlaidTransactionsService {
     private final PlaidClient plaidClient;
     private final TransactionService transactionService;
     private final TransactionMapper transactionMapper;
-
+    static int testCount= 0;
 
 
     public void ingestTransactions(String itemId) {
@@ -62,10 +62,11 @@ public class PlaidTransactionsService {
 
 
 
+
         TransactionsGetRequest transactionsGetRequest = new TransactionsGetRequest(
             accessToken,
             convertToDateViaInstant(startDate),
-            convertToDateViaInstant(endDate));
+            convertToDateViaInstant(endDate)).withOffset(offset);
 
         TransactionsGetRequest.Options options = new TransactionsGetRequest.Options();
         options.count = batchSize;
@@ -79,23 +80,30 @@ public class PlaidTransactionsService {
         //POST https://host:port/transaction-manager/service-api/v2/transactions
         TransactionsGetResponse body = response.body();
         log.info("response: {}", body);
-        // transactionService.processTransactions(response.body().getTransactions());
         //convert transactions from plaid into transactions dbs
+
+        // everytime called its set to null no the total tranactions in the list will always be less then all the transaction wanted
 
         List<TransactionItemPost> transactionItemPosts = null;
         if (body != null) {
+            // populates list with response
             transactionItemPosts = body.getTransactions().stream().map(transactionMapper::map).collect(Collectors.toList());
+            //processes list to Backbase
             transactionService.processTransactions(Flux.fromIterable(transactionItemPosts))
                 .doOnNext(transactionIds -> log.info("Ingested transactionIds: {}", transactionIds))
                 .collectList()
                 .block();
         }
-        Integer totalTransactions = body.getTotalTransactions();
-
-        if(totalTransactions > batchSize) {
-            ingestTransactions(accessToken, startDate,endDate, batchSize, offset+batchSize);
+        Integer totalTransactionsRequested = body.getTotalTransactions();
+        Integer totalTransactionRetrieved = transactionItemPosts.size();
+        // if there are too many left to retrieve get the next batch
+        if(batchSize < (totalTransactionsRequested-offset) ) {
+            ingestTransactions(accessToken, startDate,endDate, batchSize, offset+totalTransactionRetrieved);
         }
-
+        log.info("number of items retrieved: {}", offset+totalTransactionRetrieved);
+        log.info("number of items expected: {}", totalTransactionsRequested);
+        log.info("number of times looped: {}", testCount++);
+        log.info("number retrieved this time : {}", totalTransactionRetrieved);
 
     }
 

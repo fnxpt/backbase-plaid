@@ -39,7 +39,6 @@ public class TransactionMapper {
         bbTransaction.setExternalArrangementId(arrangementId);
         bbTransaction.setExternalId(transaction.getTransactionId());
         bbTransaction.setBookingDate(LocalDate.parse(transaction.getDate()));
-        bbTransaction.setCreditDebitIndicator(CreditDebitIndicator.CRDT);
 
         // name or reason??
         String description = (transaction.getName() == null) ? "" : transaction.getName();
@@ -50,10 +49,10 @@ public class TransactionMapper {
         boolean amountIsNegative = amount.compareTo(BigDecimal.ZERO) < 0;
         if (amountIsNegative) {
             log.info("Amount: {} is negative", amount);
-            indicator = CreditDebitIndicator.DBIT;
+            indicator = CreditDebitIndicator.CRDT;
             amount = amount.negate();
         } else {
-            indicator = CreditDebitIndicator.CRDT;
+            indicator = CreditDebitIndicator.DBIT;
         }
         transactionAmountCurrency.setAmount(String.valueOf(amount));
         transactionAmountCurrency.setCurrencyCode(transaction.getIsoCurrencyCode());

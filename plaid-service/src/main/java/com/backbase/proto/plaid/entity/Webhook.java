@@ -42,7 +42,7 @@ public class Webhook {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "webhook_id_generator")
     @GenericGenerator(
-        name = "webghoo_id_generator",
+        name = "webhook_id_generator",
         strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
         parameters = @Parameter(name = "sequence_name", value = "webhook_seq")
     )
