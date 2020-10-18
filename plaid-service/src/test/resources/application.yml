@@ -2,8 +2,6 @@ eureka:
   client:
     enabled: false
 
-
-
 logging:
   level:
     io.netty.util: info
@@ -16,13 +14,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-  h2:
-    console:
-      enabled: true
+
   datasource:
     url:
-    platform: h2
-    continue-on-error: false
+    username:
+    password:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-persistence.yaml
     enabled: true
@@ -51,7 +47,6 @@ spring:
   batch:
     job:
       enabled: false
-
   zipkin:
     enabled: false
 
@@ -69,15 +64,16 @@ backbase:
     client-name: "Backbase"
     client-id:
     secret:
-    env: development
+    env: sandbox
+    webhook-base-url:
+    default-reference-job-role-names:
+      - "Retail User - EU"
     country-codes:
       - NL
       - CA
     products:
       - auth
       - transactions
-    default-reference-job-role-names:
-      - "Retail User - EU"
     transactions:
       # Payment,Withdrawal,Loans,Fees
       transactionTypeGroupMap:
@@ -105,161 +101,6 @@ backbase:
             - (?<=Transactie:\s)(.*?)[?:\s]
           bookingDate:
             - (?<=Valutadatum:\s)(.*?)[?:\s]
-
-
-bootstrap:
-  ingest-mambu-clients: true
-  parent-legal-entity-external-id: mambu-bank
-  default-loan-currency: EUR
-  mambu-branch-id: "dope"
-  default-reference-job-role-names:
-    - "Retail User - EU"
-  legal-entity:
-    name: "Backbase Root Bank"
-    realmName: "backbase"
-    externalId: "backbase"
-    legalEntityType: "BANK"
-    referenceJobRoles:
-      - name: User Profile Manager
-        description: "User Profile administration"
-        functionGroups:
-          - name: "User Profiles"
-            functions:
-              - functionId: "1035"
-                functionCode: "manage.user.profiles"
-                resourceName: "User Profiles"
-                resourceCode: "user.profiles"
-                privileges:
-                  - privilege: "view"
-                  - privilege: "edit"
-      - name: Entitlements - Manager
-        description: Full Entitlements administration.
-        functionGroups:
-          - name: "Manage Entitlements"
-            functions:
-              - functionId: "1019"
-                functionCode: "manage.data.groups"
-                privileges:
-                  - privilege: "view"
-                  - privilege: "create"
-                  - privilege: "edit"
-                  - privilege: "delete"
-                  - privilege: "approve"
-              - functionId: "1020"
-                functionCode: "manage.function.groups"
-                privileges:
-                  - privilege: "view"
-                  - privilege: "create"
-                  - privilege: "edit"
-                  - privilege: "delete"
-                  - privilege: "approve"
-      - name: Retail User - USA
-        description: Retail User Permissions for USA
-        functionGroups:
-          - name: "Products, Payments, Transactions, Contacts"
-            functions:
-              - functionId: "1006"
-                functionCode: "product.summary"
-                privileges:
-                  - privilege: "view"
-              - functionId: "1003"
-                functionCode: "transactions"
-                privileges:
-                  - privilege: "view"
-                  - privilege: "edit"
-              - functionId: "1017"
-                functionCode: "us.domestic.wire"
-                privileges:
-                  - privilege: "view"
-                  - privilege: "create"
-              - functionId: "1018"
-                functionCode: "us.foreign.wire"
-                privileges:
-                  - privilege: "view"
-                  - privilege: "create"
-              - functionId: "1005"
-                functionCode: "contacts"
-                privileges:
-                  - privilege: "view"
-                  - privilege: "create"
-                  - privilege: "edit"
-                  - privilege: "delete"
-      - name: Retail User - EU
-        description: Retail User Permissions for EU
-        functionGroups:
-          - name: "Products, Payments, Transactions, Contacts, Messages"
-            functions:
-              - functionId: "1006"
-                functionCode: "product.summary"
-                privileges:
-                  - privilege: "view"
-              - functionId: "1003"
-                functionCode: "transactions"
-                privileges:
-                  - privilege: "view"
-                  - privilege: "edit"
-              - functionId: "1002"
-                functionCode: "payments.sepa"
-                privileges:
-                  - privilege: "view"
-                  - privilege: "create"
-              - functionId: "1043"
-                functionCode: "sepa.credit.transfer.intc"
-                privileges:
-                  - privilege: "view"
-                  - privilege: "create"
-              - functionId: "1005"
-                functionCode: "contacts"
-                privileges:
-                  - privilege: "view"
-                  - privilege: "create"
-                  - privilege: "edit"
-                  - privilege: "delete"
-              - functionId: "1038"
-                functionCode: "manage.messages"
-                privileges:
-                  - privilege: "view"
-                  - privilege: "create"
-                  - privilege: "edit"
-                  - privilege: "delete"
-              - functionId: "1016"
-                functionCode: "manage.statements"
-                privileges:
-                  - privilege: "view"
-              - functionId: "1030"
-                functionCode: "manage.notifications"
-                privileges:
-                  - privilege: "approve"
-                  - privilege: "edit"
-                  - privilege: "view"
-                  - privilege: "create"
-                  - privilege: "delete"
-    administrators:
-      - externalId: "admin"
-        fullName: "Backbase Root Admin"
-        identityLinkStrategy: "CREATE_IN_IDENTITY"
-        emailAddress:
-          address: "admin@backbase.com"
-        mobileNumber:
-          number: "0643379539"
-    users:
-      - user:
-          externalId: "admin"
-          fullName: "Backbase Root Admin"
-          identityLinkStrategy: "CREATE_IN_IDENTITY"
-          emailAddress:
-            address: "admin@backbase.com"
-          mobileNumber:
-            number: "0643379539"
-        referenceJobRoleNames:
-          - "Entitlements - Manager"
-          - "User Profile Manager"
-    subsidiaries:
-      - name: "Mambu Bank"
-        realmName: "backbase"
-        externalId: "mambu-bank"
-  ingest-product-catalog: false
-  ingest-mambu-transactions: true
 management:
   endpoints:
     web:

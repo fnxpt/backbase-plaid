@@ -6,17 +6,18 @@ logging:
   level:
     root: info
 
-
 spring:
   jpa:
     hibernate:
       ddl-auto: none
+
+  datasource:
+    url:
+    username:
+    password:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-persistence.yaml
-#  datasource:
-#    url:
-#    username:
-#    password:
+    enabled: true
   security:
     oauth2:
       client:
@@ -29,14 +30,15 @@ spring:
         provider:
           dbs:
             token-uri:
-  mvc:
-    log-request-details: true
 
 backbase:
   security:
     public:
       paths:
         - /webhook/*
+        - /webhook/*/refresh-transactions
+    csrf:
+      enabled: false
   stream:
     dbs:
       user-manager-base-url:
@@ -49,7 +51,7 @@ backbase:
     client-name: "Backbase"
     client-id:
     secret:
-    env: development
+    env: sandbox
     webhook-base-url:
     default-reference-job-role-names:
       - "Retail User - EU"
@@ -60,20 +62,23 @@ backbase:
       - auth
       - transactions
     transactions:
+      # Payment,Withdrawal,Loans,Fees
       transactionTypeGroupMap:
-        online: "Payment"
-        in_store: "Payment"
+        online: "Withdrawal"
+        store: "Withdrawal"
+        "in store": "Withdrawal"
         other: "Fees"
+      # ATM, ACH, Bill Payment, Cash, Cheques, Credit/Debit Card, Check, Deposit, Fee, POS, Withdrawal
       transactionTypeMap:
         online: "Credit/Debit Card"
-        in_store: "Credit/Debit Card"
+        store: "Credit/Debit Card"
         other: "Fee"
       description-parser-for-institution:
         ins_120509:
           counter-party-name:
             - .+?(?=Pasvolgnr:)
           counter-party-bban:
-            - .+?(?=IBAN:)
+            - (?<=IBAN:\s)(.*?)[?:\s]
           description:
             - .+?(?=Pasvolgnr:)
             - .*

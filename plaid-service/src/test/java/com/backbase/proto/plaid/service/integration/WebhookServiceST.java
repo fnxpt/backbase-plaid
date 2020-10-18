@@ -1,9 +1,7 @@
 package com.backbase.proto.plaid.service.integration;
 
 import com.backbase.proto.plaid.PlaidApplication;
-import com.backbase.proto.plaid.model.PlaidWebhook;
 import com.backbase.proto.plaid.service.WebhookService;
-import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,44 +25,51 @@ public class WebhookServiceST {
     private WebhookService webhookService;
 
     @Test
-    public void testInitialUpdate() {
-        PlaidWebhook plaidWebhook = new PlaidWebhook()
-            .webhookType(PlaidWebhook.WebhookTypeEnum.TRANSACTIONS)
-            .webhookCode(PlaidWebhook.WebhookCodeEnum.INITIAL_UPDATE)
-            .itemId("***REMOVED***")
-            .newTransactions(393);
-        webhookService.process(plaidWebhook);
+    public void testWebhookRefresh() {
+        webhookService.refresh("***REMOVED***");
+//        webhookService.refresh("***REMOVED***");
     }
 
-    @Test
-    public void testDefault() {
-        PlaidWebhook plaidWebhook = new PlaidWebhook()
-            .webhookType(PlaidWebhook.WebhookTypeEnum.TRANSACTIONS)
-            .webhookCode(PlaidWebhook.WebhookCodeEnum.DEFAULT_UPDATE)
-            .itemId("***REMOVED***")
-            .newTransactions(393);
-        webhookService.process(plaidWebhook);
-    }
 
-    @Test
-    public void testHistoricalUpdate() {
-        PlaidWebhook plaidWebhook = new PlaidWebhook()
-            .webhookType(PlaidWebhook.WebhookTypeEnum.TRANSACTIONS)
-            .webhookCode(PlaidWebhook.WebhookCodeEnum.HISTORICAL_UPDATE)
-            .itemId("***REMOVED***")
-            .newTransactions(393);
-        webhookService.process(plaidWebhook);
-    }
-
-    @Test
-    public void testRemovedTransactions() {
-        PlaidWebhook plaidWebhook = new PlaidWebhook()
-            .webhookType(PlaidWebhook.WebhookTypeEnum.TRANSACTIONS)
-            .webhookCode(PlaidWebhook.WebhookCodeEnum.TRANSACTIONS_REMOVED)
-            .itemId("***REMOVED***")
-            .removedTransactions(Arrays.asList("transaction1","transaction2"));
-        webhookService.process(plaidWebhook);
-    }
+//    @Test
+//    public void testInitialUpdate() {
+//        PlaidWebhook plaidWebhook = new PlaidWebhook()
+//            .webhookType(PlaidWebhook.WebhookTypeEnum.TRANSACTIONS)
+//            .webhookCode(PlaidWebhook.WebhookCodeEnum.INITIAL_UPDATE)
+//            .itemId("***REMOVED***")
+//            .newTransactions(393);
+//        webhookService.process(plaidWebhook);
+//    }
+//
+//    @Test
+//    public void testDefault() {
+//        PlaidWebhook plaidWebhook = new PlaidWebhook()
+//            .webhookType(PlaidWebhook.WebhookTypeEnum.TRANSACTIONS)
+//            .webhookCode(PlaidWebhook.WebhookCodeEnum.DEFAULT_UPDATE)
+//            .itemId("***REMOVED***")
+//            .newTransactions(393);
+//        webhookService.process(plaidWebhook);
+//    }
+//
+//    @Test
+//    public void testHistoricalUpdate() {
+//        PlaidWebhook plaidWebhook = new PlaidWebhook()
+//            .webhookType(PlaidWebhook.WebhookTypeEnum.TRANSACTIONS)
+//            .webhookCode(PlaidWebhook.WebhookCodeEnum.HISTORICAL_UPDATE)
+//            .itemId("***REMOVED***")
+//            .newTransactions(393);
+//        webhookService.process(plaidWebhook);
+//    }
+//
+//    @Test
+//    public void testRemovedTransactions() {
+//        PlaidWebhook plaidWebhook = new PlaidWebhook()
+//            .webhookType(PlaidWebhook.WebhookTypeEnum.TRANSACTIONS)
+//            .webhookCode(PlaidWebhook.WebhookCodeEnum.TRANSACTIONS_REMOVED)
+//            .itemId("***REMOVED***")
+//            .removedTransactions(Arrays.asList("transaction1","transaction2"));
+//        webhookService.process(plaidWebhook);
+//    }
 
 
 }

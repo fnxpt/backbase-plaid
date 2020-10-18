@@ -7,7 +7,7 @@ import org.mapstruct.Mapping;
 
 @Mapper
 public interface WebhookMapper {
-
+//
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "completed", ignore = true)

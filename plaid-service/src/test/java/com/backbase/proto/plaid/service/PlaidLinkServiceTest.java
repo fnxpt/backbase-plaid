@@ -34,7 +34,7 @@ public class PlaidLinkServiceTest {
 
         PlaidClient plaidClient = plaidConfiguration.plaidClient(plaidConfigurationProperties);
 
-        PlaidLinkService plaidLinkService = new PlaidLinkService(plaidClient, plaidConfigurationProperties, null,null,null,null);
+        PlaidLinkService plaidLinkService = new PlaidLinkService(plaidClient, plaidConfigurationProperties, null,null,null,null,null);
 
        //plaidLinkService.createPlaidLink(new PlaidLinkRequest().language("en"));
     }

@@ -51,6 +51,28 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /item/{itemId}:
+    delete:
+      tags:
+        - item
+      summary: "Delete item"
+      operationId: "deleteItem"
+      parameters:
+        - name: itemId
+          description: The plaid item id to delete
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: "Deleted item complete"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /webhook/{itemId}:
     post:
       summary: Allow PLAID to push updates into DBS
@@ -69,6 +91,37 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PlaidWebhook'
+      responses:
+        '202':
+          description: "Accepted webhook"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /webhook/{itemId}/refresh-transactions:
+    post:
+      summary: Force refresh of transactions for item
+      operationId: refreshTransactions
+      parameters:
+        - name: itemId
+          description: The plaid item id to refresh
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - webhook
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                all:
+                  type: boolean
+                  default: true
       responses:
         '202':
           description: "Accepted webhook"

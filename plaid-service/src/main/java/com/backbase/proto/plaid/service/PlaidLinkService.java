@@ -10,6 +10,7 @@ import com.backbase.proto.plaid.model.PlaidLinkRequest;
 import com.backbase.proto.plaid.model.PlaidLinkResponse;
 import com.backbase.proto.plaid.model.SetAccessTokenRequest;
 import com.backbase.proto.plaid.repository.ItemRepository;
+import com.backbase.stream.TransactionService;
 import com.backbase.stream.configuration.AccessControlConfiguration;
 import com.backbase.stream.product.ProductIngestionSagaConfiguration;
 import com.backbase.stream.productcatalog.configuration.ProductCatalogServiceConfiguration;
@@ -21,6 +22,8 @@ import com.plaid.client.response.LinkTokenCreateResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +56,11 @@ public class PlaidLinkService {
 
     private final WebhookService webhookService;
 
+    private final PlaidTransactionsService transactionService;
+
     private final SecurityContextUtil securityContextUtil;
+
+    private Executor tempExecutor = Executors.newSingleThreadExecutor();
 
     public PlaidLinkResponse createPlaidLink(@Valid PlaidLinkRequest plaidLinkRequest) {
         try {
@@ -99,8 +106,11 @@ public class PlaidLinkService {
 
         accountService.ingestPlaidAccounts(accessToken.getAccessToken(), userId, legalEntityId);
         webhookService.setupWebhook(accessToken.getAccessToken(), itemId);
-
         setupWebHook(accessToken);
+
+        tempExecutor.execute(() -> {
+            transactionService.ingestDefaultUpdate(itemId);
+        });
     }
 
     private void createItem(ItemPublicTokenExchangeResponse accessToken, String userId) {

@@ -175,3 +175,18 @@ databaseChangeLog:
               - column:
                   name: institution_id
                   type: VARCHAR(64)
+  - changeSet:
+      id: fix-webhook-typo
+      author: lesley.knope
+      changes:
+        - deleteColumn:
+            tableName: webhook
+            columns:
+              - column:
+                  name: createdAt
+        - addColumn:
+            tableName: webhook
+            columns:
+              - column:
+                  name: created_at
+                  type: DATETIME

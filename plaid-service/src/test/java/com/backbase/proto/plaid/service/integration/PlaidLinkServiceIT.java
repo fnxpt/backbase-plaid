@@ -1,6 +1,7 @@
 package com.backbase.proto.plaid.service.integration;
 
 import com.backbase.proto.plaid.PlaidApplication;
+import com.backbase.proto.plaid.service.ItemService;
 import com.backbase.proto.plaid.service.PlaidLinkService;
 import com.backbase.proto.plaid.service.PlaidTransactionsService;
 import com.backbase.proto.plaid.service.WebhookService;
@@ -24,7 +25,7 @@ public class PlaidLinkServiceIT {
     }
 
     @Autowired
-    private PlaidLinkService plaidLinkService;
+    private ItemService itemService;
     @Autowired
     private PlaidTransactionsService plaidTransactionsService;
 
@@ -33,7 +34,14 @@ public class PlaidLinkServiceIT {
 
     @Test
     public void testGetTransactions(){
-        plaidTransactionsService.ingestTransactions("access-development-e0b7d0d2-1a03-4420-8aea-38b4dbd02d72");
+        plaidTransactionsService.ingestHistoricalUpdate("***REMOVED***");
+    }
+
+
+    @Test
+    public void testDeleteItem() {
+        itemService.deleteItem("***REMOVED***");
+        itemService.deleteItem("***REMOVED***");
     }
 
 
