@@ -6,6 +6,7 @@ import com.backbase.proto.plaid.model.PlaidWebhook;
 import com.backbase.proto.plaid.repository.WebhookRepository;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.ItemWebhookUpdateRequest;
+import com.plaid.client.request.WebhookVerificationKeyGetRequest;
 import com.plaid.client.response.ItemWebhookUpdateResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,8 @@ public class WebhookService {
 
     public void process(PlaidWebhook plaidWebhook) {
 
+        validateWebhook(plaidWebhook);
+
         switch (plaidWebhook.getWebhookType()) {
             case TRANSACTIONS:
                 processTransactions(plaidWebhook);
@@ -47,6 +50,12 @@ public class WebhookService {
             case ITEM:
                 processItem(plaidWebhook);
         }
+
+    }
+
+    private void validateWebhook(PlaidWebhook plaidWebhook) {
+
+//        plaidClient.service().getWebhookVerificationKey(new WebhookVerificationKeyGetRequest(plaidWebhook.get))
 
     }
 

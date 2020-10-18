@@ -1,5 +1,7 @@
 package com.backbase.proto.plaid.configuration;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,8 @@ public class PlaidConfigurationProperties {
     private List<String> defaultReferenceJobRoleNames;
 
 
+
+
     public enum Environment {
         SANDBOX, DEVELOPMENT, PRODUCTION
     }
@@ -64,6 +68,19 @@ public class PlaidConfigurationProperties {
          */
         private Map<String, String> transactionTypeMap = new HashMap<>();
 
+        private Map<String, DescriptionParser> descriptionParserForInstitution;
+
+    }
+
+    @Data
+    public static class DescriptionParser {
+
+        private List<String> counterPartyName;
+        private List<String> counterPartyBBAN;
+        private List<String> description;
+        private List<String> cardId;
+        private List<String> valueDate;
+        private List<String> bookingDate;
     }
 
 }

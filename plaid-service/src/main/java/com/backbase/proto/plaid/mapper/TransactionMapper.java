@@ -7,8 +7,15 @@ import com.backbase.proto.plaid.configuration.PlaidConfigurationProperties;
 import com.plaid.client.response.TransactionsGetResponse;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -25,13 +32,12 @@ public class TransactionMapper {
         this.transactionTypeMap = transactionConfigurationProperties.getTransactions().getTransactionTypeMap();
     }
 
-    public TransactionItemPost map(TransactionsGetResponse.Transaction transaction) {
+    public TransactionItemPost map(TransactionsGetResponse.Transaction transaction, String institutionId) {
         // CreditDebitIndicator credit = new CreditDebitIndicator();
 
         String arrangementId = transaction.getAccountId();
 
         Currency transactionAmountCurrency = new Currency();
-
 
         TransactionItemPost bbTransaction = new TransactionItemPost();
         //set required data
@@ -39,10 +45,9 @@ public class TransactionMapper {
         bbTransaction.setExternalId(transaction.getTransactionId());
         bbTransaction.setBookingDate(LocalDate.parse(transaction.getDate()));
 
-        // name or reason??
-        String description = (transaction.getName() == null) ? "" : transaction.getName();
+        mapDescription(transaction, bbTransaction, institutionId);
+
         BigDecimal amount = BigDecimal.valueOf(transaction.getAmount());
-        bbTransaction.setDescription(description);
 
         CreditDebitIndicator indicator;
         boolean amountIsNegative = amount.compareTo(BigDecimal.ZERO) < 0;
@@ -67,44 +72,134 @@ public class TransactionMapper {
         bbTransaction.setType(transactionType);
         // nullable data
         bbTransaction.setCategory(transaction.getCategory().get(0));
-        bbTransaction.setReference(transaction.getPaymentMeta().getReferenceNumber());
+        TransactionsGetResponse.Transaction.PaymentMeta paymentMeta = transaction.getPaymentMeta();
+        String referenceNumber = paymentMeta.getReferenceNumber();
+
+        bbTransaction.setReference(referenceNumber);
         // counter party data
-        String counterpartyName = transaction.getName();
+        mapCounterParty(transaction, bbTransaction, institutionId);
+        mapCounterPartyBBAN(transaction, bbTransaction, institutionId);
 
-        if (transaction.getMerchantName() != null) {
-            counterpartyName = transaction.getMerchantName();
-        } else if (transaction.getPaymentMeta().getPayee() != null) {
-            counterpartyName = transaction.getPaymentMeta().getPayee();
-        }
+        mapLocation(transaction, bbTransaction);
 
-        bbTransaction.setCounterPartyName(counterpartyName);
-        bbTransaction.setCounterPartyCity(transaction.getLocation().getCity());
-        bbTransaction.setCounterPartyAddress(transaction.getLocation().getAddress());
-        bbTransaction.setCounterPartyCountry(transaction.getLocation().getCountry());
-        //sepa stuff, not relevant for this project, is a US bank
-        // only European so is there any point (creator ID)
-//        if (transaction.getPaymentMeta().getPaymentMethod() == "SEPA DD"){
-//
-//        }
-
-        String billingStatus;
-
-        if (transaction.getPending())
-            billingStatus = "PENDING";
-        else if (transaction.getAuthorizedDate() == null)
-            billingStatus = "UNBILLED";
-        else
-            billingStatus = "BILLED";
+        String billingStatus = mapBilling(transaction);
 
         bbTransaction.setBillingStatus(billingStatus);
         log.info("Mapped Billing Status: {}", billingStatus);
 
-        if (transaction.getAuthorizedDate() != null)
+        if (transaction.getAuthorizedDate() != null) {
             bbTransaction.setValueDate(LocalDate.parse(transaction.getAuthorizedDate()));
+        }
 
 
         return bbTransaction;
+    }
 
+
+    private void mapDescription(TransactionsGetResponse.Transaction transaction, TransactionItemPost bbTransaction, String institutionId) {
+        String description;
+
+        PlaidConfigurationProperties.DescriptionParser descriptionParser = getDescriptionParser(institutionId);
+        String transactionName = transaction.getName();
+        if (descriptionParser != null) {
+            description = parse(transactionName, descriptionParser.getDescription());
+
+        } else {
+            description = transactionName;
+        }
+
+        log.info("Mapped transaction name: {} to description: {}", transactionName, description);
+
+        description = StringUtils.abbreviate(description, 140);
+        bbTransaction.setDescription(description);
+    }
+
+
+
+    private void mapLocation(TransactionsGetResponse.Transaction transaction, TransactionItemPost bbTransaction) {
+        TransactionsGetResponse.Transaction.Location location = transaction.getLocation();
+
+        if (location != null) {
+            bbTransaction.setCounterPartyCity(location.getCity());
+            bbTransaction.setCounterPartyAddress(location.getAddress());
+            bbTransaction.setCounterPartyCountry(location.getCountry());
+        }
+    }
+
+    private void mapCounterParty(TransactionsGetResponse.Transaction transaction, TransactionItemPost bbTransaction, String institutionId) {
+        String counterpartyName;
+        TransactionsGetResponse.Transaction.PaymentMeta paymentMeta = transaction.getPaymentMeta();
+
+        if (transaction.getMerchantName() != null) {
+            counterpartyName = transaction.getMerchantName();
+            log.info("Mapped counter party name from merchant name: {}", counterpartyName);
+        } else if (paymentMeta.getPayee() != null) {
+            counterpartyName = paymentMeta.getPayee();
+            log.info("Mapped counter party name from payee name: {}", counterpartyName);
+        } else {
+            PlaidConfigurationProperties.DescriptionParser descriptionParser = getDescriptionParser(institutionId);
+            if (descriptionParser != null) {
+                counterpartyName = parse(transaction.getName(), descriptionParser.getCounterPartyName());
+                log.info("Mapped counter party name: {} from transaction name: {}", transaction.getName(), counterpartyName);
+            } else {
+                counterpartyName = transaction.getName();
+            }
+        }
+        if (counterpartyName.length() > 128) {
+            log.warn("Counter party name: {} cannot be longer than 128 characters", counterpartyName);
+            counterpartyName = StringUtils.abbreviate(counterpartyName, 128);
+        }
+        bbTransaction.setCounterPartyName(counterpartyName);
+    }
+
+    private void mapCounterPartyBBAN(TransactionsGetResponse.Transaction transaction, TransactionItemPost bbTransaction, String institutionId) {
+        PlaidConfigurationProperties.DescriptionParser descriptionParser = getDescriptionParser(institutionId);
+        if (descriptionParser != null) {
+            getMatch(transaction.getName(), descriptionParser.getCounterPartyBBAN())
+                .ifPresent(counterPartyAccountNumber -> {
+                    log.info("Mapping counter account number: {}", counterPartyAccountNumber);
+                    bbTransaction.setCounterPartyAccountNumber(StringUtils.abbreviate(counterPartyAccountNumber, 36));
+                });
+        }
+
+    }
+
+
+    @NotNull
+    private String mapBilling(TransactionsGetResponse.Transaction transaction) {
+        String billingStatus;
+
+        if (transaction.getPending())
+            billingStatus = "PENDING";
+        else
+            billingStatus = "BILLED";
+        return billingStatus;
+    }
+
+    private String parse(String text, List<String> regexPatterns) {
+        String description;
+        description = getMatch(text, regexPatterns)
+            .orElse(text);
+        return description;
+    }
+
+    @NotNull
+    private Optional<String> getMatch(String transactionName, List<String> regexPatterns) {
+        return regexPatterns.stream()
+            .map(Pattern::compile)
+            .map(pattern -> pattern.matcher(transactionName))
+            .filter(Matcher::find)
+            .findFirst().map(Matcher::group);
+    }
+
+    @Nullable
+    private PlaidConfigurationProperties.DescriptionParser getDescriptionParser(String institutionId) {
+        PlaidConfigurationProperties.DescriptionParser descriptionParser = null;
+        PlaidConfigurationProperties.TransactionConfigurationProperties transactions = transactionConfigurationProperties.getTransactions();
+        if (transactions.getDescriptionParserForInstitution() != null) {
+            descriptionParser = transactions.getDescriptionParserForInstitution().get(institutionId);
+        }
+        return descriptionParser;
     }
 
 
@@ -123,10 +218,6 @@ public class TransactionMapper {
         log.info("Mapped Type: {} to: {}", transaction.getTransactionCode(), type);
 
         return type;
-    }
-
-    private PlaidConfigurationProperties.TransactionConfigurationProperties getTransactionsMapping() {
-        return transactionConfigurationProperties.getTransactions();
     }
 
 }

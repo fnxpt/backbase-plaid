@@ -33,7 +33,7 @@ public class PlaidLinkServiceIT {
 
     @Test
     public void testGetTransactions(){
-        plaidTransactionsService.ingestTransactions("access-testing");
+        plaidTransactionsService.ingestTransactions("access-development-e0b7d0d2-1a03-4420-8aea-38b4dbd02d72");
     }
 
 

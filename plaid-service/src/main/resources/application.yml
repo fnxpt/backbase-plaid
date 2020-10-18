@@ -44,12 +44,15 @@ backbase:
       arrangement-manager-base-url:
       transaction-manager-base-url:
       limits-manager-base-url:
+
   plaid:
     client-name: "Backbase"
     client-id:
     secret:
-    env: sandbox
+    env: development
     webhook-base-url:
+    default-reference-job-role-names:
+      - "Retail User - EU"
     country-codes:
       - NL
       - CA
@@ -65,7 +68,21 @@ backbase:
         online: "Credit/Debit Card"
         in_store: "Credit/Debit Card"
         other: "Fee"
-
+      description-parser-for-institution:
+        ins_120509:
+          counter-party-name:
+            - .+?(?=Pasvolgnr:)
+          counter-party-bban:
+            - .+?(?=IBAN:)
+          description:
+            - .+?(?=Pasvolgnr:)
+            - .*
+          cardId:
+            - (?<=Pasvolgnr:\s)(.*?)[?:\s]
+          reference:
+            - (?<=Transactie:\s)(.*?)[?:\s]
+          bookingDate:
+            - (?<=Valutadatum:\s)(.*?)[?:\s]
 management:
   endpoints:
     web:
