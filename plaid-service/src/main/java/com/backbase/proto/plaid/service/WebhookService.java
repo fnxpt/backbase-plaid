@@ -21,8 +21,7 @@ import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
 /**
- * WebhookService:
- * Sets up and processes plaid webhook for used in backbase dbs
+ * This class sets up and processes Plaid webhook for used in Backbase DBS.
  */
 @Service
 @Slf4j
@@ -40,10 +39,10 @@ public class WebhookService {
     private final ItemRepository itemRepository;
 
     /**
-     * Sets up the webhook with configurations
+     * Sets up the webhook with configurations.
      *
-     * @param accessToken provides authenticator in plaid
-     * @param itemId identifies item for which the webhook is notifying for
+     * @param accessToken provides authenticator in Plaid
+     * @param itemId identifies Item for which the webhook is notifying for
      */
     public void setupWebhook(String accessToken, String itemId) {
 
@@ -59,7 +58,7 @@ public class WebhookService {
     }
 
     /**
-     * Processes the webhook for updates in transactions or the item
+     * Processes the webhook for updates in Transactions or the Item.
      *
      * @param webhook webhook being used
      */
@@ -86,7 +85,7 @@ public class WebhookService {
     }
 
     /**
-     * Validates the webhook to see if it is really coming from plaid, it throws an exception if it doesn't
+     * Validates the webhook to see if it is really coming from Plaid, it throws an exception if it doesn't.
      *
      * @param Webhook the webhook to be validated
      */
@@ -95,8 +94,8 @@ public class WebhookService {
     }
 
     /**
-     * Processes the webhook for updates in transactions for an item, depending on the webhooks code it will update a
-     * transaction differently
+     * Processes the webhook for updates in Transactions for an Item, depending on the webhooks code it will update a
+     * transaction differently.
      *
      * @param webhook webhook to process for updates
      */
@@ -131,7 +130,8 @@ public class WebhookService {
     }
 
     /**
-     * The webhook updates the Item database
+     * The webhook updates the Item database.
+     *
      * @param Webhook that notifies Item updates
      */
     private void processItem(Webhook Webhook) {
@@ -140,9 +140,9 @@ public class WebhookService {
     }
 
     /**
-     * Refreshes the transactions for a specific item. Updates the transactions and processes them
+     * Refreshes the Transactions for a specific Item. Updates the Transactions and processes them.
      *
-     * @param itemId identifies the set of transactions to be updated by which item it belongs to
+     * @param itemId identifies the set of Transactions to be updated by which Item it belongs to
      */
     @SneakyThrows
     public void refresh(String itemId) {

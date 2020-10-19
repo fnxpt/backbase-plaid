@@ -12,17 +12,14 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 /**
- * Account:
- * Backbase dbs account table object, stores all the fields to be stored in the database labeled account account
+ * This class is a Backbase DBS account table object, stores all the fields to be stored in the database labeled account.
  */
 @Getter
 @Setter
 @Entity
 @Table(name = "account")
 public class Account {
-    /**
-     * ID is a generated value that auto increments
-     */
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

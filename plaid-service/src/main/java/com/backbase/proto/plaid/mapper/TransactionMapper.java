@@ -19,8 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 /**
- * TransactionMapper:
- * Maps transactions retrieved from the plaid api end point to the backbase dbs transactions
+ * This class maps Transactions retrieved from the Plaid API endpoint to the Backbase DBS Transactions.
  */
 @Slf4j
 @Component
@@ -31,9 +30,9 @@ public class TransactionMapper {
     private final Map<String, String> transactionTypeMap;
 
     /**
-     * Sets the configuration properties used for the mapping
+     * Sets the configuration properties used for the mapping.
      *
-     * @param transactionConfigurationProperties contains methods for setting the type group and type for dbs transactions
+     * @param transactionConfigurationProperties contains methods for setting the Type Group and Type for DBS Transactions
      */
     public TransactionMapper(PlaidConfigurationProperties transactionConfigurationProperties) {
         this.transactionConfigurationProperties = transactionConfigurationProperties;
@@ -41,10 +40,10 @@ public class TransactionMapper {
         this.transactionTypeMap = transactionConfigurationProperties.getTransactions().getTransactionTypeMap();
     }
     /**
-     * This maps the individual fields of the plaid transaction to the backbase transaction
+     * This maps the individual fields of the Plaid transaction to the Backbase Transaction.
      *
-     * @param transaction a transaction from the list retrieved by plaid
-     * @return DBS transaction for ingestion
+     * @param transaction a Transaction from the list retrieved by Plaid
+     * @return DBS Transaction for ingestion
      */
     public TransactionItemPost map(TransactionsGetResponse.Transaction transaction, String institutionId) {
         // CreditDebitIndicator credit = new CreditDebitIndicator();
@@ -110,12 +109,12 @@ public class TransactionMapper {
     }
 
     /**
-     * Maps the descriptions from the plaid transaction response to backbase dbs transaction
-     * it uses the description parser in plaid configuration properties to do so
+     * Maps the descriptions from the Plaid transaction response to Backbase DBS Transaction
+     * it uses the description parser in Plaid configuration properties to do so.
      *
-     * @param transaction the transaction response sent rom plaid
-     * @param bbTransaction the transaction to be ingested by backbase
-     * @param institutionId the identifier for the institution that the transaction belongs to
+     * @param transaction the Transaction response sent from Plaid
+     * @param bbTransaction the Transaction to be ingested by Backbase
+     * @param institutionId the identifier for the institution that the Transaction belongs to
      */
     private void mapDescription(TransactionsGetResponse.Transaction transaction, TransactionItemPost bbTransaction, String institutionId) {
         String description;
@@ -137,10 +136,10 @@ public class TransactionMapper {
 
 
     /**
-     * Maps the location from the plaid returned transaction which stores it as an object to the backbase transaction which stores it as separate fields
+     * Maps the location from the Plaid returned Transaction which stores it as an object to the Backbase Transaction which stores it as separate fields.
      *
-     * @param transaction transaction parsed from plaids clients side
-     * @param bbTransaction backbase transaction to be ingested and displayed in the front end
+     * @param transaction Transaction parsed from Plaids Clients side
+     * @param bbTransaction Backbase Transaction to be ingested and displayed in the front end
      */
     private void mapLocation(TransactionsGetResponse.Transaction transaction, TransactionItemPost bbTransaction) {
         TransactionsGetResponse.Transaction.Location location = transaction.getLocation();
@@ -153,11 +152,11 @@ public class TransactionMapper {
     }
 
     /**
-     * Maps counter party attributes from plaid where they are less grouped
+     * Maps Counter Party attributes from Plaid where they are less grouped.
      *
-     * @param transaction the transaction response from plaid
-     * @param bbTransaction the backbase transaction to be ingested
-     * @param institutionId identifies the institution the transaction belongs to
+     * @param transaction the Transaction response from Plaid
+     * @param bbTransaction the Backbase transaction to be ingested
+     * @param institutionId identifies the institution the Transaction belongs to
      */
     private void mapCounterParty(TransactionsGetResponse.Transaction transaction, TransactionItemPost bbTransaction, String institutionId) {
         String counterpartyName;
@@ -186,11 +185,11 @@ public class TransactionMapper {
     }
 
     /**
-     * Maps the Counter party account number (BBAN) if it is available from plaid
+     * Maps the Counter Party account number (BBAN) if it is available from Plaid.
      *
-     * @param transaction the transaction response from plaid
-     * @param bbTransaction the backbase transaction to be ingested
-     * @param institutionId identifies the institution the transaction belongs to
+     * @param transaction the Transaction response from Plaid
+     * @param bbTransaction the Backbase Transaction to be ingested
+     * @param institutionId identifies the institution the Transaction belongs to
      */
     private void mapCounterPartyBBAN(TransactionsGetResponse.Transaction transaction, TransactionItemPost bbTransaction, String institutionId) {
         PlaidConfigurationProperties.DescriptionParser descriptionParser = getDescriptionParser(institutionId);
@@ -205,10 +204,10 @@ public class TransactionMapper {
     }
 
     /**
-     * Maps billing status from Plaid transaction to backbase transaction
+     * Maps billing status from Plaid Transaction to Backbase Transaction.
      *
-     * @param transaction the transaction response from plaid
-     * @return the billing status to be added to the backbase transaction
+     * @param transaction the Transaction response from Plaid
+     * @return the billing status to be added to the Backbase Transaction
      */
     @NotNull
     private String mapBilling(TransactionsGetResponse.Transaction transaction) {
@@ -222,7 +221,7 @@ public class TransactionMapper {
     }
 
     /**
-     * Formats a text description to be mapped to a transaction
+     * Formats a text description to be mapped to a Transaction.
      *
      * @param text to be formatted
      * @param regexPatterns desired format pattern in regular expression
@@ -236,7 +235,7 @@ public class TransactionMapper {
     }
 
     /**
-     * Formats a string using regular expression
+     * Formats a string using regular expression.
      *
      * @param transactionName string to be formatted
      * @param regexPatterns regular expression detailing the desired format
@@ -252,8 +251,8 @@ public class TransactionMapper {
     }
 
     /**
-     * Gets the description parser from plaid configuration properties and sets the transaction configuration properties
-     * parser to this with it being specific for the institution the transactions belong to
+     * Gets the description parser from Plaid Configuration Properties and sets the Transaction Configuration Properties
+     * parser to this with it being specific for the institution the Transactions belong to.
      *
      * @param institutionId identifies the institution that the transaction belong to
      * @return the description parser with the correct configurations for the institution
@@ -269,7 +268,7 @@ public class TransactionMapper {
     }
 
     /**
-     * Gets the type group from plaid transaction by mapping from payment channel to type group
+     * Gets the type group from Plaid Transaction by mapping from Payment Channel to Type Group.
      *
      * @param transaction
      * @return
@@ -281,7 +280,7 @@ public class TransactionMapper {
     }
 
     /**
-     * Gets the type group to set the dbs transaction from the transaction code in plaid transaction
+     * Gets the Type Group to set the DBS transaction from the Transaction Code in Plaid Transaction.
      *
      * @param transaction
      * @return

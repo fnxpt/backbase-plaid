@@ -27,8 +27,7 @@ import reactor.core.publisher.Flux;
 import retrofit2.Response;
 
 /**
- * PlaidTransactionsService:
- * Allows the retrieval and ingestion of Transaction data when it is available from plaid
+ * This class allows the retrieval and ingestion of Transaction data when it is available from Plaid.
  */
 @Service
 @Slf4j
@@ -50,7 +49,7 @@ public class PlaidTransactionsService {
 
     private final ObjectMapper objectMapper;
     /**
-     * Ingests the transactions of an item
+     * Ingests the Transactions of an Item.
      *
      * @param itemId identifies item the transaction belong to
      */
@@ -81,12 +80,12 @@ public class PlaidTransactionsService {
         transactionService.deleteTransactions(Flux.fromIterable(deleteRequests));
     }
     /**
-     * Ingests transaction, setting the start and end dates of the transactions that are being requested
-     * it also sets how many are to be ingested at one time and the offset for pagination
+     * Ingests Transactions, setting the start and end dates of the Transactions that are being requested
+     * it also sets how many are to be ingested at one time and the offset for pagination.
      *
-     * @param itemId identifies the item the transaction belongs to
-     * @param startDate the earliest transaction date being requested
-     * @param endDate the latest transaction being requested
+     * @param itemId identifies the Item the Transaction belongs to
+     * @param startDate the earliest Transaction date being requested
+     * @param endDate the latest Transaction being requested
      */
     @SneakyThrows
     public void ingestTransactions(String itemId, LocalDate startDate, LocalDate endDate) {
@@ -95,13 +94,13 @@ public class PlaidTransactionsService {
     }
 
     /**
-     * This requests and paginates teh transactions coming in from plaid
+     * This requests and paginates the Transactions coming in from Plaid.
      *
-     * @param accessToken authentication for the plaid request, also identifies the item that the transaction belong to
-     * @param startDate the earliest transaction date being requested
-     * @param endDate the latest transaction being requested
-     * @param batchSize the number if transactions being ingested at one time
-     * @param offset used for pagination so each retrieval for one request is the next set of transactions
+     * @param accessToken authentication for the Plaid request, also identifies the Item that the Transaction belong to
+     * @param startDate the earliest Transaction date being requested
+     * @param endDate the latest Transaction being requested
+     * @param batchSize the number of Transactions being ingested at one time
+     * @param offset used for pagination so each retrieval for one request is the next set of Transactions
      */
     @SneakyThrows
     private void ingestTransactions(String accessToken, LocalDate startDate, LocalDate endDate, int batchSize, int offset) {
@@ -174,7 +173,7 @@ public class PlaidTransactionsService {
     }
 
     /**
-     * Converts date from local to date
+     * Converts date from local to date.
      *
      * @param dateToConvert date to be converted
      * @return converted date

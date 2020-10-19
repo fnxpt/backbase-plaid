@@ -6,15 +6,14 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 /**
- * WebhookMapper:
- * Maps the webhook so it may be used
+ * This class maps the webhook so it may be used.
  */
 @Mapper
 public interface WebhookMapper {
     /**
-     * Maps the webhook from plaid
+     * Maps the webhook from Plaid.
      *
-     * @param source webhook from plaid
+     * @param source webhook from Plaid
      * @return webhook to be stored in database
      */
     @Mapping(target = "createdAt", ignore = true)

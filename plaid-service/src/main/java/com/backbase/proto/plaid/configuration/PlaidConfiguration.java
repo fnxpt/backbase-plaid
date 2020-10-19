@@ -10,8 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
- * Plaid configuration:
- * Used to build and set properties of Plaid client
+ * This class is used to build and set properties of Plaid Client.
  */
 @Configuration
 @EnableConfigurationProperties(PlaidConfigurationProperties.class)
@@ -19,11 +18,11 @@ import org.springframework.context.annotation.Import;
 public class PlaidConfiguration {
 
     /**
-     * Instantiates the transaction Api with a api parsed as an argument
-     * It allows access to the transactions through authentication and for responses and request for transactions to be managed easily
+     * Instantiates the Transaction API with a api parsed as an argument.
+     * It allows access to the Transactions through authentication and for responses and request for Transactions to be managed easily.
      *
-     * @param transactionPresentationApiClient api to set the transactions api
-     * @return Transactions api
+     * @param transactionPresentationApiClient api to set the Transactions API
+     * @return Transactions API
      */
     @Bean
     public TransactionsApi transactionsApi(ApiClient transactionPresentationApiClient) {
@@ -31,12 +30,12 @@ public class PlaidConfiguration {
     }
 
     /**
-     * Builds and returns a plaid client which is used to sent requests to Plaid
-     * It builds the Client using the configuration properties- Configuration
-     * Builds an environment for the client, the type of which is specified in the configuration perimeter
+     * Builds and returns a Plaid Client which is used to sent requests to Plaid.
+     * It builds the Client using the Configuration Properties (Configuration).
+     * Builds an environment for the client, the type of which is specified in the configuration perimeter.
      *
-     * @param configuration: contains properties for configuring the Plaid client and required to build it
-     * @return
+     * @param configuration: contains properties for configuring the Plaid Client and required to build it
+     * @return the Plaid Client built with configurations and an environment
      */
     @Bean
     public PlaidClient plaidClient(PlaidConfigurationProperties configuration) {

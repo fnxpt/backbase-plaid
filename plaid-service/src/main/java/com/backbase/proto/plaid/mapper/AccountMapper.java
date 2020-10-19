@@ -21,32 +21,31 @@ import org.mapstruct.ReportingPolicy;
 import static com.backbase.proto.plaid.utils.ProductTypeUtils.mapSubTypeId;
 
 /**
- * AccountMapper:
- * This maps accounts from plaid to backbase dbs
- * so they may then be used, processed by dbs
+ * This class maps accounts from Plaid to backbase DBS, using map struct to map to stream
+ * so they may then be used, processed by DBS.
  */
 @Mapper(unmappedTargetPolicy = ReportingPolicy.ERROR,
     nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
     nullValueMappingStrategy = NullValueMappingStrategy.RETURN_NULL)
 public interface AccountMapper {
     /**
-     * Maps the item id from plaid to account
+     * Maps the Item ID from Plaid to account.
      *
      * @param source Plaid account
-     * @param itemId Identifies the item the account belongs to
-     * @return account
+     * @param itemId Identifies the Item the account belongs to
+     * @return Account with the Item ID that was parsed in
      */
     @Mapping(target = "id", ignore = true)
     Account mapToDomain(com.plaid.client.response.Account source, String itemId);
 
     /**
-     * Maps the account data parsed in from plaid to product in backbase
+     * Maps the account data parsed in from Plaid to product in Backbase using map struct pairing names and values.
      *
      * @param accessToken this is added to additions so it may be stored with product and used later to request data
-     * @param item this is usd to get the item id for so the item which belongs to this account may be indicated
-     * @param institution this is the name of teh institution that the account belongs to
-     * @param account this is the account that was requested from plaid and contains the data to be mapped to backbase
-     * @return the backbase product, containing all account data retrieved from plaid
+     * @param item this is used to get the Item ID for so the item which belongs to this account may be indicated
+     * @param institution this is the name of the institution that the account belongs to
+     * @param account this is the account that was requested from Plaid and contains the data to be mapped to Backbase
+     * @return the Backbase product, containing all account data retrieved from Plaid
      */
     default Product mapToStream(String accessToken, ItemStatus item, Institution institution, com.plaid.client.response.Account account) {
         Map<String, Object> additions = new HashMap<>();

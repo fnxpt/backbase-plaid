@@ -9,8 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * ItemController:
- * Uses item api through a micro service to call end points to manage items
+ * This class exposes Item API through a micro service allowing the call of end points to manage items.
  */
 @RestController
 @Slf4j
@@ -22,9 +21,9 @@ public class ItemController implements ItemApi {
     private final ItemService itemService;
 
     /**
-     * Deletes an Item
+     * Deletes an Item.
      *
-     * @param itemId identifies item to be deleted
+     * @param itemId identifies Item to be deleted
      * @return http response, indicates the success of the operation
      */
     @Override

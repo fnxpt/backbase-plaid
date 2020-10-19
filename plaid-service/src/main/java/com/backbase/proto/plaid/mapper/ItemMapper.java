@@ -6,16 +6,15 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 /**
- * ItemMapper:
- * Maps the item data
+ * This class maps the Item data.
  */
 @Mapper
 public interface ItemMapper {
     /**
-     * Maps the data of the item identified in the token exchange response
+     * Maps the data of the Item identified in the token exchange response.
      *
-     * @param source the access token and item id that were exchanged for a public token
-     * @return the item that is identified by the item id in the response parsed in
+     * @param source the Access Token and Item ID that were exchanged for a Public Token
+     * @return the Item that is identified by the Item ID in the response parsed in
      */
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)

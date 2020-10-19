@@ -11,8 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * LinkController:
- * This uses link api to call link end points that allow a link to be initialised
+ * This class exposes Link API allowing the call of link endpoints that allow a link to be initialised.
  */
 @RestController
 @Slf4j
@@ -20,12 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class LinkController implements LinkApi {
     /**
      * Plaid link service contains the client the webhook and all the tools required to communicate with
-     * Plaid
+     * Plaid.
      */
     private final PlaidLinkService plaidLinkService;
 
     /**
-     * @param plaidLinkService initialises link service
+     * Initialises Link Service.
+     *
+     * @param plaidLinkService sets the link service of this class
      */
     public LinkController(PlaidLinkService plaidLinkService) {
         this.plaidLinkService = plaidLinkService;
@@ -33,9 +34,9 @@ public class LinkController implements LinkApi {
     }
 
     /**
-     * Sends a request for a plaid link token the request being parsed in and the link then stored.
+     * Sends a request for a Plaid Link Token the request being parsed in and the link then stored.
      *
-     * @param plaidLinkRequest  (optional) contains the request body for fetching a plaid link
+     * @param plaidLinkRequest  (optional) contains the request body for fetching a Plaid link
      * @return http response indicating the success of the call
      */
     @Override
@@ -46,10 +47,10 @@ public class LinkController implements LinkApi {
     }
 
     /**
-     * Sends a request for the access token using a parsed request and returns and entity that can be stored in a
-     * database
+     * Sends a request for the Access Token using a parsed request and returns and entity that can be stored in a
+     * database.
      *
-     * @param setAccessTokenRequest  (optional) contains the request body for fetching the access token, the body
+     * @param setAccessTokenRequest  (optional) contains the request body for fetching the Access Token, the body
      *                               contains the public key
      * @return http response indicating the success of the call
      */

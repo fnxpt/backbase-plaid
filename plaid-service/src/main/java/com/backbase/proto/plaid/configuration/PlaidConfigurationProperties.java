@@ -8,50 +8,49 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * PlaidConfigurationProperties:
- * Registers the data to be used to set, build the plaid client and webhook
+ * This class registers the data to be used to set, build the Plaid Client and webhook.
  */
 
 @ConfigurationProperties(prefix = "backbase.plaid")
 @Data
 public class PlaidConfigurationProperties {
     /**
-     * Name of the client
+     * Name of the Client.
      */
     @NotNull
     private String clientName;
     /**
-     * Client identification
+     * Client identification.
      */
     @NotNull
     private String clientId;
     /**
-     * Secret used to initialise the link
+     * Secret used to initialise the link.
      */
     @NotNull
     private String secret;
     /**
-     * Notifies when data is available for retrieval
+     * Notifies when data is available for retrieval.
      */
     @NotNull
     private String webhookBaseUrl;
     /**
-     * Indicates the environment to be built
+     * Indicates the Environment to be built.
      */
     @NotNull
     private Environment env;
     /**
-     * Stores the Products that are to be used
+     * Stores the Products that are to be used.
      */
     @NotNull
     private List<Product> products;
     /**
-     * Stores the country codes that are to be available
+     * Stores the Country Codes that are to be available.
      */
     @NotNull
     private List<CountryCode> countryCodes;
     /**
-     * Type of customer , what predefined permissions they have
+     * Type of customer, what predefined permissions they have.
      */
     @NotNull
     private List<String> defaultReferenceJobRoleNames;
@@ -59,21 +58,21 @@ public class PlaidConfigurationProperties {
 
 
     /**
-     * Environments for the plaid client
+     * Environments for the Plaid Client.
      */
     public enum Environment {
         SANDBOX, DEVELOPMENT, PRODUCTION
     }
 
     /**
-     * Available Product types
+     * Available Product types.
      */
     public enum Product {
         TRANSACTIONS, AUTH, IDENTITY, ASSETS, INVESTMENTS, LIABILITIES, PAYMENT_INITIATION
     }
 
     /**
-     * Types of country code available
+     * Types of Country Code available.
      */
     public enum CountryCode {
         US, CA, ES, FR, GB, IE, NL
@@ -83,7 +82,7 @@ public class PlaidConfigurationProperties {
 
     /**
      * Transaction specific Properties, Type group and Type both of which must be mapped from Plaid
-     * to backbase DBS
+     * to Backbase DBS.
      */
     @Data
     public static class TransactionConfigurationProperties {
@@ -103,8 +102,7 @@ public class PlaidConfigurationProperties {
     }
 
     /**
-     * DescriptionParser:
-     * Parses transaction descriptors formatting, stores the desired formats for each description
+     * This class parses Transaction descriptors formatting, stores the desired formats for each description.
      */
     @Data
     public static class DescriptionParser {

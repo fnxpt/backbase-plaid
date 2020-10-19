@@ -22,8 +22,7 @@ import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
 /**
- * ItemService:
- * This allows the retrieval and ingestion of account Item when it is available from plaid
+ * This class allows the retrieval and ingestion of account Item when it is available from Plaid.
  */
 @Service
 @RequiredArgsConstructor
@@ -42,10 +41,10 @@ public class ItemService {
     private final TransactionsApi transactionsApi;
 
     /**
-     * Deletes an item from the item database, client service, and all relevant data such as its accounts and
-     * transactions will also be deleted from the other databases and services
+     * Deletes an item from the Item database, Client Service, and all relevant data such as its Accounts and
+     * Transactions will also be deleted from the other databases and services.
      *
-     * @param itemId identifies the item to e deleted
+     * @param itemId identifies the Item to be deleted
      */
 
     public void deleteItem(String itemId) {
@@ -75,10 +74,11 @@ public class ItemService {
     }
 
     /**
-     * Gets the access token of an item from the item database
+     * Gets the Access Token of an Item from the Item database.
      *
-     * @param itemId identifies the item that the access token belongs to
-     * @return the access token of the item, if the item is not present in the data base an exception is thrown
+     * @param itemId identifies the Item that the Access Token belongs to
+     * @return the Access Token of the Item, if the Item is not present in the data base an exception is thrown
+     * @throws BadRequestException When Item is not found
      */
     public String getAccessToken(String itemId) {
         return itemRepository.findByItemId(itemId).orElseThrow(() -> new BadRequestException("Item not found")).getAccessToken();
