@@ -20,6 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
+/**
+ * Sets up and processes plaid webhook for used in backbase dbs
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -35,7 +38,11 @@ public class WebhookService {
 
     private final ItemRepository itemRepository;
 
-
+    /**
+     * sets up the webhook with configurations
+     * @param accessToken provides authenticator in plaid
+     * @param itemId identifies item for which the webhook is notifying for
+     */
     public void setupWebhook(String accessToken, String itemId) {
 
         String webhookUrl = plaidConfigurationProperties.getWebhookBaseUrl() + "/webhook/" + itemId;
@@ -48,6 +55,11 @@ public class WebhookService {
             throw new BadRequestException("Unable to setup web hook: ", e);
         }
     }
+
+    /**
+     * processes the webhook for updates in transactions or the item
+     * @param webhook webhook being used
+     */
 
     public void process(Webhook webhook) {
         log.info("Processing webhook: {} for item: {}", webhook.getWebhookType(), webhook.getItemId());
@@ -70,10 +82,18 @@ public class WebhookService {
         webhookRepository.save(webhook);
     }
 
+    /**
+     *
+     * @param Webhook
+     */
     private void validateWebhook(Webhook Webhook) {
         // Validate if web hook is really coming from plaid. Throw exception if it doesn't
     }
 
+    /**
+     * processes the webhook for updates in transactions for an item
+     * @param webhook
+     */
     private void processTransactions(Webhook webhook) {
 
         switch (webhook.getWebhookCode()) {
@@ -104,13 +124,19 @@ public class WebhookService {
 
     }
 
-
+    /**
+     *
+     * @param webhook
+     */
     private void processItem(Webhook Webhook) {
         log.info("Webhook Acknowledged");
         //TODO: Update Item Database
     }
 
-
+    /**
+     *
+     * @param itemId
+     */
     @SneakyThrows
     public void refresh(String itemId) {
         log.info("Refreshing Transactions for: {}", itemId);

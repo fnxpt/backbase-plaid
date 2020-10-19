@@ -26,6 +26,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import retrofit2.Response;
 
+/**
+ * allows the retrieval and ingestion of Transaction data when it is available from plaid
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -45,7 +48,10 @@ public class PlaidTransactionsService {
     static int testCount = 0;
 
     private final ObjectMapper objectMapper;
-
+    /**
+     *ingests the transactions of an item
+     * @param itemId identifies item the transaction belong to
+     */
     public void ingestInitialUpdate(String itemId) {
         LocalDate startDate = LocalDate.now().minusDays(30);
         LocalDate endDate = LocalDate.now();
@@ -72,13 +78,27 @@ public class PlaidTransactionsService {
         List<TransactionsDeleteRequestBody> deleteRequests = removedTransactions.stream().map(id -> new TransactionsDeleteRequestBody().id(id)).collect(Collectors.toList());
         transactionService.deleteTransactions(Flux.fromIterable(deleteRequests));
     }
-
+    /**
+     * ingests transaction, setting the start and end dates of the transactions that are being requested
+     * it also sets how many are to be ingested at one time and the offset for pagination
+     * @param accessToken authenticates transaction requests
+     * @param startDate the earliest transaction date being requested
+     * @param endDate the latest transaction being requested
+     */
     @SneakyThrows
     public void ingestTransactions(String itemId, LocalDate startDate, LocalDate endDate) {
         String accessToken = itemService.getAccessToken(itemId);
         this.ingestTransactions(accessToken, startDate, endDate, 100, 0);
     }
 
+    /**
+     * this requests and paginates teh transactions coming in from plaid
+     * @param accessToken authentication for the plaid request, also identifies the item that the transaction belong to
+     * @param startDate the earliest transaction date being requested
+     * @param endDate the latest transaction being requested
+     * @param batchSize the number if transactions being ingested at one time
+     * @param offset used for pagination so each retrieval for one request is the next set of transactions
+     */
     @SneakyThrows
     private void ingestTransactions(String accessToken, LocalDate startDate, LocalDate endDate, int batchSize, int offset) {
         log.info("Ingesting transactions from: startDate: {} to: {} with batchSize: {} from offset: {}", startDate, endDate, batchSize, offset);
@@ -149,6 +169,11 @@ public class PlaidTransactionsService {
 
     }
 
+    /**
+     * converts date from local to date
+     * @param dateToConvert date to be converted
+     * @return converted date
+     */
     public Date convertToDateViaInstant(LocalDate dateToConvert) {
         return java.util.Date.from(dateToConvert.atStartOfDay()
             .atZone(ZoneId.systemDefault())

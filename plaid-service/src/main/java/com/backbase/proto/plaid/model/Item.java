@@ -12,12 +12,17 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
+/**
+ * Stores Item data in a table
+ */
 @Getter
 @Setter
 @Entity
 @Table(name = "item")
 public class Item {
-
+    /**
+     * auto generated unique number
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

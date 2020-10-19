@@ -14,15 +14,25 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * sets up and builds a plaid webhook, this webhook notifies dbs when data is available for retrieval
+ */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+
 public class PlaidWebHookController implements WebhookApi {
 
     private final WebhookService webhookService;
 
     private final WebhookMapper webhookMapper = Mappers.getMapper(WebhookMapper.class);
 
+    /**
+     * initialises the webhook
+     * @param itemId the item who's accounts the data is being retrieved
+     * @param plaidWebhook webhook that will be notifying available data in the item passed
+     * @return Http response that indicated successfully retrieving a webhook
+     */
     @Override
     public ResponseEntity<Void> processWebHook(String itemId, @Valid PlaidWebhook plaidWebhook) {
         log.info("Received Plaid Webhook!");

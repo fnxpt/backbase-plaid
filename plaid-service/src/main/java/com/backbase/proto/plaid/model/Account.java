@@ -11,12 +11,17 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
+/**
+ * backbase dbs account object, stores all the fields to be stored in the database labeled account account
+ */
 @Getter
 @Setter
 @Entity
 @Table(name = "account")
 public class Account {
-
+    /**
+     * ID is a generated value that auto increments
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

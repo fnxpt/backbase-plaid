@@ -34,6 +34,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
+/**
+ * allows the retrieval and ingestion of Plaid link data when it is available from plaid
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -62,6 +65,11 @@ public class PlaidLinkService {
 
     private Executor tempExecutor = Executors.newSingleThreadExecutor();
 
+    /**
+     * creates a plaid link token
+     * @param plaidLinkRequest contains some link fields to be used and comparators
+     * @return link token
+     */
     public PlaidLinkResponse createPlaidLink(@Valid PlaidLinkRequest plaidLinkRequest) {
         try {
             String redirectUrl = null;
@@ -90,6 +98,11 @@ public class PlaidLinkService {
         }
     }
 
+    /**
+     * retrieves an access token for a legal entity and sets up a webhook and triggers the ingestion of accounts
+     * using it
+     * @param setAccessTokenRequest request body for the access token request
+     */
     public void setPublicAccessToken(@Valid SetAccessTokenRequest setAccessTokenRequest) {
         ItemPublicTokenExchangeResponse accessToken = requestAccessToken(setAccessTokenRequest);
         InternalJwt internalJwt = getInternalJwt();
@@ -113,6 +126,12 @@ public class PlaidLinkService {
         });
     }
 
+    /**
+     * creates an item and saves it in the item database
+     * @param accessToken authentication for item mapping
+     * @param userId
+     */
+    @NotNull
     private void createItem(ItemPublicTokenExchangeResponse accessToken, String userId) {
         Item newItem = itemMapper.map(accessToken);
         newItem.setCreatedAt(LocalDateTime.now());
@@ -120,11 +139,19 @@ public class PlaidLinkService {
         itemRepository.save(newItem);
     }
 
+    /**
+     * sets up a webhook
+     * @param accessToken used for authentication in plaid
+     */
     private void setupWebHook(ItemPublicTokenExchangeResponse accessToken) {
 
     }
 
-
+    /**
+     * exchanges public token for access token
+     * @param setAccessTokenRequest request body for the exchange
+     * @return access token
+     */
     private ItemPublicTokenExchangeResponse requestAccessToken(SetAccessTokenRequest setAccessTokenRequest) {
         try {
             ItemPublicTokenExchangeResponse accessToken = plaidClient
@@ -140,20 +167,37 @@ public class PlaidLinkService {
         }
     }
 
-
+    /**
+     * gets the users id from internal token
+     * @return users id
+     */
     private String getLoggedInUserId() {
         return getLoggedInUserId(getInternalJwt());
     }
 
+    /**
+     * Gets the logged in users User Id from the internal token used to perform action on their behalf
+     * @param internalJwt token useed for internal authentication
+     * @return subject of the internal token
+     */
     private String getLoggedInUserId(InternalJwt internalJwt) {
         return internalJwt.getClaimsSet().getSubject().orElseThrow(() -> new IllegalStateException("Cannot get subject"));
     }
 
+    /**
+     * gets logged in legal entity id from the internal token
+     * @param internalJwt token used for internal authentication
+     * @return legal entity id or exception
+     */
     private String getLoggedInLegalEntityInternal(InternalJwt internalJwt) {
         Optional<Object> leid = internalJwt.getClaimsSet().getClaim("leid");
         return leid.orElseThrow(() -> new IllegalStateException("Cannot get subject")).toString();
     }
 
+    /**
+     * retrieve internal token
+     * @return internal token
+     */
     private InternalJwt getInternalJwt() {
         return securityContextUtil.getOriginatingUserJwt().orElseThrow(() -> new IllegalStateException("Cannnot get internal JWT"));
     }

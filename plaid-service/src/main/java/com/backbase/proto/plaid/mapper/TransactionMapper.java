@@ -18,6 +18,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
+/**
+ * Maps transactions retrieved from the plaid api end point to the backbase dbs transactions
+ */
 @Slf4j
 @Component
 public class TransactionMapper {
@@ -26,12 +29,20 @@ public class TransactionMapper {
     private final Map<String, String> transactionTypeGroupMap;
     private final Map<String, String> transactionTypeMap;
 
+    /**
+     * sets the configuration properties used for the mapping
+     * @param transactionConfigurationProperties contains methods for setting the type group and type for dbs transactions
+     */
     public TransactionMapper(PlaidConfigurationProperties transactionConfigurationProperties) {
         this.transactionConfigurationProperties = transactionConfigurationProperties;
         this.transactionTypeGroupMap = transactionConfigurationProperties.getTransactions().getTransactionTypeGroupMap();
         this.transactionTypeMap = transactionConfigurationProperties.getTransactions().getTransactionTypeMap();
     }
-
+    /**
+     * This maps the individual fields of the plaid transaction to the backbase transaction
+     * @param transaction a transaction from the list retrieved by plaid
+     * @return DBS transaction for ingestion
+     */
     public TransactionItemPost map(TransactionsGetResponse.Transaction transaction, String institutionId) {
         // CreditDebitIndicator credit = new CreditDebitIndicator();
 
@@ -202,13 +213,22 @@ public class TransactionMapper {
         return descriptionParser;
     }
 
-
+    /**
+     * gets the type group from plaid transaction by mapping from payment channel to type group
+     * @param transaction
+     * @return
+     */
     private String getTransactionTypeGroup(TransactionsGetResponse.Transaction transaction) {
         String typeGroup = transactionTypeGroupMap.getOrDefault(transaction.getPaymentChannel().replace(" ", ""), transaction.getPaymentChannel());
         log.info("Mapped Type Group: {} to: {}", transaction.getPaymentChannel(), typeGroup);
         return typeGroup;
     }
 
+    /**
+     * gets the type group to set the dbs transaction from the transaction code in plaid transaction
+     * @param transaction
+     * @return
+     */
     private String getTransactionType(TransactionsGetResponse.Transaction transaction) {
         String type = transactionTypeMap.getOrDefault(transaction.getTransactionCode(), transaction.getTransactionCode());
         if (type == null) {

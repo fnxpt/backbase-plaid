@@ -18,17 +18,25 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
+/**
+ * stores webhook in a a table
+ */
 @Getter
 @Setter
 @Entity
 @Table(name = "webhook")
 public class Webhook {
-
+    /**
+     * valid web hook type values
+     */
     public enum WebhookType {
         TRANSACTIONS,
         ITEM
     }
 
+    /**
+     * valid webhook code values
+     */
     public enum WebhookCode {
         INITIAL_UPDATE,
         HISTORICAL_UPDATE,
@@ -38,6 +46,9 @@ public class Webhook {
         ERROR
     }
 
+    /**
+     * unique auto generated number to identify a webhook
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
