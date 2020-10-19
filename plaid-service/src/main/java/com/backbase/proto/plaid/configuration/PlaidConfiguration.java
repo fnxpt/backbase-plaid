@@ -12,26 +12,29 @@ import org.springframework.context.annotation.Import;
 /**
  * Plaid configuration:
  * Used to build and set properties of Plaid client
- *
  */
 @Configuration
 @EnableConfigurationProperties(PlaidConfigurationProperties.class)
 @Import(TransactionServiceConfiguration.class)
 public class PlaidConfiguration {
-    /**
-     *
-     * @param transactionPresentationApiClient
-     * @return
-     */
 
+    /**
+     * Instantiates the transaction Api with a api parsed as an argument
+     * It allows access to the transactions through authentication and for responses and request for transactions to be managed easily
+     *
+     * @param transactionPresentationApiClient api to set the transactions api
+     * @return Transactions api
+     */
     @Bean
     public TransactionsApi transactionsApi(ApiClient transactionPresentationApiClient) {
         return new TransactionsApi(transactionPresentationApiClient);
     }
+
     /**
      * Builds and returns a plaid client which is used to sent requests to Plaid
      * It builds the Client using the configuration properties- Configuration
      * Builds an environment for the client, the type of which is specified in the configuration perimeter
+     *
      * @param configuration: contains properties for configuring the Plaid client and required to build it
      * @return
      */

@@ -21,6 +21,7 @@ import org.mapstruct.ReportingPolicy;
 import static com.backbase.proto.plaid.utils.ProductTypeUtils.mapSubTypeId;
 
 /**
+ * AccountMapper:
  * This maps accounts from plaid to backbase dbs
  * so they may then be used, processed by dbs
  */
@@ -29,19 +30,22 @@ import static com.backbase.proto.plaid.utils.ProductTypeUtils.mapSubTypeId;
     nullValueMappingStrategy = NullValueMappingStrategy.RETURN_NULL)
 public interface AccountMapper {
     /**
-     * maps the item id from plaid
-     * @param source
-     * @return
+     * Maps the item id from plaid to account
+     *
+     * @param source Plaid account
+     * @param itemId Identifies the item the account belongs to
+     * @return account
      */
     @Mapping(target = "id", ignore = true)
     Account mapToDomain(com.plaid.client.response.Account source, String itemId);
 
     /**
-     * maps the account data parsed in from plaid to product in backbase
+     * Maps the account data parsed in from plaid to product in backbase
+     *
      * @param accessToken this is added to additions so it may be stored with product and used later to request data
      * @param item this is usd to get the item id for so the item which belongs to this account may be indicated
      * @param institution this is the name of teh institution that the account belongs to
-     * @param account this is the account that was requested from plaid and contains the data to be mapped to backcbase
+     * @param account this is the account that was requested from plaid and contains the data to be mapped to backbase
      * @return the backbase product, containing all account data retrieved from plaid
      */
     default Product mapToStream(String accessToken, ItemStatus item, Institution institution, com.plaid.client.response.Account account) {

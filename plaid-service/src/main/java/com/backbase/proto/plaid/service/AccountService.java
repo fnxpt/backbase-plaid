@@ -43,7 +43,8 @@ import static com.backbase.proto.plaid.utils.ProductTypeUtils.mapProductType;
 import static com.backbase.proto.plaid.utils.ProductTypeUtils.mapSubTypeId;
 
 /**
- * this allows the retrieval and ingestion of account data when it is available from plaid
+ * AccountService:
+ * This allows the retrieval and ingestion of account data when it is available from plaid
  */
 @Service
 @Slf4j
@@ -72,7 +73,8 @@ public class AccountService {
     private final ProductCatalogService productCatalogService;
 
     /**
-     * sends a request to plaid for the accounts of a given item by parsing in the access token
+     * Sends a request to plaid for the accounts of a given item by parsing in the access token
+     *
      * @param accessToken authenticates the request of actions on item data
      * @return the account account balance of the account requested fir
      */
@@ -85,8 +87,9 @@ public class AccountService {
     }
 
     /**
-     * ingests the accounts retrieved from plaid into backbase, it maps and stores the accounts in the account database
+     * Ingests the accounts retrieved from plaid into backbase, it maps and stores the accounts in the account database
      * it sets additional data required for ingestion such service agreements
+     *
      * @param accessToken used to retrieve account data from plaid
      * @param userId required for institution retrieval, whos the user though??
      * @param legalEntityId used to get service and master agreements which are needed to perform action on the accounts ingested

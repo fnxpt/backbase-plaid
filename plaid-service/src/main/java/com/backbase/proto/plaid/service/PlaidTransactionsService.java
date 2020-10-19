@@ -27,7 +27,8 @@ import reactor.core.publisher.Flux;
 import retrofit2.Response;
 
 /**
- * allows the retrieval and ingestion of Transaction data when it is available from plaid
+ * PlaidTransactionsService:
+ * Allows the retrieval and ingestion of Transaction data when it is available from plaid
  */
 @Service
 @Slf4j
@@ -49,7 +50,8 @@ public class PlaidTransactionsService {
 
     private final ObjectMapper objectMapper;
     /**
-     *ingests the transactions of an item
+     * Ingests the transactions of an item
+     *
      * @param itemId identifies item the transaction belong to
      */
     public void ingestInitialUpdate(String itemId) {
@@ -79,9 +81,10 @@ public class PlaidTransactionsService {
         transactionService.deleteTransactions(Flux.fromIterable(deleteRequests));
     }
     /**
-     * ingests transaction, setting the start and end dates of the transactions that are being requested
+     * Ingests transaction, setting the start and end dates of the transactions that are being requested
      * it also sets how many are to be ingested at one time and the offset for pagination
-     * @param accessToken authenticates transaction requests
+     *
+     * @param itemId identifies the item the transaction belongs to
      * @param startDate the earliest transaction date being requested
      * @param endDate the latest transaction being requested
      */
@@ -92,7 +95,8 @@ public class PlaidTransactionsService {
     }
 
     /**
-     * this requests and paginates teh transactions coming in from plaid
+     * This requests and paginates teh transactions coming in from plaid
+     *
      * @param accessToken authentication for the plaid request, also identifies the item that the transaction belong to
      * @param startDate the earliest transaction date being requested
      * @param endDate the latest transaction being requested
@@ -170,7 +174,8 @@ public class PlaidTransactionsService {
     }
 
     /**
-     * converts date from local to date
+     * Converts date from local to date
+     *
      * @param dateToConvert date to be converted
      * @return converted date
      */

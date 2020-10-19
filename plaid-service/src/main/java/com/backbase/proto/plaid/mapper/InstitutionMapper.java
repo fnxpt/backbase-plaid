@@ -5,13 +5,15 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 /**
+ * InstitutionMapper:
  * Maps the fields and data from plaid response containing a institution to an institution object that can
  * be ingested by backbase
  */
 @Mapper
 public interface InstitutionMapper {
     /**
-     * maps the institution ID from the plaid response
+     * Maps the institution ID from the plaid response
+     *
      * @param source the institution returned from plaid
      * @return the institution to be ingested by backbase
      */

@@ -12,7 +12,8 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 /**
- * backbase dbs account object, stores all the fields to be stored in the database labeled account account
+ * Account:
+ * Backbase dbs account table object, stores all the fields to be stored in the database labeled account account
  */
 @Getter
 @Setter

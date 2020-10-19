@@ -6,12 +6,14 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 /**
+ * ItemMapper:
  * Maps the item data
  */
 @Mapper
 public interface ItemMapper {
     /**
-     * maps the data of the item identified in the token exchange response
+     * Maps the data of the item identified in the token exchange response
+     *
      * @param source the access token and item id that were exchanged for a public token
      * @return the item that is identified by the item id in the response parsed in
      */

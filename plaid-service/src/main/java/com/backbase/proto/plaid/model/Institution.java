@@ -17,6 +17,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 /**
+ * Institution:
  * Stores Institution fields in a table
  */
 @Getter
@@ -25,7 +26,7 @@ import org.hibernate.annotations.Parameter;
 @Table(name = "institution")
 public class Institution {
     /**
-     * auto generated unique number
+     * Auto generated unique number
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

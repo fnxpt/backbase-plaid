@@ -13,6 +13,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 /**
+ * Item:
  * Stores Item data in a table
  */
 @Getter
@@ -21,7 +22,7 @@ import org.hibernate.annotations.Parameter;
 @Table(name = "item")
 public class Item {
     /**
-     * auto generated unique number
+     * Auto generated unique number
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

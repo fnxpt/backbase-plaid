@@ -35,7 +35,8 @@ import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
 /**
- * allows the retrieval and ingestion of Plaid link data when it is available from plaid
+ * PlaidLinkService:
+ * Allows the retrieval and ingestion of Plaid link data when it is available from plaid
  */
 @Service
 @Slf4j
@@ -66,7 +67,8 @@ public class PlaidLinkService {
     private Executor tempExecutor = Executors.newSingleThreadExecutor();
 
     /**
-     * creates a plaid link token
+     * Creates a plaid link token
+     *
      * @param plaidLinkRequest contains some link fields to be used and comparators
      * @return link token
      */
@@ -99,8 +101,9 @@ public class PlaidLinkService {
     }
 
     /**
-     * retrieves an access token for a legal entity and sets up a webhook and triggers the ingestion of accounts
+     * Retrieves an access token for a legal entity and sets up a webhook and triggers the ingestion of accounts
      * using it
+     *
      * @param setAccessTokenRequest request body for the access token request
      */
     public void setPublicAccessToken(@Valid SetAccessTokenRequest setAccessTokenRequest) {
@@ -127,7 +130,8 @@ public class PlaidLinkService {
     }
 
     /**
-     * creates an item and saves it in the item database
+     * Creates an item and saves it in the item database
+     *
      * @param accessToken authentication for item mapping
      * @param userId
      */
@@ -140,7 +144,8 @@ public class PlaidLinkService {
     }
 
     /**
-     * sets up a webhook
+     * Sets up a webhook
+     *
      * @param accessToken used for authentication in plaid
      */
     private void setupWebHook(ItemPublicTokenExchangeResponse accessToken) {
@@ -148,7 +153,8 @@ public class PlaidLinkService {
     }
 
     /**
-     * exchanges public token for access token
+     * Exchanges public token for access token
+     *
      * @param setAccessTokenRequest request body for the exchange
      * @return access token
      */
@@ -168,7 +174,8 @@ public class PlaidLinkService {
     }
 
     /**
-     * gets the users id from internal token
+     * Gets the users id from internal token
+     *
      * @return users id
      */
     private String getLoggedInUserId() {
@@ -177,7 +184,8 @@ public class PlaidLinkService {
 
     /**
      * Gets the logged in users User Id from the internal token used to perform action on their behalf
-     * @param internalJwt token useed for internal authentication
+     *
+     * @param internalJwt token used for internal authentication
      * @return subject of the internal token
      */
     private String getLoggedInUserId(InternalJwt internalJwt) {
@@ -185,7 +193,8 @@ public class PlaidLinkService {
     }
 
     /**
-     * gets logged in legal entity id from the internal token
+     * Gets logged in legal entity id from the internal token
+     *
      * @param internalJwt token used for internal authentication
      * @return legal entity id or exception
      */
@@ -195,7 +204,8 @@ public class PlaidLinkService {
     }
 
     /**
-     * retrieve internal token
+     * Retrieve internal token
+     *
      * @return internal token
      */
     private InternalJwt getInternalJwt() {

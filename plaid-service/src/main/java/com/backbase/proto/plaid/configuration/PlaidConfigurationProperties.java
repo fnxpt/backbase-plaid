@@ -1,7 +1,5 @@
 package com.backbase.proto.plaid.configuration;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +8,8 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * Registers the data to be used to set, build the plaid
+ * PlaidConfigurationProperties:
+ * Registers the data to be used to set, build the plaid client and webhook
  */
 
 @ConfigurationProperties(prefix = "backbase.plaid")
@@ -22,17 +21,17 @@ public class PlaidConfigurationProperties {
     @NotNull
     private String clientName;
     /**
-     * client identification
+     * Client identification
      */
     @NotNull
     private String clientId;
     /**
-     * secret used to initialise the link
+     * Secret used to initialise the link
      */
     @NotNull
     private String secret;
     /**
-     * notifies when data is available for retrieval
+     * Notifies when data is available for retrieval
      */
     @NotNull
     private String webhookBaseUrl;
@@ -52,7 +51,7 @@ public class PlaidConfigurationProperties {
     @NotNull
     private List<CountryCode> countryCodes;
     /**
-     *
+     * Type of customer , what predefined permissions they have
      */
     @NotNull
     private List<String> defaultReferenceJobRoleNames;
@@ -60,14 +59,14 @@ public class PlaidConfigurationProperties {
 
 
     /**
-     * environments for the plaid client
+     * Environments for the plaid client
      */
     public enum Environment {
         SANDBOX, DEVELOPMENT, PRODUCTION
     }
 
     /**
-     * available Product types
+     * Available Product types
      */
     public enum Product {
         TRANSACTIONS, AUTH, IDENTITY, ASSETS, INVESTMENTS, LIABILITIES, PAYMENT_INITIATION
@@ -104,7 +103,8 @@ public class PlaidConfigurationProperties {
     }
 
     /**
-     *
+     * DescriptionParser:
+     * Parses transaction descriptors formatting, stores the desired formats for each description
      */
     @Data
     public static class DescriptionParser {

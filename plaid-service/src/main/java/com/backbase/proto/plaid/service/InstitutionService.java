@@ -16,7 +16,8 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 
 /**
- * allows the retrieval and ingestion of institution data when it is available from plaid
+ * InstitutionService:
+ * Allows the retrieval and ingestion of institution data when it is available from plaid
  */
 @Service
 @Slf4j
@@ -30,10 +31,11 @@ public class InstitutionService {
     private final PlaidClient plaidClient;
 
     /**
-     * gets the institution data from the repository if previously retrieved if it is not available from the
+     * Gets the institution data from the repository if previously retrieved if it is not available from the
      * repository it Will be requested from plaid and stored
+     *
      * @param institutionId identifies the instituted the data is being retrieved for
-     * @param userId ??
+     * @param userId
      * @return institution data
      */
     public Institution getInstitution(String institutionId, String userId) {
@@ -49,7 +51,8 @@ public class InstitutionService {
     }
 
     /**
-     * builds and sends a request to plaid for the data of an institution
+     * Builds and sends a request to plaid for the data of an institution
+     *
      * @param institutionId identifies the desired institution
      * @return the response from plaid
      */

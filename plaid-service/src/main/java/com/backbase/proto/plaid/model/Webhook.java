@@ -19,6 +19,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 /**
+ * Webhook
  * stores webhook in a a table
  */
 @Getter
@@ -27,7 +28,7 @@ import org.hibernate.annotations.Parameter;
 @Table(name = "webhook")
 public class Webhook {
     /**
-     * valid web hook type values
+     * Valid web hook type values
      */
     public enum WebhookType {
         TRANSACTIONS,
@@ -35,7 +36,7 @@ public class Webhook {
     }
 
     /**
-     * valid webhook code values
+     * Valid webhook code values
      */
     public enum WebhookCode {
         INITIAL_UPDATE,
@@ -47,7 +48,7 @@ public class Webhook {
     }
 
     /**
-     * unique auto generated number to identify a webhook
+     * Unique auto generated number to identify a webhook
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -15,7 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * sets up and builds a plaid webhook, this webhook notifies dbs when data is available for retrieval
+ * PlaidWebHookController:
+ * Sets up and builds a plaid webhook, this webhook notifies dbs when data is available for retrieval
  */
 @Slf4j
 @RestController
@@ -28,7 +29,8 @@ public class PlaidWebHookController implements WebhookApi {
     private final WebhookMapper webhookMapper = Mappers.getMapper(WebhookMapper.class);
 
     /**
-     * initialises the webhook
+     * Initialises the webhook
+     *
      * @param itemId the item who's accounts the data is being retrieved
      * @param plaidWebhook webhook that will be notifying available data in the item passed
      * @return Http response that indicated successfully retrieving a webhook
@@ -54,6 +56,13 @@ public class PlaidWebHookController implements WebhookApi {
 //        return ResponseEntity.accepted().build();
 //    }
 
+    /**
+     * Refreshes, updates the transactions for an item identified by its item id
+     *
+     * @param itemId The plaid item id to refresh (required)
+     * @param inlineObject  (optional)
+     * @return http response indicating the success of the operation
+     */
     @Override
     public ResponseEntity<Void> refreshTransactions(String itemId, @Valid InlineObject inlineObject) {
         log.info("refreshingItem!");

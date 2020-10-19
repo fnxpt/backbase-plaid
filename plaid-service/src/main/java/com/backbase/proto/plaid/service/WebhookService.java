@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
 /**
+ * WebhookService:
  * Sets up and processes plaid webhook for used in backbase dbs
  */
 @Service
@@ -39,7 +40,8 @@ public class WebhookService {
     private final ItemRepository itemRepository;
 
     /**
-     * sets up the webhook with configurations
+     * Sets up the webhook with configurations
+     *
      * @param accessToken provides authenticator in plaid
      * @param itemId identifies item for which the webhook is notifying for
      */
@@ -57,7 +59,8 @@ public class WebhookService {
     }
 
     /**
-     * processes the webhook for updates in transactions or the item
+     * Processes the webhook for updates in transactions or the item
+     *
      * @param webhook webhook being used
      */
 
@@ -83,16 +86,19 @@ public class WebhookService {
     }
 
     /**
+     * Validates the webhook to see if it is really coming from plaid, it throws an exception if it doesn't
      *
-     * @param Webhook
+     * @param Webhook the webhook to be validated
      */
     private void validateWebhook(Webhook Webhook) {
         // Validate if web hook is really coming from plaid. Throw exception if it doesn't
     }
 
     /**
-     * processes the webhook for updates in transactions for an item
-     * @param webhook
+     * Processes the webhook for updates in transactions for an item, depending on the webhooks code it will update a
+     * transaction differently
+     *
+     * @param webhook webhook to process for updates
      */
     private void processTransactions(Webhook webhook) {
 
@@ -125,8 +131,8 @@ public class WebhookService {
     }
 
     /**
-     *
-     * @param webhook
+     * The webhook updates the Item database
+     * @param Webhook that notifies Item updates
      */
     private void processItem(Webhook Webhook) {
         log.info("Webhook Acknowledged");
@@ -134,8 +140,9 @@ public class WebhookService {
     }
 
     /**
+     * Refreshes the transactions for a specific item. Updates the transactions and processes them
      *
-     * @param itemId
+     * @param itemId identifies the set of transactions to be updated by which item it belongs to
      */
     @SneakyThrows
     public void refresh(String itemId) {
