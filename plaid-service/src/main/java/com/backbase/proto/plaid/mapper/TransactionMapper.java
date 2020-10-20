@@ -18,6 +18,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
+/**
+ * This class maps Transactions retrieved from the Plaid API endpoint to the Backbase DBS Transactions.
+ */
 @Slf4j
 @Component
 public class TransactionMapper {
@@ -26,12 +29,22 @@ public class TransactionMapper {
     private final Map<String, String> transactionTypeGroupMap;
     private final Map<String, String> transactionTypeMap;
 
+    /**
+     * Sets the configuration properties used for the mapping.
+     *
+     * @param transactionConfigurationProperties contains methods for setting the Type Group and Type for DBS Transactions
+     */
     public TransactionMapper(PlaidConfigurationProperties transactionConfigurationProperties) {
         this.transactionConfigurationProperties = transactionConfigurationProperties;
         this.transactionTypeGroupMap = transactionConfigurationProperties.getTransactions().getTransactionTypeGroupMap();
         this.transactionTypeMap = transactionConfigurationProperties.getTransactions().getTransactionTypeMap();
     }
-
+    /**
+     * This maps the individual fields of the Plaid transaction to the Backbase Transaction.
+     *
+     * @param transaction a Transaction from the list retrieved by Plaid
+     * @return DBS Transaction for ingestion
+     */
     public TransactionItemPost map(TransactionsGetResponse.Transaction transaction, String institutionId) {
         // CreditDebitIndicator credit = new CreditDebitIndicator();
 
@@ -95,7 +108,14 @@ public class TransactionMapper {
         return bbTransaction;
     }
 
-
+    /**
+     * Maps the descriptions from the Plaid transaction response to Backbase DBS Transaction
+     * it uses the description parser in Plaid configuration properties to do so.
+     *
+     * @param transaction the Transaction response sent from Plaid
+     * @param bbTransaction the Transaction to be ingested by Backbase
+     * @param institutionId the identifier for the institution that the Transaction belongs to
+     */
     private void mapDescription(TransactionsGetResponse.Transaction transaction, TransactionItemPost bbTransaction, String institutionId) {
         String description;
 
@@ -115,7 +135,12 @@ public class TransactionMapper {
     }
 
 
-
+    /**
+     * Maps the location from the Plaid returned Transaction which stores it as an object to the Backbase Transaction which stores it as separate fields.
+     *
+     * @param transaction Transaction parsed from Plaids Clients side
+     * @param bbTransaction Backbase Transaction to be ingested and displayed in the front end
+     */
     private void mapLocation(TransactionsGetResponse.Transaction transaction, TransactionItemPost bbTransaction) {
         TransactionsGetResponse.Transaction.Location location = transaction.getLocation();
 
@@ -126,6 +151,13 @@ public class TransactionMapper {
         }
     }
 
+    /**
+     * Maps Counter Party attributes from Plaid where they are less grouped.
+     *
+     * @param transaction the Transaction response from Plaid
+     * @param bbTransaction the Backbase transaction to be ingested
+     * @param institutionId identifies the institution the Transaction belongs to
+     */
     private void mapCounterParty(TransactionsGetResponse.Transaction transaction, TransactionItemPost bbTransaction, String institutionId) {
         String counterpartyName;
         TransactionsGetResponse.Transaction.PaymentMeta paymentMeta = transaction.getPaymentMeta();
@@ -152,6 +184,13 @@ public class TransactionMapper {
         bbTransaction.setCounterPartyName(counterpartyName);
     }
 
+    /**
+     * Maps the Counter Party account number (BBAN) if it is available from Plaid.
+     *
+     * @param transaction the Transaction response from Plaid
+     * @param bbTransaction the Backbase Transaction to be ingested
+     * @param institutionId identifies the institution the Transaction belongs to
+     */
     private void mapCounterPartyBBAN(TransactionsGetResponse.Transaction transaction, TransactionItemPost bbTransaction, String institutionId) {
         PlaidConfigurationProperties.DescriptionParser descriptionParser = getDescriptionParser(institutionId);
         if (descriptionParser != null) {
@@ -164,7 +203,12 @@ public class TransactionMapper {
 
     }
 
-
+    /**
+     * Maps billing status from Plaid Transaction to Backbase Transaction.
+     *
+     * @param transaction the Transaction response from Plaid
+     * @return the billing status to be added to the Backbase Transaction
+     */
     @NotNull
     private String mapBilling(TransactionsGetResponse.Transaction transaction) {
         String billingStatus;
@@ -176,6 +220,13 @@ public class TransactionMapper {
         return billingStatus;
     }
 
+    /**
+     * Formats a text description to be mapped to a Transaction.
+     *
+     * @param text to be formatted
+     * @param regexPatterns desired format pattern in regular expression
+     * @return formatted description
+     */
     private String parse(String text, List<String> regexPatterns) {
         String description;
         description = getMatch(text, regexPatterns)
@@ -183,6 +234,13 @@ public class TransactionMapper {
         return description;
     }
 
+    /**
+     * Formats a string using regular expression.
+     *
+     * @param transactionName string to be formatted
+     * @param regexPatterns regular expression detailing the desired format
+     * @return formatted string
+     */
     @NotNull
     private Optional<String> getMatch(String transactionName, List<String> regexPatterns) {
         return regexPatterns.stream()
@@ -192,6 +250,13 @@ public class TransactionMapper {
             .findFirst().map(Matcher::group);
     }
 
+    /**
+     * Gets the description parser from Plaid Configuration Properties and sets the Transaction Configuration Properties
+     * parser to this with it being specific for the institution the Transactions belong to.
+     *
+     * @param institutionId identifies the institution that the transaction belong to
+     * @return the description parser with the correct configurations for the institution
+     */
     @Nullable
     private PlaidConfigurationProperties.DescriptionParser getDescriptionParser(String institutionId) {
         PlaidConfigurationProperties.DescriptionParser descriptionParser = null;
@@ -202,13 +267,24 @@ public class TransactionMapper {
         return descriptionParser;
     }
 
-
+    /**
+     * Gets the type group from Plaid Transaction by mapping from Payment Channel to Type Group.
+     *
+     * @param transaction
+     * @return
+     */
     private String getTransactionTypeGroup(TransactionsGetResponse.Transaction transaction) {
         String typeGroup = transactionTypeGroupMap.getOrDefault(transaction.getPaymentChannel().replace(" ", ""), transaction.getPaymentChannel());
         log.info("Mapped Type Group: {} to: {}", transaction.getPaymentChannel(), typeGroup);
         return typeGroup;
     }
 
+    /**
+     * Gets the Type Group to set the DBS transaction from the Transaction Code in Plaid Transaction.
+     *
+     * @param transaction
+     * @return
+     */
     private String getTransactionType(TransactionsGetResponse.Transaction transaction) {
         String type = transactionTypeMap.getOrDefault(transaction.getTransactionCode(), transaction.getTransactionCode());
         if (type == null) {

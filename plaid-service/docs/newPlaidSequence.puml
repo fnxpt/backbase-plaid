@@ -1,0 +1,85 @@
+@startuml
+actor User
+participant App
+box "Internal Service" #LightBlue
+participant "Link Controller" as LCtrl
+participant "Item Controller" as ICtrl
+participant "Plaid Link Service" as PLServe
+participant "Item Service" as IServe
+participant "Account Service" as AServe
+participant "WebhookService" as WServe
+participant "Transaction Service" as TServe
+'participant "Item Repository" as IRepo
+'participant "Account Repo" as ARepo
+'participant "Webhook Repository" as WRepo
+participant "Backbase Database" as BD
+end box
+box "Plaid Services" #LightYellow
+participant "Plaid Client" as PClient
+participant "Plaid Link" as PLink
+end box
+participant "Stream" as S
+participant "SAGA"
+
+
+== Link external accounts ==
+User -> App: Link Accounts (Create item)
+App -> LCtrl: Create Plaid Link
+activate LCtrl
+ LCtrl -> PLServe: <<Request Plaid Link>>
+ PLServe -> PClient: <<linkTokenCreateRequest>> request containing configuration properties
+    activate PClient
+     PClient --> PLServe: linkTokenCreateResponse, contains Link Token
+    deactivate PClient
+ PLServe --> LCtrl: Link Token
+ App <-- LCtrl: Link accounts, linkToken
+
+ App-> PLink: invoke link UI
+    activate PLink
+    PLink --> App: Public Token
+    deactivate PLink
+ deactivate
+ App -> LCtrl: Public Token
+
+
+    activate LCtrl
+     LCtrl -> PLServe: Set Public Access Token,\nsends Public Token with some meta data
+     PLServe -> PClient: <<Public Token Exchange>> exchanges the public token for an access token and an Item ID
+        activate PLServe
+          PClient --> PLServe: Exchange response contain Access token and Item ID
+          PLServe -> BD: Item ID, user ID, access Token
+        deactivate PLServe
+     == ingest accounts ==
+     PLServe -> AServe: Ingest Plaid Accounts, access token
+     AServe -> PClient: <<Request Plaid Accounts>> access token
+        activate PClient
+            PClient --> AServe: List of Plaid accounts for the users Item
+        deactivate PClient
+     AServe-> BD: accounts
+     AServe -> S: Accounts to be mapped to Backbase (map to stream)
+     S --> AServe: Collection of accounts that can be ingested
+     AServe -> SAGA: Processes / ingests accounts
+== webhooks ==
+     PLServe -> WServe: Set up webhook, access token item id
+     WServe -> BD: Store webhook data
+     WServe -> PClient: <<Item Webhook Update request>> contains access token and webhook url
+     PClient --> WServe: Item webhook update response, contains Item available for update
+== ingest transactions ==
+    PLServe -> TServe: Ingest transactions,  access token
+    TServe -> PClient: <<Get transactions for Item>> \naccess token, start date of transactions end date of transactions\n(with offset for pagination)
+    PClient --> TServe: List of transactions from time frame parsed in
+    TServe -> Stream: Processes Transactions
+    Stream --> TServe: collection of transactions to be ingested
+    TServe -> App: Display ingested data
+
+
+
+
+
+
+   deactivate
+
+
+
+
+@enduml

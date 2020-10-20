@@ -5,9 +5,17 @@ import com.backbase.proto.plaid.model.Webhook;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+/**
+ * This class maps the webhook so it may be used.
+ */
 @Mapper
 public interface WebhookMapper {
-//
+    /**
+     * Maps the webhook from Plaid.
+     *
+     * @param source webhook from Plaid
+     * @return webhook to be stored in database
+     */
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "completed", ignore = true)

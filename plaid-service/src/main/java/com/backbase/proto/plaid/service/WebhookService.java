@@ -20,6 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
+/**
+ * This class sets up and processes Plaid webhook for used in Backbase DBS.
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -35,7 +38,12 @@ public class WebhookService {
 
     private final ItemRepository itemRepository;
 
-
+    /**
+     * Sets up the webhook with configurations.
+     *
+     * @param accessToken provides authenticator in Plaid
+     * @param itemId identifies Item for which the webhook is notifying for
+     */
     public void setupWebhook(String accessToken, String itemId) {
 
         String webhookUrl = plaidConfigurationProperties.getWebhookBaseUrl() + "/webhook/" + itemId;
@@ -48,6 +56,12 @@ public class WebhookService {
             throw new BadRequestException("Unable to setup web hook: ", e);
         }
     }
+
+    /**
+     * Processes the webhook for updates in Transactions or the Item.
+     *
+     * @param webhook webhook being used
+     */
 
     public void process(Webhook webhook) {
         log.info("Processing webhook: {} for item: {}", webhook.getWebhookType(), webhook.getItemId());
@@ -70,10 +84,21 @@ public class WebhookService {
         webhookRepository.save(webhook);
     }
 
+    /**
+     * Validates the webhook to see if it is really coming from Plaid, it throws an exception if it doesn't.
+     *
+     * @param Webhook the webhook to be validated
+     */
     private void validateWebhook(Webhook Webhook) {
         // Validate if web hook is really coming from plaid. Throw exception if it doesn't
     }
 
+    /**
+     * Processes the webhook for updates in Transactions for an Item, depending on the webhooks code it will update a
+     * transaction differently.
+     *
+     * @param webhook webhook to process for updates
+     */
     private void processTransactions(Webhook webhook) {
 
         switch (webhook.getWebhookCode()) {
@@ -104,13 +129,21 @@ public class WebhookService {
 
     }
 
-
+    /**
+     * The webhook updates the Item database.
+     *
+     * @param Webhook that notifies Item updates
+     */
     private void processItem(Webhook Webhook) {
         log.info("Webhook Acknowledged");
         //TODO: Update Item Database
     }
 
-
+    /**
+     * Refreshes the Transactions for a specific Item. Updates the Transactions and processes them.
+     *
+     * @param itemId identifies the set of Transactions to be updated by which Item it belongs to
+     */
     @SneakyThrows
     public void refresh(String itemId) {
         log.info("Refreshing Transactions for: {}", itemId);

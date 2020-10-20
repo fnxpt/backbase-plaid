@@ -1,17 +1,14 @@
 package com.backbase.proto.plaid.model;
 
-import java.time.LocalDateTime;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
 
+import javax.persistence.*;
+import java.time.LocalDateTime;
+
+/**
+ * This class stores Item data in a table.
+ */
 @Getter
 @Setter
 @Entity

@@ -15,6 +15,9 @@ import org.jetbrains.annotations.NotNull;
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 
+/**
+ * This class allows the retrieval and ingestion of institution data when it is available from Plaid.
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -26,6 +29,14 @@ public class InstitutionService {
 
     private final PlaidClient plaidClient;
 
+    /**
+     * Gets the institution data from the repository if previously retrieved if it is not available from the
+     * repository it will be requested from Plaid and stored.
+     *
+     * @param institutionId identifies the instituted the data is being retrieved for
+     * @param userId
+     * @return institution data
+     */
     public Institution getInstitution(String institutionId, String userId) {
         return institutionRepository.getByInstitutionId(institutionId)
             .orElseGet(() -> {
@@ -38,6 +49,12 @@ public class InstitutionService {
             });
     }
 
+    /**
+     * Builds and sends a request to Plaid for the data of an institution.
+     *
+     * @param institutionId identifies the desired institution
+     * @return the response from Plaid
+     */
     @NotNull
     private InstitutionsGetByIdResponse requestInstitution(String institutionId) {
         InstitutionsGetByIdResponse institutionsGetResponse;

@@ -45,6 +45,9 @@ import retrofit2.Response;
 import static com.backbase.proto.plaid.utils.ProductTypeUtils.mapProductType;
 import static com.backbase.proto.plaid.utils.ProductTypeUtils.mapSubTypeId;
 
+/**
+ * This class allows the retrieval and ingestion of account data when it is available from Plaid.
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -71,6 +74,12 @@ public class AccountService {
 
     private final ProductCatalogService productCatalogService;
 
+    /**
+     * Sends a request to Plaid for the accounts of a given item by parsing in the Access Token.
+     *
+     * @param accessToken authenticates the request of actions on Item data
+     * @return the account account balance of the account requested for
+     */
     public AccountsBalanceGetResponse requestPlaidAccounts(String accessToken) {
         try {
             Response<AccountsBalanceGetResponse> execute = plaidClient.service().accountsBalanceGet(new AccountsBalanceGetRequest(accessToken)).execute();
@@ -85,6 +94,14 @@ public class AccountService {
         }
     }
 
+    /**
+     * Ingests the accounts retrieved from Plaid into Backbase, it maps and stores the accounts in the account database
+     * it sets additional data required for ingestion such Service Agreements.
+     *
+     * @param accessToken used to retrieve account data from Plaid
+     * @param userId required for institution retrieval
+     * @param legalEntityId used to get Service and Master Agreements which are needed to perform action on the accounts ingested
+     */
     public void ingestPlaidAccounts(String accessToken, String userId, String legalEntityId) {
         AccountsBalanceGetResponse plaidAccounts = requestPlaidAccounts(accessToken);
 
@@ -139,7 +156,7 @@ public class AccountService {
     }
 
     /**
-     * Ensure that all types and sub types from Plaid exists in Backbase DBS Product Catalog
+     * Ensure that all types and sub types from Plaid exists in Backbase DBS Product Catalog.
      *
      * @param plaidAccounts List of linked Plaid Accounts
      */
