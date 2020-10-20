@@ -11,9 +11,6 @@ participant "Item Service" as IServe
 participant "Account Service" as AServe
 participant "WebhookService" as WServe
 participant "Transaction Service" as TServe
-'participant "Item Repository" as IRepo
-'participant "Account Repo" as ARepo
-'participant "Webhook Repository" as WRepo
 database "Backbase Database" as BD
 end box
 
@@ -29,7 +26,7 @@ box "Plaid" #LightYellow
 participant "Plaid" as Plaid
 end box
 
-box "External Bank" #LightRed
+box "External Bank" #FFBBBB
 participant "External Bank" as EB
 end box
 
