@@ -46,7 +46,6 @@ public class TransactionMapper {
      * @return DBS Transaction for ingestion
      */
     public TransactionItemPost map(TransactionsGetResponse.Transaction transaction, String institutionId) {
-        // CreditDebitIndicator credit = new CreditDebitIndicator();
 
         String arrangementId = transaction.getAccountId();
 
@@ -213,7 +212,7 @@ public class TransactionMapper {
     private String mapBilling(TransactionsGetResponse.Transaction transaction) {
         String billingStatus;
 
-        if (transaction.getPending())
+        if (Boolean.TRUE.equals(transaction.getPending()))
             billingStatus = "PENDING";
         else
             billingStatus = "BILLED";

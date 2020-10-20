@@ -20,7 +20,7 @@ import org.springframework.test.context.junit4.SpringRunner;
     classes = PlaidApplication.class
 )
 @Slf4j
-public class WebhookServiceST {
+public class WebhookServiceIT {
 
     static {
         System.setProperty("SIG_SECRET_KEY", "***REMOVED***");

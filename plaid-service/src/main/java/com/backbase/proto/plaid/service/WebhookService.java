@@ -9,16 +9,21 @@ import com.backbase.proto.plaid.repository.WebhookRepository;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.ItemWebhookUpdateRequest;
 import com.plaid.client.request.TransactionsRefreshRequest;
+import com.plaid.client.request.WebhookVerificationKeyGetRequest;
 import com.plaid.client.response.ErrorResponse;
 import com.plaid.client.response.ItemWebhookUpdateResponse;
 import com.plaid.client.response.TransactionsRefreshResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
+
+import com.plaid.client.response.WebhookVerificationKeyGetResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
+
+import static com.backbase.proto.plaid.model.Webhook.WebhookType.*;
 
 /**
  * This class sets up and processes Plaid webhook for used in Backbase DBS.
@@ -47,10 +52,9 @@ public class WebhookService {
     public void setupWebhook(String accessToken, String itemId) {
 
         String webhookUrl = plaidConfigurationProperties.getWebhookBaseUrl() + "/webhook/" + itemId;
-
         log.info("Setting up webhook for item: {} with url:
         try {
-            ItemWebhookUpdateResponse body = plaidClient.service().itemWebhookUpdate(new ItemWebhookUpdateRequest(accessToken, webhookUrl)).execute().body();
+            plaidClient.service().itemWebhookUpdate(new ItemWebhookUpdateRequest(accessToken, webhookUrl)).execute().body();
             log.info("Webhook Setup");
         } catch (IOException e) {
             throw new BadRequestException("Unable to setup web hook: ", e);
@@ -69,13 +73,12 @@ public class WebhookService {
         webhookRepository.save(webhook);
         try {
             validateWebhook(webhook);
-            switch (webhook.getWebhookType()) {
-                case TRANSACTIONS:
-                    processTransactions(webhook);
-                    break;
-                case ITEM:
-                    processItem(webhook);
-            }
+
+            if(webhook.getWebhookType() == TRANSACTIONS)
+                processTransactions(webhook);
+            else if(webhook.getWebhookType() == ITEM)
+                processItem(webhook);
+
             webhook.setCompleted(true);
         } catch (Exception exception) {
             exception.printStackTrace();
@@ -87,9 +90,13 @@ public class WebhookService {
     /**
      * Validates the webhook to see if it is really coming from Plaid, it throws an exception if it doesn't.
      *
-     * @param Webhook the webhook to be validated
+     * @param webhook the webhook to be validated
      */
-    private void validateWebhook(Webhook Webhook) {
+    private void validateWebhook(Webhook webhook) {
+        //TODO:
+        // need a jwt to validate
+        // once have the header of the jwt use the webhook_verification_key/get endpoint to verify
+        // https://plaid.com/docs/api/webhook-verification/
         // Validate if web hook is really coming from plaid. Throw exception if it doesn't
     }
 
@@ -120,7 +127,8 @@ public class WebhookService {
             }
             case TRANSACTIONS_REMOVED: {
                 log.info("Process transactions removed");
-                transactionsService.removeTransactions(webhook.getItemId(), webhook.getRemovedTransactions());
+                transactionsService.removeTransactions( webhook.getRemovedTransactions());
+                break;
             }
             default: {
                 throw new BadRequestException("Not a valid web hook code");
@@ -132,9 +140,9 @@ public class WebhookService {
     /**
      * The webhook updates the Item database.
      *
-     * @param Webhook that notifies Item updates
+     * @param webhook that notifies Item updates
      */
-    private void processItem(Webhook Webhook) {
+    private void processItem(Webhook webhook) {
         log.info("Webhook Acknowledged");
         //TODO: Update Item Database
     }

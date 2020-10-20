@@ -74,14 +74,12 @@ public class ItemService {
     public void deleteItemFromDBS(String itemId) {
         // Delete accounts from DBS
         List<Account> accounts = accountRepository.findAllByItemId(itemId);
-        accounts.forEach(account -> {
-            arrangementService.deleteArrangementByExternalId(account.getAccountId())
-                .onErrorResume(WebClientResponseException.NotFound.class, e -> {
-                    log.info("Arrangement already deleted");
-                    return Mono.empty();
-                })
-                .block();
-        });
+        accounts.forEach(account -> arrangementService.deleteArrangementByExternalId(account.getAccountId())
+            .onErrorResume(WebClientResponseException.NotFound.class, e -> {
+                log.info("Arrangement already deleted");
+                return Mono.empty();
+            })
+            .block());
         List<TransactionsDeleteRequestBody> transactionDeleteRequests = accounts.stream()
             .map(account -> new TransactionsDeleteRequestBody().arrangementId(account.getAccountId()))
             .collect(Collectors.toList());

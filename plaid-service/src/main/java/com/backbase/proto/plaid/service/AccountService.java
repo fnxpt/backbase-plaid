@@ -184,9 +184,6 @@ public class AccountService {
                     })
                     .collect(Collectors.toList())));
             });
-//        log.info("Setting up Product Catalog with: {}", productCatalog);
-        ProductCatalog productCatalog1 = productCatalogService.setupProductCatalog(productCatalog);
-//        log.info("Finished setting up Product Catalog: {}", productCatalog);
     }
 
 

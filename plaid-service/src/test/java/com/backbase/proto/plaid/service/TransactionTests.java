@@ -4,6 +4,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.Test;
 
+import static org.junit.Assert.assertTrue;
+
 public class TransactionTests {
 
     @Test
@@ -14,6 +16,7 @@ public class TransactionTests {
 
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(text);
+        assertTrue(m.find());
         if(m.find()) {
             System.out.println(m.group());
         }
@@ -30,6 +33,7 @@ public class TransactionTests {
 
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(text);
+        assertTrue(m.find());
         if(m.find()) {
             System.out.println(m.group());
         }

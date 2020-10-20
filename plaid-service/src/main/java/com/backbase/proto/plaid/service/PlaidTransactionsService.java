@@ -45,9 +45,7 @@ public class PlaidTransactionsService {
     private final TransactionMapper transactionMapper;
 
     private final ItemService itemService;
-    static int testCount = 0;
 
-    private final ObjectMapper objectMapper;
     /**
      * Ingests the Transactions of an Item.
      *
@@ -75,7 +73,7 @@ public class PlaidTransactionsService {
 
     }
 
-    public void removeTransactions(String itemId, List<String> removedTransactions) {
+    public void removeTransactions( List<String> removedTransactions) {
         List<TransactionsDeleteRequestBody> deleteRequests = removedTransactions.stream().map(id -> new TransactionsDeleteRequestBody().id(id)).collect(Collectors.toList());
         transactionService.deleteTransactions(Flux.fromIterable(deleteRequests));
     }
@@ -121,7 +119,6 @@ public class PlaidTransactionsService {
                 .execute();
 
         if (response.isSuccessful()) {
-            //POST https://host:port/transaction-manager/service-api/v2/transactions
             TransactionsGetResponse transactionsGetResponse = response.body();
             log.info("response: {}", transactionsGetResponse);
 
@@ -133,38 +130,34 @@ public class PlaidTransactionsService {
             // everytime called its set to null no the total tranactions in the list will always be less then all the transaction wanted
 
             List<TransactionItemPost> transactionItemPosts = null;
-            if (transactionsGetResponse != null) {
-                // populates list with response
-                List<TransactionsGetResponse.Transaction> transactions = transactionsGetResponse.getTransactions();
+            // populates list with response
+            List<TransactionsGetResponse.Transaction> transactions = transactionsGetResponse.getTransactions();
 
-//            objectMapper.writeValue(new File("plaid-" + LocalDateTime.now().toString() +".json"), transactions);
 
-                transactionItemPosts = transactions.stream().map((TransactionsGetResponse.Transaction transaction) ->
-                    transactionMapper.map(transaction, transactionsGetResponse.getItem().getInstitutionId())).collect(Collectors.toList());
+            transactionItemPosts = transactions.stream().map((TransactionsGetResponse.Transaction transaction) ->
+                transactionMapper.map(transaction, transactionsGetResponse.getItem().getInstitutionId())).collect(Collectors.toList());
 
-                Integer totalTransactionsRequested = transactionsGetResponse.getTotalTransactions();
-                int totalTransactionRetrieved = transactionItemPosts.size();
-                // if there are too many left to retrieve get the next batch
-                int newOffset = offset + totalTransactionRetrieved;
-                log.info("number of items retrieved: {}", newOffset);
-                log.info("number of items expected: {}", totalTransactionsRequested);
-                log.info("number of times looped: {}", testCount++);
-                log.info("number retrieved this time : {}", totalTransactionRetrieved);
+            Integer totalTransactionsRequested = transactionsGetResponse.getTotalTransactions();
+            int totalTransactionRetrieved = transactionItemPosts.size();
+            // if there are too many left to retrieve get the next batch
+            int newOffset = offset + totalTransactionRetrieved;
+            log.info("number of items retrieved: {}", newOffset);
+            log.info("number of items expected: {}", totalTransactionsRequested);
+            log.info("number retrieved this time : {}", totalTransactionRetrieved);
 
-                //processes list to Backbase
-                transactionService.processTransactions(Flux.fromIterable(transactionItemPosts))
-                    .doOnNext(transactionIds -> log.info("Ingested transactionIds: {}", transactionIds))
-                    .collectList()
-                    .block();
+            //processes list to Backbase
+            transactionService.processTransactions(Flux.fromIterable(transactionItemPosts))
+                .doOnNext(transactionIds -> log.info("Ingested transactionIds: {}", transactionIds))
+                .collectList()
+                .block();
 
-                if (batchSize < (totalTransactionsRequested - offset)) {
-                    log.info("Ingesting next page of transactions from: {}", newOffset);
-                    ingestTransactions(accessToken, startDate, endDate, batchSize, newOffset);
-                } else {
-                    log.info("Finiished ingestion of transactions");
-                }
-
+            if (batchSize < (totalTransactionsRequested - offset)) {
+                log.info("Ingesting next page of transactions from: {}", newOffset);
+                ingestTransactions(accessToken, startDate, endDate, batchSize, newOffset);
+            } else {
+                log.info("Finiished ingestion of transactions");
             }
+
         } else {
             ErrorResponse errorResponse = plaidClient.parseError(response);
             log.error("Failed to ingest transactions for: {}", errorResponse.getErrorMessage());

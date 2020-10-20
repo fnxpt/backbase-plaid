@@ -40,20 +40,6 @@ public class PlaidWebHookController implements WebhookApi {
         return ResponseEntity.accepted().build();
     }
 
-//    @Override
-//    public ResponseEntity<Void> processWebHook(Map<String, Object> requestBody) {
-//        log.info("Received Plaid Webhook!");
-//        Webhook webhook = new Webhook();
-//        webhook.setItemId((String)requestBody.get("item_id"));
-//        webhook.setWebhookCode(Webhook.WebhookCode.valueOf(requestBody.get("webhook_code").toString()));
-//        webhook.setWebhookType(Webhook.WebhookType.valueOf(requestBody.get("webhook_type").toString()));
-//        webhook.setError((String)requestBody.get("error"));
-//
-//        webhookService.process(webhook);
-////        webhookService.process(plaidWebhook);
-//        return ResponseEntity.accepted().build();
-//    }
-
     /**
      * Refreshes, updates the Transactions for an Item identified by its Item ID.
      *

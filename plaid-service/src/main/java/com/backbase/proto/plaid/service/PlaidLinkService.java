@@ -123,9 +123,8 @@ public class PlaidLinkService {
         webhookService.setupWebhook(accessToken.getAccessToken(), itemId);
         setupWebHook(accessToken);
 
-        tempExecutor.execute(() -> {
-            transactionService.ingestDefaultUpdate(itemId);
-        });
+        tempExecutor.execute(() ->
+                transactionService.ingestDefaultUpdate(itemId));
     }
 
     /**
@@ -148,7 +147,8 @@ public class PlaidLinkService {
      * @param accessToken used for authentication in Plaid
      */
     private void setupWebHook(ItemPublicTokenExchangeResponse accessToken) {
-
+      // does nothing because it is yet to be implemented ?
+        // should get rid of unused perimeter
     }
 
     /**
