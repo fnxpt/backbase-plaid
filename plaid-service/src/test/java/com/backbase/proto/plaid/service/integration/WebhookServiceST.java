@@ -3,7 +3,9 @@ package com.backbase.proto.plaid.service.integration;
 import com.backbase.proto.plaid.PlaidApplication;
 import com.backbase.proto.plaid.model.PlaidWebhook;
 import com.backbase.proto.plaid.model.Webhook;
+import com.backbase.proto.plaid.repository.WebhookRepository;
 import com.backbase.proto.plaid.service.WebhookService;
+import com.netflix.discovery.converters.Auto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -27,11 +29,18 @@ public class WebhookServiceST {
     @Autowired
     private WebhookService webhookService;
 
+    @Autowired
+    private WebhookRepository webhookRepository;
+
     @Test
-    @Ignore
     public void testWebhookRefresh() {
-        webhookService.refresh("***REMOVED***");
+        webhookService.refresh("bvRdEEG4A6f1ov8E9KQDHomX9786b7CmNLz7L");
 //        webhookService.refresh("***REMOVED***");
+    }
+
+    @Test
+    public void rerunFailedWebhooks() {
+        webhookRepository.findAllByCompleted(false).stream().limit(1).forEach(webhookService::process);
     }
 
 
