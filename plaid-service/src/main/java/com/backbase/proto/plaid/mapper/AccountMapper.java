@@ -7,12 +7,15 @@ import com.backbase.stream.legalentity.model.BookedBalance;
 import com.backbase.stream.legalentity.model.CreditLimit;
 import com.backbase.stream.legalentity.model.Product;
 import com.plaid.client.response.ItemStatus;
-import org.mapstruct.*;
-
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.NullValueMappingStrategy;
+import org.mapstruct.ReportingPolicy;
 
 import static com.backbase.proto.plaid.utils.ProductTypeUtils.mapSubTypeId;
 
@@ -38,15 +41,13 @@ public interface AccountMapper {
      * Maps the account data parsed in from Plaid to product in Backbase using map struct pairing names and values.
      *
      * @param accessToken this is added to additions so it may be stored with product and used later to request data
-     * @param item this is used to get the Item ID for so the item which belongs to this account may be indicated
+     * @param item        this is used to get the Item ID for so the item which belongs to this account may be indicated
      * @param institution this is the name of the institution that the account belongs to
-     * @param account this is the account that was requested from Plaid and contains the data to be mapped to Backbase
+     * @param account     this is the account that was requested from Plaid and contains the data to be mapped to Backbase
      * @return the Backbase product, containing all account data retrieved from Plaid
      */
     default Product mapToStream(String accessToken, ItemStatus item, Institution institution, com.plaid.client.response.Account account) {
         Map<String, Object> additions = new HashMap<>();
-        additions.put("plaidAccessToken", accessToken);
-        additions.put("plaidItemId", item.getItemId());
         additions.put("plaidInstitutionId", institution.getInstitutionId());
         additions.put("plaidAccountOfficialName", account.getOfficialName());
         additions.put("institutionName", institution.getName());
@@ -57,7 +58,7 @@ public interface AccountMapper {
         product.setName(account.getName());
         product.setBankAlias(account.getName());
         product.setAdditions(additions);
-        String productTypeExternalId = mapSubTypeId(account.getSubtype());
+        String productTypeExternalId = mapSubTypeId(institution, account.getSubtype());
         product.setProductTypeExternalId(productTypeExternalId);
         product.setBBAN(account.getMask());
 
@@ -82,7 +83,6 @@ public interface AccountMapper {
         }
         return product;
     }
-
 
 
 }

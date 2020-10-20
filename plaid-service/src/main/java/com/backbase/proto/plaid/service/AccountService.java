@@ -1,7 +1,6 @@
 package com.backbase.proto.plaid.service;
 
 import com.backbase.buildingblocks.presentation.errors.BadRequestException;
-import com.backbase.dbs.limit.service.model.ErrorMessage;
 import com.backbase.proto.plaid.configuration.PlaidConfigurationProperties;
 import com.backbase.proto.plaid.mapper.AccountMapper;
 import com.backbase.proto.plaid.model.Institution;
@@ -83,11 +82,11 @@ public class AccountService {
     public AccountsBalanceGetResponse requestPlaidAccounts(String accessToken) {
         try {
             Response<AccountsBalanceGetResponse> execute = plaidClient.service().accountsBalanceGet(new AccountsBalanceGetRequest(accessToken)).execute();
-            if(execute.isSuccessful()) {
+            if (execute.isSuccessful()) {
                 return execute.body();
             } else {
                 ErrorResponse errorResponse = plaidClient.parseError(execute);
-                throw new BadRequestException("Cannot get accounts from Plaid: "+ errorResponse.getErrorMessage());
+                throw new BadRequestException("Cannot get accounts from Plaid: " + errorResponse.getErrorMessage());
             }
         } catch (IOException e) {
             throw new BadRequestException("Failed to get access token");
@@ -98,8 +97,8 @@ public class AccountService {
      * Ingests the accounts retrieved from Plaid into Backbase, it maps and stores the accounts in the account database
      * it sets additional data required for ingestion such Service Agreements.
      *
-     * @param accessToken used to retrieve account data from Plaid
-     * @param userId required for institution retrieval
+     * @param accessToken   used to retrieve account data from Plaid
+     * @param userId        required for institution retrieval
      * @param legalEntityId used to get Service and Master Agreements which are needed to perform action on the accounts ingested
      */
     public void ingestPlaidAccounts(String accessToken, String userId, String legalEntityId) {
@@ -107,10 +106,9 @@ public class AccountService {
 
         List<Account> accounts = plaidAccounts.getAccounts();
 
-        setupProductCatalog(accounts);
 
         accounts.forEach(account -> {
-            if(!accountRepository.existsByAccountId(account.getAccountId())) {
+            if (!accountRepository.existsByAccountId(account.getAccountId())) {
                 log.info("Saving account: {}", account.getName());
                 accountRepository.save(accountMapper.mapToDomain(account, plaidAccounts.getItem().getItemId()));
             } else {
@@ -121,6 +119,8 @@ public class AccountService {
         ItemStatus itemStatus = plaidAccounts.getItem();
         String institutionId = itemStatus.getInstitutionId();
         Institution institution = institutionService.getInstitution(institutionId, userId);
+
+        setupProductCatalog(accounts, institution);
 
         LegalEntity legalEntityByInternalId = legalEntityService.getLegalEntityByInternalId(legalEntityId)
             .blockOptional()
@@ -160,22 +160,22 @@ public class AccountService {
      *
      * @param plaidAccounts List of linked Plaid Accounts
      */
-    public void setupProductCatalog(List<Account> plaidAccounts) {
+    public void setupProductCatalog(List<Account> plaidAccounts, Institution institution) {
         ProductCatalog productCatalog = new ProductCatalog();
         productCatalog.setProductTypes(new ArrayList<>());
         plaidAccounts.stream()
             .collect(Collectors.groupingBy(Account::getType))
             .forEach((type, accounts) -> {
-                String kindId = mapProductType(type, "external-");
+                String kindId = mapProductType(institution, type);
                 ProductKind productKindsItem = new ProductKind()
                     .externalKindId(kindId)
                     .kindUri(kindId)
-                    .kindName("External " + StringUtils.capitalize(type));
+                    .kindName(institution.getName() + " " + StringUtils.capitalize(type));
                 productCatalog.addProductKindsItem(productKindsItem);
                 productCatalog.getProductTypes().addAll((accounts.stream()
                     .map(Account::getSubtype).collect(Collectors.toSet())
                     .stream().map(subtype -> {
-                        String productTypeId = mapSubTypeId(subtype);
+                        String productTypeId = mapSubTypeId(institution, subtype);
                         return new ProductType()
                             .externalId(productTypeId)
                             .externalProductId(productTypeId)
