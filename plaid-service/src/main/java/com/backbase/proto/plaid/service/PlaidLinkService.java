@@ -10,7 +10,6 @@ import com.backbase.proto.plaid.model.PlaidLinkRequest;
 import com.backbase.proto.plaid.model.PlaidLinkResponse;
 import com.backbase.proto.plaid.model.SetAccessTokenRequest;
 import com.backbase.proto.plaid.repository.ItemRepository;
-import com.backbase.stream.TransactionService;
 import com.backbase.stream.configuration.AccessControlConfiguration;
 import com.backbase.stream.product.ProductIngestionSagaConfiguration;
 import com.backbase.stream.productcatalog.configuration.ProductCatalogServiceConfiguration;
@@ -19,13 +18,6 @@ import com.plaid.client.request.ItemPublicTokenExchangeRequest;
 import com.plaid.client.request.LinkTokenCreateRequest;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
 import com.plaid.client.response.LinkTokenCreateResponse;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
-import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +25,14 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
+
+import javax.validation.Valid;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 /**
  * This class allows the retrieval and ingestion of Plaid link data when it is available from Plaid.

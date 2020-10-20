@@ -1,12 +1,12 @@
 package com.backbase.proto.plaid.converter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
-import org.apache.commons.lang3.StringUtils;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This class converts a list to a string and vice versa to be stored in a database.

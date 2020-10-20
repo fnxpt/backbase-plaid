@@ -7,16 +7,12 @@ import com.backbase.stream.legalentity.model.BookedBalance;
 import com.backbase.stream.legalentity.model.CreditLimit;
 import com.backbase.stream.legalentity.model.Product;
 import com.plaid.client.response.ItemStatus;
+import org.mapstruct.*;
+
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import org.mapstruct.Context;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.NullValueCheckStrategy;
-import org.mapstruct.NullValueMappingStrategy;
-import org.mapstruct.ReportingPolicy;
 
 import static com.backbase.proto.plaid.utils.ProductTypeUtils.mapSubTypeId;
 

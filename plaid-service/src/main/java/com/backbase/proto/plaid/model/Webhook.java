@@ -1,22 +1,12 @@
 package com.backbase.proto.plaid.model;
 
 import com.backbase.proto.plaid.converter.StringListConverter;
-import java.time.LocalDateTime;
-import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * This class stores Webhook in a a table.

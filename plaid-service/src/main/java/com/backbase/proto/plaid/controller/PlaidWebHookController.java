@@ -4,15 +4,14 @@ import com.backbase.proto.plaid.api.WebhookApi;
 import com.backbase.proto.plaid.mapper.WebhookMapper;
 import com.backbase.proto.plaid.model.InlineObject;
 import com.backbase.proto.plaid.model.PlaidWebhook;
-import com.backbase.proto.plaid.model.Webhook;
 import com.backbase.proto.plaid.service.WebhookService;
-import java.util.Map;
-import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
 
 /**
  * This class sets up and builds a Plaid Webhook, this webhook notifies DBS when data is available for retrieval.
