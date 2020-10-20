@@ -57,7 +57,9 @@ backbase:
       access-control-base-url:
       arrangement-manager-base-url:
       transaction-manager-base-url:
-
+    transaction:
+      worker:
+        group-per-arrangement-id: true
 
 
   plaid:

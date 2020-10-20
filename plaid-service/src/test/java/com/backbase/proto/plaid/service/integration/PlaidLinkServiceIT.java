@@ -6,6 +6,7 @@ import com.backbase.proto.plaid.service.PlaidLinkService;
 import com.backbase.proto.plaid.service.PlaidTransactionsService;
 import com.backbase.proto.plaid.service.WebhookService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,11 +41,23 @@ public class PlaidLinkServiceIT {
 
     @Test
     public void testDeleteItem() {
-        itemService.deleteItem("***REMOVED***");
-        itemService.deleteItem("***REMOVED***");
+
+        itemService.getAllItems().forEach(item -> itemService.deleteItemFromDBS(item.getItemId()));
+//        itemService.deleteItem("***REMOVED***");
+//        itemService.deleteItem("***REMOVED***");
     }
 
+    @Test
+    public void testUnlinkItems() {
+        itemService.getAllItems().forEach(item -> {
+            try {
+                itemService.deleteItem(item.getItemId());
+            } catch (Exception exception) {
+                log.error("Failed to deleteItem: {}", item.getItemId(), exception);
 
+            }
+        });
+    }
 
 
 

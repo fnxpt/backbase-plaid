@@ -5,6 +5,7 @@ import com.backbase.proto.plaid.configuration.PlaidConfigurationProperties;
 import com.backbase.proto.plaid.model.PlaidLinkRequest;
 import com.backbase.proto.plaid.model.PlaidLinkResponse;
 import com.plaid.client.PlaidClient;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito.*;
@@ -22,6 +23,7 @@ import static com.backbase.proto.plaid.configuration.PlaidConfigurationPropertie
 public class PlaidLinkServiceTest {
 
     @Test
+    @Ignore
     public void testCreateToken() {
 
         PlaidConfigurationProperties plaidConfigurationProperties = new PlaidConfigurationProperties();

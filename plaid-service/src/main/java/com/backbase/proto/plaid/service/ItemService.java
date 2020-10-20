@@ -11,6 +11,7 @@ import com.backbase.stream.configuration.TransactionServiceConfiguration;
 import com.backbase.stream.product.service.ArrangementService;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.ItemRemoveRequest;
+import com.plaid.client.response.ErrorResponse;
 import com.plaid.client.response.ItemRemoveResponse;
 import java.io.IOException;
 import java.util.List;
@@ -19,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 import retrofit2.Response;
 
 @Service
@@ -38,32 +41,53 @@ public class ItemService {
     private final TransactionsApi transactionsApi;
 
     public void deleteItem(String itemId) {
-
-        Item item = itemRepository.findByItemId(itemId).orElseThrow(()-> new BadRequestException("Item not found"));
+        log.info("Unlinking item: {}", itemId);
+        Item item = itemRepository.findByItemId(itemId).orElseThrow(() -> new BadRequestException("Item not found"));
         Response<ItemRemoveResponse> response = null;
         try {
+
             response = plaidClient.service().itemRemove(new ItemRemoveRequest(item.getAccessToken())).execute();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if(response != null && response.isSuccessful()) {
-            // Delete accounts from DBS
-            List<Account> accounts = accountRepository.findAllByItemId(itemId);
-            accounts.forEach(account -> {
-                arrangementService.deleteArrangementByExternalId(account.getAccountId()).block();
-            });
-            List<TransactionsDeleteRequestBody> transactionDeleteRequests = accounts.stream()
-                .map(account -> new TransactionsDeleteRequestBody().arrangementId(account.getAccountId()))
-                .collect(Collectors.toList());
-            transactionsApi.postDelete(transactionDeleteRequests).block();
+        if (response != null && response.isSuccessful()) {
+            deleteItemFromDBS(itemId);
+            itemRepository.delete(item);
+        } else {
+            ErrorResponse errorResponse = plaidClient.parseError(response);
+            log.error("Plaid error: {}", errorResponse.getErrorMessage());
         }
-        itemRepository.delete(item);
-
 
 
     }
 
+    public void deleteItemFromDBS(String itemId) {
+        // Delete accounts from DBS
+        List<Account> accounts = accountRepository.findAllByItemId(itemId);
+        accounts.forEach(account -> {
+            arrangementService.deleteArrangementByExternalId(account.getAccountId())
+                .onErrorResume(WebClientResponseException.NotFound.class, e -> {
+                    log.info("Arrangement already deleted");
+                    return Mono.empty();
+                })
+                .block();
+        });
+        List<TransactionsDeleteRequestBody> transactionDeleteRequests = accounts.stream()
+            .map(account -> new TransactionsDeleteRequestBody().arrangementId(account.getAccountId()))
+            .collect(Collectors.toList());
+        transactionsApi.postDelete(transactionDeleteRequests)
+            .onErrorResume(WebClientResponseException.NotFound.class, e -> {
+                log.info("Transactions already deleted");
+                return Mono.empty();
+            })
+            .block();
+    }
+
     public String getAccessToken(String itemId) {
         return itemRepository.findByItemId(itemId).orElseThrow(() -> new BadRequestException("Item not found")).getAccessToken();
+    }
+
+    public Iterable<Item> getAllItems() {
+        return itemRepository.findAll();
     }
 }

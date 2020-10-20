@@ -1,8 +1,11 @@
 package com.backbase.proto.plaid.service.integration;
 
 import com.backbase.proto.plaid.PlaidApplication;
+import com.backbase.proto.plaid.model.PlaidWebhook;
+import com.backbase.proto.plaid.model.Webhook;
 import com.backbase.proto.plaid.service.WebhookService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +28,13 @@ public class WebhookServiceST {
     private WebhookService webhookService;
 
     @Test
+    @Ignore
     public void testWebhookRefresh() {
         webhookService.refresh("***REMOVED***");
 //        webhookService.refresh("***REMOVED***");
     }
+
+
 
 
 //    @Test
@@ -51,15 +57,17 @@ public class WebhookServiceST {
 //        webhookService.process(plaidWebhook);
 //    }
 //
-//    @Test
-//    public void testHistoricalUpdate() {
-//        PlaidWebhook plaidWebhook = new PlaidWebhook()
-//            .webhookType(PlaidWebhook.WebhookTypeEnum.TRANSACTIONS)
-//            .webhookCode(PlaidWebhook.WebhookCodeEnum.HISTORICAL_UPDATE)
-//            .itemId("***REMOVED***")
-//            .newTransactions(393);
-//        webhookService.process(plaidWebhook);
-//    }
+    @Test
+    public void testHistoricalUpdate() {
+        Webhook plaidWebhook = new Webhook();
+        plaidWebhook.setWebhookType(Webhook.WebhookType.TRANSACTIONS);
+        plaidWebhook.setWebhookCode(Webhook.WebhookCode.HISTORICAL_UPDATE);
+        plaidWebhook.setWebhookType(Webhook.WebhookType.TRANSACTIONS);
+        plaidWebhook.setItemId("***REMOVED***");
+        plaidWebhook.setNewTransactions(376);
+
+        webhookService.process(plaidWebhook);
+    }
 //
 //    @Test
 //    public void testRemovedTransactions() {

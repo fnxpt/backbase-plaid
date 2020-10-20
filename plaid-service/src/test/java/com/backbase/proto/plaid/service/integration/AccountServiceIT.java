@@ -3,6 +3,7 @@ package com.backbase.proto.plaid.service.integration;
 import com.backbase.proto.plaid.PlaidApplication;
 import com.backbase.proto.plaid.service.AccountService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

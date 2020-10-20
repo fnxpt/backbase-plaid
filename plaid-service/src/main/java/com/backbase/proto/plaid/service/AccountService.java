@@ -1,6 +1,7 @@
 package com.backbase.proto.plaid.service;
 
 import com.backbase.buildingblocks.presentation.errors.BadRequestException;
+import com.backbase.dbs.limit.service.model.ErrorMessage;
 import com.backbase.proto.plaid.configuration.PlaidConfigurationProperties;
 import com.backbase.proto.plaid.mapper.AccountMapper;
 import com.backbase.proto.plaid.model.Institution;
@@ -27,6 +28,7 @@ import com.plaid.client.PlaidClient;
 import com.plaid.client.request.AccountsBalanceGetRequest;
 import com.plaid.client.response.Account;
 import com.plaid.client.response.AccountsBalanceGetResponse;
+import com.plaid.client.response.ErrorResponse;
 import com.plaid.client.response.ItemStatus;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,6 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
+import retrofit2.Response;
 
 import static com.backbase.proto.plaid.utils.ProductTypeUtils.mapProductType;
 import static com.backbase.proto.plaid.utils.ProductTypeUtils.mapSubTypeId;
@@ -70,7 +73,13 @@ public class AccountService {
 
     public AccountsBalanceGetResponse requestPlaidAccounts(String accessToken) {
         try {
-            return plaidClient.service().accountsBalanceGet(new AccountsBalanceGetRequest(accessToken)).execute().body();
+            Response<AccountsBalanceGetResponse> execute = plaidClient.service().accountsBalanceGet(new AccountsBalanceGetRequest(accessToken)).execute();
+            if(execute.isSuccessful()) {
+                return execute.body();
+            } else {
+                ErrorResponse errorResponse = plaidClient.parseError(execute);
+                throw new BadRequestException("Cannot get accounts from Plaid: "+ errorResponse.getErrorMessage());
+            }
         } catch (IOException e) {
             throw new BadRequestException("Failed to get access token");
         }
@@ -78,6 +87,7 @@ public class AccountService {
 
     public void ingestPlaidAccounts(String accessToken, String userId, String legalEntityId) {
         AccountsBalanceGetResponse plaidAccounts = requestPlaidAccounts(accessToken);
+
         List<Account> accounts = plaidAccounts.getAccounts();
 
         setupProductCatalog(accounts);
