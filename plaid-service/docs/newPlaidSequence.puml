@@ -1,9 +1,11 @@
 @startuml
 actor User
 participant App
-box "Internal Service" #LightBlue
-participant "Link Controller" as LCtrl
-participant "Item Controller" as ICtrl
+
+box "Plaid Link" #LightYellow
+participant "Plaid Link" as PLink
+end box
+box "Backbase Plaid Service" #LightBlue
 participant "Plaid Link Service" as PLServe
 participant "Item Service" as IServe
 participant "Account Service" as AServe
@@ -12,72 +14,110 @@ participant "Transaction Service" as TServe
 'participant "Item Repository" as IRepo
 'participant "Account Repo" as ARepo
 'participant "Webhook Repository" as WRepo
-participant "Backbase Database" as BD
+database "Backbase Database" as BD
 end box
-box "Plaid Services" #LightYellow
-participant "Plaid Client" as PClient
-participant "Plaid Link" as PLink
+
+box "Backbase DBS"
+participant "Product Ingestion Saga" as S #lightGreen
+participant "Transaction Ingestion Saga" as TS #lightGreen
+participant "Access Control" as AC
+participant "Product Summary" as PS
+participant "Transactions" as T
 end box
-participant "Stream" as S
-participant "SAGA"
+
+box "Plaid" #LightYellow
+participant "Plaid" as Plaid
+end box
+
+box "External Bank" #LightRed
+participant "External Bank" as EB
+end box
 
 
 == Link external accounts ==
 User -> App: Link Accounts (Create item)
-App -> LCtrl: Create Plaid Link
-activate LCtrl
- LCtrl -> PLServe: <<Request Plaid Link>>
- PLServe -> PClient: <<linkTokenCreateRequest>> request containing configuration properties
-    activate PClient
-     PClient --> PLServe: linkTokenCreateResponse, contains Link Token
-    deactivate PClient
- PLServe --> LCtrl: Link Token
- App <-- LCtrl: Link accounts, linkToken
+activate App
+    App -> PLServe: Create Plaid Link
+    activate PLServe
+     PLServe -> Plaid: <<linkTokenCreateRequest>> request containing configuration properties
+        activate Plaid
+         Plaid --> PLServe: linkTokenCreateResponse, contains Link Token
+        deactivate Plaid
+     App <-- PLServe: Link Token
+     deactivate PLServe
 
- App-> PLink: invoke link UI
-    activate PLink
-    PLink --> App: Public Token
-    deactivate PLink
- deactivate
- App -> LCtrl: Public Token
+     App-> PLink: Invoke link UI
+        activate PLink
+            PLink -> User: Link UI
+            activate User
+            User -> User: User selects Bank
+            User -> EB: User authenticates with External Bank and gives Consent to Plaid
+            activate EB
+            EB -> Plaid: Consent
+            Plaid -> PLink: Public Access Token
+            PLink -> App: Public Access Token
+            deactivate EB
+            deactivate PLink
+        deactivate User
+     deactivate
+     App -> PLServe: Public Token
 
+    activate PLServe
+     PLServe -> Plaid: <<Public Token Exchange>> exchanges the public token for an access token and an Item ID
+          Plaid --> PLServe: Exchange response contain Access token and Item ID
+          PLServe -> BD: Persist Item ID, user ID, access Token
 
-    activate LCtrl
-     LCtrl -> PLServe: Set Public Access Token,\nsends Public Token with some meta data
-     PLServe -> PClient: <<Public Token Exchange>> exchanges the public token for an access token and an Item ID
-        activate PLServe
-          PClient --> PLServe: Exchange response contain Access token and Item ID
-          PLServe -> BD: Item ID, user ID, access Token
-        deactivate PLServe
      == ingest accounts ==
+
      PLServe -> AServe: Ingest Plaid Accounts, access token
-     AServe -> PClient: <<Request Plaid Accounts>> access token
-        activate PClient
-            PClient --> AServe: List of Plaid accounts for the users Item
-        deactivate PClient
+     activate AServe
+     AServe -> Plaid: <<Request Plaid Accounts>> access token
+        activate Plaid
+            Plaid --> AServe: List of Plaid accounts for the users Item
+        deactivate Plaid
      AServe-> BD: accounts
-     AServe -> S: Accounts to be mapped to Backbase (map to stream)
-     S --> AServe: Collection of accounts that can be ingested
-     AServe -> SAGA: Processes / ingests accounts
+     AServe -> AServe: Map Accounts to Arrangements
+     AServe -> S: Ingest Product Group
+     activate S
+     S -> PS: Post Arrangements
+     PS -> S: Ingested Arrangements
+     S -> AC: Greate Data Group
+     AC -> S: Data Group
+     S -> AC: Assign Data Group with Permissions
+     S -> AC: Link Data Group to Service Agreement
+     deactivate S
+     deactivate AServe
 == webhooks ==
+
      PLServe -> WServe: Set up webhook, access token item id
+     activate WServe
      WServe -> BD: Store webhook data
-     WServe -> PClient: <<Item Webhook Update request>> contains access token and webhook url
-     PClient --> WServe: Item webhook update response, contains Item available for update
+     WServe -> Plaid: <<Item Webhook Update request>> contains access token and webhook url
+     Plaid --> WServe: Item webhook update response, contains Item available for update
+     deactivate WServe
 == ingest transactions ==
     PLServe -> TServe: Ingest transactions,  access token
-    TServe -> PClient: <<Get transactions for Item>> \naccess token, start date of transactions end date of transactions\n(with offset for pagination)
-    PClient --> TServe: List of transactions from time frame parsed in
-    TServe -> Stream: Processes Transactions
-    Stream --> TServe: collection of transactions to be ingested
-    TServe -> App: Display ingested data
+    activate TServe
+    PLServe -> App: Link Created
+    deactivate PLServe
 
+    TServe -> Plaid: <<Get transactions for Item>> \naccess token, start date of transactions end date of transactions\n(with offset for pagination)
+    Plaid --> TServe: List of transactions
+    TServe -> TS: Ingest Transactions
+    deactivate TServe
 
+== plaid push transactions ==
 
-
-
-
-   deactivate
+    Plaid -> WServe: Webhook containing number of updated tranactions
+    activate WServe
+    WServe -> TServe: Ingest Transactions
+    deactivate WServe
+    activate TServe
+    TServe -> Plaid: <<Get transactions for Item>> \naccess token, start date of transactions end date of transactions\n(with offset for pagination)
+    Plaid --> TServe: List of transactions
+    TServe -> TS: Processes Transactions
+    deactivate TServe
+    deactivate WServe
 
 
 
