@@ -9,14 +9,13 @@ import com.backbase.proto.plaid.repository.WebhookRepository;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.ItemWebhookUpdateRequest;
 import com.plaid.client.request.TransactionsRefreshRequest;
-import com.plaid.client.request.WebhookVerificationKeyGetRequest;
 import com.plaid.client.response.ErrorResponse;
-import com.plaid.client.response.ItemWebhookUpdateResponse;
 import com.plaid.client.response.TransactionsRefreshResponse;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
-import com.plaid.client.response.WebhookVerificationKeyGetResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +23,8 @@ import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
 import static com.backbase.proto.plaid.model.Webhook.WebhookType.*;
+import static com.backbase.proto.plaid.model.Webhook.WebhookCode.*;
+
 
 /**
  * This class sets up and processes Plaid webhook for used in Backbase DBS.
@@ -131,7 +132,7 @@ public class WebhookService {
                 break;
             }
             default: {
-                throw new BadRequestException("Not a valid web hook code");
+                throw new BadRequestException("Not a valid webhook code");
             }
         }
 
@@ -144,8 +145,35 @@ public class WebhookService {
      */
     private void processItem(Webhook webhook) {
         log.info("Webhook Acknowledged");
-        //TODO: Update Item Database
+        //TODO: Update Item Database. Update Token Status HERE
+        switch (webhook.getWebhookCode()){
+            case ERROR: {
+                log.info("Issue with Item, Resolved by going through link update");
+                break;
+            }
+            case PENDING_EXPIRATION: {
+                log.info("The Items access token will expire in 7 days, Resolved by going through link update");
+                Optional<Item> byItemId = itemRepository.findByItemId(webhook.getItemId());
+                byItemId.ifPresent(item -> {
+                    item.setExpiryDate(LocalDate.now().plusDays(7));
+                    itemRepository.save(item);
+
+                } );
+                break;
+            }
+            case USER_PERMISSION_REVOKED: {
+                log.info("The end user has revoked the permission of access to an Item, Resolved by creating a new Item");
+                break;
+            }
+            case WEBHOOK_UPDATE_ACKNOWLEDGED: {
+                log.info("The Item's webhook is updated");
+                break;
+            }
+            default:
+                throw new BadRequestException("Not a valid webhook code");
+        }
     }
+
 
     /**
      * Refreshes the Transactions for a specific Item. Updates the Transactions and processes them.

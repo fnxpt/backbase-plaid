@@ -3,6 +3,8 @@ package com.backbase.proto.plaid.service;
 import com.backbase.dbs.transaction.presentation.service.model.TransactionItemPost;
 import com.backbase.dbs.transaction.presentation.service.model.TransactionsDeleteRequestBody;
 import com.backbase.proto.plaid.mapper.TransactionMapper;
+import com.backbase.proto.plaid.mapper.TransactionsMapper;
+import com.backbase.proto.plaid.repository.TransactionRepository;
 import com.backbase.stream.TransactionService;
 import com.backbase.stream.configuration.AccessControlConfiguration;
 import com.backbase.stream.configuration.TransactionServiceConfiguration;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -43,7 +46,8 @@ public class PlaidTransactionsService {
     private final PlaidClient plaidClient;
     private final TransactionService transactionService;
     private final TransactionMapper transactionMapper;
-
+    private final TransactionsMapper transactionsMapper = Mappers.getMapper(TransactionsMapper.class);
+    private final TransactionRepository transactionRepository;
     private final ItemService itemService;
 
     /**
@@ -107,7 +111,6 @@ public class PlaidTransactionsService {
             accessToken,
             convertToDateViaInstant(startDate),
             convertToDateViaInstant(endDate)).withOffset(offset);
-
         TransactionsGetRequest.Options options = new TransactionsGetRequest.Options();
         options.count = batchSize;
         options.offset = offset;
@@ -118,11 +121,10 @@ public class PlaidTransactionsService {
                 transactionsGetRequest)
                 .execute();
 
-        if (response.isSuccessful()) {
+        if (response.isSuccessful() && response.body()!=null) {
             TransactionsGetResponse transactionsGetResponse = response.body();
             log.info("response: {}", transactionsGetResponse);
-
-
+            
             transactionsGetResponse.getItem().getInstitutionId();
 
             //convert transactions from plaid into transactions dbs
@@ -133,6 +135,10 @@ public class PlaidTransactionsService {
             // populates list with response
             List<TransactionsGetResponse.Transaction> transactions = transactionsGetResponse.getTransactions();
 
+            transactions.forEach(transaction -> {
+                if(!transactionRepository.existsByTransactionId(transaction.getTransactionId()))
+                    transactionRepository.save(transactionsMapper.mapToDomain(transaction));
+            });
 
             transactionItemPosts = transactions.stream().map((TransactionsGetResponse.Transaction transaction) ->
                 transactionMapper.map(transaction, transactionsGetResponse.getItem().getInstitutionId())).collect(Collectors.toList());

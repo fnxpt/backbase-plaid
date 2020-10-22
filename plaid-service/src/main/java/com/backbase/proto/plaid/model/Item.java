@@ -4,7 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * This class stores Item data in a table.
@@ -35,4 +37,6 @@ public class Item {
     @Column(name = "institution_id")
     private String institutionId;
 
+    @Column(name = "expiry_date")
+    private LocalDate expiryDate;
 }

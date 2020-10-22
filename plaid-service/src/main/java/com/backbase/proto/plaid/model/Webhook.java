@@ -28,7 +28,9 @@ public class Webhook {
         DEFAULT_UPDATE,
         TRANSACTIONS_REMOVED,
         WEBHOOK_UPDATE_ACKNOWLEDGED,
-        ERROR
+        ERROR,
+        USER_PERMISSION_REVOKED,
+        PENDING_EXPIRATION
     }
 
     @Id

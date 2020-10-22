@@ -15,10 +15,10 @@ spring:
     hibernate:
       ddl-auto: none
 
-  datasource:
-    url:
-    username:
-    password:
+#  datasource:
+#    url:
+#    username:
+#    password:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-persistence.yaml
     enabled: true
