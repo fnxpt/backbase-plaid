@@ -22,22 +22,41 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * to be moved
+ * Loads categories from plaid that are to be used to enrich a transaction
+ */
 @RequiredArgsConstructor
 @Slf4j
 @Service
 public class PlaidCategoryLoader implements CategoryLoader {
     private final CategoryService categoryService;
     private final PlaidClient plaidClient;
+
+    /**
+     * ges the name of the provider of categories
+     * @return plaid
+     */
     @Override
     public String getName() {
         return "plaid";
     }
 
+    /**
+     * gets all categories from plaid in a format that may be used
+     * @return list of plaid categories
+     */
     @Override
     public List<Category> getAllCategories() {
         return getAllCategories(true);
     }
 
+    /**
+     * gets all categories from plaid and returns them in a usable format, allows the return of only parent categories,
+     * the roots of hierarchies in plaid categories
+     * @param parentsOnly indicates if only the root categories are wanted
+     * @return list of categories to enrich a transaction
+     */
     public List<Category> getAllCategories(boolean parentsOnly){
         List<Category> result = new ArrayList<>();
         try {

@@ -1,7 +1,11 @@
 package com.backbase.proto.plaid.repository;
 
 import com.backbase.proto.plaid.model.Item;
+
+import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,7 +13,7 @@ import org.springframework.stereotype.Repository;
  * This class enables the use of and access to the Item database where data on the banking Item is stored.
  */
 @Repository
-public interface ItemRepository extends CrudRepository<Item, Long> {
+public interface ItemRepository extends JpaRepository<Item, Long> {
     /**
      * Checks if an item exists by searching for it in the item database using it's ID.
      *
@@ -26,5 +30,6 @@ public interface ItemRepository extends CrudRepository<Item, Long> {
      */
     Optional<Item> findByItemId(String itemId);
 
+    List<Item> findAllByCreatedBy(String userId);
 
 }

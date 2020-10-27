@@ -51,7 +51,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /item/{itemId}:
+  /items/{itemId}:
     delete:
       tags:
         - item
@@ -73,6 +73,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /items:
+    get:
+      tags:
+        - item
+      summary: "Gets a list of Items for user logged in"
+      operationId: "getItems"
+      responses:
+        '200':
+          description: list of items and data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetItems"
   /webhook/{itemId}:
     post:
       summary: Allow PLAID to push updates into DBS
@@ -131,6 +144,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+
+
 components:
   schemas:
     PlaidLinkRequest:
@@ -331,3 +346,24 @@ components:
           format: int32
         message:
           type: string
+    GetItems:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkItem'
+    LinkItem:
+      type: object
+      properties:
+        itemId:
+          type: string
+        institutionName:
+          type: string
+        accounts:
+          type: array
+          items:
+            type: string
+        experationDate:
+          type: string
+          format: date

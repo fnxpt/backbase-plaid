@@ -326,12 +326,11 @@ databaseChangeLog:
               - column:
                   name: payment_meta
                   type: NCLOB
-
   - changeSet:
       id: add-expiry-date-to-item
       author: ron.swanson
       changes:
-        - addCoulmn:
+        - addColumn:
             tableName: item
             columns:
               - column:

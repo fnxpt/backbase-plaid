@@ -37,7 +37,7 @@ public class PlaidLinkServiceTest {
 
         PlaidClient plaidClient = plaidConfiguration.plaidClient(plaidConfigurationProperties);
 
-        PlaidLinkService plaidLinkService = new PlaidLinkService(plaidClient, plaidConfigurationProperties, null,null,null,null,null);
+        PlaidLinkService plaidLinkService = new PlaidLinkService(plaidClient, plaidConfigurationProperties, null,null,null,null,null, null);
 // need to make more meaning full, its to temporarily get rid of smell
        assertThat(plaidLinkService.createPlaidLink(new PlaidLinkRequest().language("en")).getToken()).isNotEqualTo("");
 
