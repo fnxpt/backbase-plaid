@@ -4,6 +4,7 @@ import com.backbase.proto.plaid.converter.LocationConverter;
 import com.backbase.proto.plaid.converter.PaymentMetaConverter;
 import com.backbase.proto.plaid.converter.StringListConverter;
 import liquibase.pro.packaged.S;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,33 +20,13 @@ import java.util.List;
 @Entity
 @Table(name = "transaction")
 public class Transaction {
-public enum PaymentChannel{
-    online,
-    in_store,
-    other
-}
-public static class Location{
-    String address;
-    String city;
-    String region;
-    String postal_code;
-    String country;
-    Integer lat;
-    Integer lon;
-    String store_number;
-}
 
-public static class PaymentMeta{
-    String referenceNumber;
-    String ppdId;
-    String payee;
-    String byOrderOf;
-    String payer;
-    String paymentMethod;
-    String paymentProcessor;
-    String reason;
+    public enum PaymentChannel {
+        online,
+        in_store,
+        other
+    }
 
-}
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -92,7 +73,29 @@ public static class PaymentMeta{
     @Convert(converter = PaymentMetaConverter.class)
     private PaymentMeta paymentMeta;
 
+    @Data
+    public static class Location {
+        private String address;
+        private String city;
+        private String region;
+        private String postal_code;
+        private String country;
+        private Integer lat;
+        private Integer lon;
+        private String store_number;
+    }
 
+    @Data
+    public static class PaymentMeta {
+        private String referenceNumber;
+        private String ppdId;
+        private String payee;
+        private String byOrderOf;
+        private String payer;
+        private String paymentMethod;
+        private String paymentProcessor;
+        private String reason;
 
+    }
 
 }

@@ -56,6 +56,9 @@ connects the institutions core bank to our DBS platform.
   - Maps and ingests accounts from plaid to Backbase BDS
 - Webhook
   - Sets up a webhook and processes updates
+  
+---
+This is tailored for US banking due to the project being developed for Navy Federal.
 
 
 

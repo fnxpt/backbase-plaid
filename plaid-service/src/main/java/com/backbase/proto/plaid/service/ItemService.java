@@ -102,9 +102,13 @@ public class ItemService {
         return itemRepository.findByItemId(itemId).orElseThrow(() -> new BadRequestException("Item not found")).getAccessToken();
     }
 
+    /**
+     * Gets all items in the repo, used for resetting DBS and ingesting them
+     *
+     * @return all Items stored
+     */
     public Iterable<Item> getAllItems() {
         return itemRepository.findAll();
     }
-
 
 }

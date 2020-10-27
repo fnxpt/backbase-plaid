@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper
-public interface TransactionsMapper {
+public interface PlaidToModelTransactionsMapper {
     @Mapping(target = "id", ignore = true)
     Transaction mapToDomain(TransactionsGetResponse.Transaction source);
 

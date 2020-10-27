@@ -96,6 +96,7 @@ public class WebhookService {
     private void validateWebhook(Webhook webhook) {
         //TODO:
         // need a jwt to validate
+        // getInternalJwt in plaid link service
         // once have the header of the jwt use the webhook_verification_key/get endpoint to verify
         // https://plaid.com/docs/api/webhook-verification/
         // Validate if web hook is really coming from plaid. Throw exception if it doesn't

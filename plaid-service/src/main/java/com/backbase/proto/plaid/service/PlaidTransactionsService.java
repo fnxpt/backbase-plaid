@@ -2,15 +2,14 @@ package com.backbase.proto.plaid.service;
 
 import com.backbase.dbs.transaction.presentation.service.model.TransactionItemPost;
 import com.backbase.dbs.transaction.presentation.service.model.TransactionsDeleteRequestBody;
-import com.backbase.proto.plaid.mapper.TransactionMapper;
-import com.backbase.proto.plaid.mapper.TransactionsMapper;
+import com.backbase.proto.plaid.mapper.PlaidToDBSTransactionMapper;
+import com.backbase.proto.plaid.mapper.PlaidToModelTransactionsMapper;
 import com.backbase.proto.plaid.repository.TransactionRepository;
 import com.backbase.stream.TransactionService;
 import com.backbase.stream.configuration.AccessControlConfiguration;
 import com.backbase.stream.configuration.TransactionServiceConfiguration;
 import com.backbase.stream.product.ProductIngestionSagaConfiguration;
 import com.backbase.stream.productcatalog.configuration.ProductCatalogServiceConfiguration;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.TransactionsGetRequest;
 import com.plaid.client.response.ErrorResponse;
@@ -45,8 +44,8 @@ public class PlaidTransactionsService {
 
     private final PlaidClient plaidClient;
     private final TransactionService transactionService;
-    private final TransactionMapper transactionMapper;
-    private final TransactionsMapper transactionsMapper = Mappers.getMapper(TransactionsMapper.class);
+    private final PlaidToDBSTransactionMapper plaidToDBSTransactionMapper;
+    private final PlaidToModelTransactionsMapper plaidToModelTransactionsMapper = Mappers.getMapper(PlaidToModelTransactionsMapper.class);
     private final TransactionRepository transactionRepository;
     private final ItemService itemService;
 
@@ -137,11 +136,11 @@ public class PlaidTransactionsService {
 
             transactions.forEach(transaction -> {
                 if(!transactionRepository.existsByTransactionId(transaction.getTransactionId()))
-                    transactionRepository.save(transactionsMapper.mapToDomain(transaction));
+                    transactionRepository.save(plaidToModelTransactionsMapper.mapToDomain(transaction));
             });
 
             transactionItemPosts = transactions.stream().map((TransactionsGetResponse.Transaction transaction) ->
-                transactionMapper.map(transaction, transactionsGetResponse.getItem().getInstitutionId())).collect(Collectors.toList());
+                plaidToDBSTransactionMapper.map(transaction, transactionsGetResponse.getItem().getInstitutionId())).collect(Collectors.toList());
 
             Integer totalTransactionsRequested = transactionsGetResponse.getTotalTransactions();
             int totalTransactionRetrieved = transactionItemPosts.size();
@@ -161,7 +160,7 @@ public class PlaidTransactionsService {
                 log.info("Ingesting next page of transactions from: {}", newOffset);
                 ingestTransactions(accessToken, startDate, endDate, batchSize, newOffset);
             } else {
-                log.info("Finiished ingestion of transactions");
+                log.info("Finished ingestion of transactions");
             }
 
         } else {
