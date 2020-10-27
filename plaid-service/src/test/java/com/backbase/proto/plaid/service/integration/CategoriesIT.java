@@ -6,6 +6,7 @@ import com.backbase.proto.plaid.service.AccountService;
 import com.backbase.proto.plaid.service.CategoryService;
 import com.backbase.transaction.enrichment.provider.domain.Category;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import java.util.List;
     classes = PlaidApplication.class
 )
 @Slf4j
+@Ignore
 public class CategoriesIT {
 
     static {
