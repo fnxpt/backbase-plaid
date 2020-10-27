@@ -35,6 +35,7 @@ public class PlaidCategoryLoader implements CategoryLoader {
 
     /**
      * ges the name of the provider of categories
+     *
      * @return plaid
      */
     @Override
@@ -44,6 +45,7 @@ public class PlaidCategoryLoader implements CategoryLoader {
 
     /**
      * gets all categories from plaid in a format that may be used
+     *
      * @return list of plaid categories
      */
     @Override
@@ -54,10 +56,11 @@ public class PlaidCategoryLoader implements CategoryLoader {
     /**
      * gets all categories from plaid and returns them in a usable format, allows the return of only parent categories,
      * the roots of hierarchies in plaid categories
+     *
      * @param parentsOnly indicates if only the root categories are wanted
      * @return list of categories to enrich a transaction
      */
-    public List<Category> getAllCategories(boolean parentsOnly){
+    public List<Category> getAllCategories(boolean parentsOnly) {
         List<Category> result = new ArrayList<>();
         try {
             Response<CategoriesGetResponse> response = plaidClient.service().categoriesGet(new CategoriesGetRequest()).execute();

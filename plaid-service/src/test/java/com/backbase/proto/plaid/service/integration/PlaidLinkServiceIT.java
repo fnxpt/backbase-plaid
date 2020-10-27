@@ -2,13 +2,13 @@ package com.backbase.proto.plaid.service.integration;
 
 import com.backbase.proto.plaid.PlaidApplication;
 import com.backbase.proto.plaid.model.Item;
+import com.backbase.proto.plaid.model.Transaction;
 import com.backbase.proto.plaid.repository.ItemRepository;
+import com.backbase.proto.plaid.repository.TransactionRepository;
 import com.backbase.proto.plaid.service.AccountService;
 import com.backbase.proto.plaid.service.ItemService;
-import com.backbase.proto.plaid.service.PlaidLinkService;
 import com.backbase.proto.plaid.service.PlaidTransactionsService;
 import com.backbase.proto.plaid.service.WebhookService;
-import com.netflix.discovery.converters.Auto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -35,6 +35,7 @@ public class PlaidLinkServiceIT {
 
     @Autowired
     private ItemService itemService;
+
     @Autowired
     private PlaidTransactionsService plaidTransactionsService;
 
@@ -46,6 +47,9 @@ public class PlaidLinkServiceIT {
 
     @Autowired
     private ItemRepository itemRepository;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     @Test
     public void testGetTransactions(){
@@ -97,10 +101,41 @@ public class PlaidLinkServiceIT {
 
 
     }
+    @Ignore("We don't have enough Items to risk deleting one now")
+    @Test
+    public void testDeleteItem(){
+        Item item = new Item();
+        item.setItemId("4d6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr");
+        item.setAccessToken("access-testing");
+        item.setCreatedAt(LocalDateTime.now());
+        item.setCreatedBy("me");
+        itemRepository.save(item);
+
+        itemService.deleteItem("4d6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr");
+
+        Assert.assertFalse(itemRepository.existsByItemId("4d6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr"));
+    }
 
     @Test
-    public void test
+    public void testAccountMapping(){
 
+
+
+    }
+
+    @Test
+    public void testTransactionMapping(){
+        Transaction transaction = new Transaction();
+
+        transactionRepository.save(transaction);
+
+
+    }
+
+    @Test
+    public void testInstitutionMapping(){
+
+    }
 
     @Test
     public void testUnlinkItems() {
