@@ -1,6 +1,9 @@
 package com.backbase.proto.plaid.service;
 
+import com.backbase.buildingblocks.backend.security.auth.config.SecurityContextUtil;
+import com.backbase.buildingblocks.jwt.internal.token.InternalJwt;
 import com.backbase.buildingblocks.presentation.errors.BadRequestException;
+import com.backbase.buildingblocks.presentation.errors.UnauthorizedException;
 import com.backbase.dbs.transaction.presentation.service.api.TransactionsApi;
 import com.backbase.dbs.transaction.presentation.service.model.TransactionsDeleteRequestBody;
 import com.backbase.proto.plaid.model.Account;
@@ -43,16 +46,23 @@ public class ItemService {
 
     private final TransactionsApi transactionsApi;
 
+    private final SecurityContextUtil securityContextUtil;
+
     /**
      * Deletes an item from the Item database, Client Service, and all relevant data such as its Accounts and
      * Transactions will also be deleted from the other databases and services.
      *
      * @param itemId identifies the Item to be deleted
      */
-
     public void deleteItem(String itemId) {
+
         log.info("Unlinking item: {}", itemId);
         Item item = itemRepository.findByItemId(itemId).orElseThrow(() -> new BadRequestException("Item not found"));
+        String loggedInUserId = getLoggedInUserId();
+
+        if (!item.getCreatedBy().equals(loggedInUserId)) {
+            throw new UnauthorizedException("access not granted");
+        }
         Response<ItemRemoveResponse> response = null;
         try {
 
@@ -62,7 +72,8 @@ public class ItemService {
         }
         if (response != null && response.isSuccessful()) {
             deleteItemFromDBS(itemId);
-            itemRepository.delete(item);
+
+//            itemRepository.delete(item);
         } else {
             ErrorResponse errorResponse = plaidClient.parseError(response);
             log.error("Plaid error: {}", errorResponse.getErrorMessage());
@@ -102,7 +113,33 @@ public class ItemService {
         return itemRepository.findByItemId(itemId).orElseThrow(() -> new BadRequestException("Item not found")).getAccessToken();
     }
 
-    public Iterable<Item> getAllItems() {
-        return itemRepository.findAll();
+    /**
+     * Gets all items in the repo, used for resetting DBS and ingesting them
+     *
+     * @return all Items stored
+     */
+    public List<Item> getAllItems() {
+        return  itemRepository.findAll();
+    }
+
+    public List<Item> getAllItemsByCreator() {
+        String loggedInUserId = getLoggedInUserId();
+        return getItemsByUserId(loggedInUserId);
+    }
+
+    public List<Item> getItemsByUserId(String loggedInUserId) {
+        log.info("Get all items for: {}", loggedInUserId);
+        return itemRepository.findAllByCreatedBy(loggedInUserId);
+    }
+
+
+    private InternalJwt getInternalJwt() {
+        return securityContextUtil.getOriginatingUserJwt().orElseThrow(() -> new IllegalStateException("Cannnot get internal JWT"));
+    }
+    private String getLoggedInUserId(InternalJwt internalJwt) {
+        return internalJwt.getClaimsSet().getSubject().orElseThrow(() -> new IllegalStateException("Cannot get subject"));
+    }
+    private String getLoggedInUserId() {
+        return getLoggedInUserId(getInternalJwt());
     }
 }

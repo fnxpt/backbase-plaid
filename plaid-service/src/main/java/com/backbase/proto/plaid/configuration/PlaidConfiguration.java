@@ -4,6 +4,7 @@ import com.backbase.dbs.transaction.presentation.service.ApiClient;
 import com.backbase.dbs.transaction.presentation.service.api.TransactionsApi;
 import com.backbase.stream.configuration.TransactionServiceConfiguration;
 import com.plaid.client.PlaidClient;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Import;
 @EnableConfigurationProperties(PlaidConfigurationProperties.class)
 @Import(TransactionServiceConfiguration.class)
 public class PlaidConfiguration {
+
 
     /**
      * Instantiates the Transaction API with a api parsed as an argument.

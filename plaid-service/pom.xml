@@ -178,6 +178,11 @@
             <artifactId>mysql-connector-java</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>com.backbase.dbs.transaction</groupId>
+            <artifactId>transaction-enrichment-provider-api</artifactId>
+            <version>0.17</version>
+        </dependency>
 
     </dependencies>
     <build>

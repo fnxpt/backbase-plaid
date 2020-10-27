@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class TransactionMapper {
+public class PlaidToDBSTransactionMapper {
 
     private final PlaidConfigurationProperties transactionConfigurationProperties;
     private final Map<String, String> transactionTypeGroupMap;
@@ -34,7 +34,7 @@ public class TransactionMapper {
      *
      * @param transactionConfigurationProperties contains methods for setting the Type Group and Type for DBS Transactions
      */
-    public TransactionMapper(PlaidConfigurationProperties transactionConfigurationProperties) {
+    public PlaidToDBSTransactionMapper(PlaidConfigurationProperties transactionConfigurationProperties) {
         this.transactionConfigurationProperties = transactionConfigurationProperties;
         this.transactionTypeGroupMap = transactionConfigurationProperties.getTransactions().getTransactionTypeGroupMap();
         this.transactionTypeMap = transactionConfigurationProperties.getTransactions().getTransactionTypeMap();

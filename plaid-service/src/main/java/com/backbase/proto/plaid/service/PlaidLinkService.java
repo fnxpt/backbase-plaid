@@ -59,6 +59,8 @@ public class PlaidLinkService {
 
     private final WebhookService webhookService;
 
+    private final ItemService itemService;
+
     private final PlaidTransactionsService transactionService;
 
     private final SecurityContextUtil securityContextUtil;
@@ -210,4 +212,6 @@ public class PlaidLinkService {
     private InternalJwt getInternalJwt() {
         return securityContextUtil.getOriginatingUserJwt().orElseThrow(() -> new IllegalStateException("Cannnot get internal JWT"));
     }
+
+
 }
