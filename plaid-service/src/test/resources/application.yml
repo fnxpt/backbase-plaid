@@ -15,10 +15,10 @@ spring:
     hibernate:
       ddl-auto: none
 
-#  datasource:
-#    url:
-#    username:
-#    password:
+  datasource:
+    url:
+    username:
+    password:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-persistence.yaml
     enabled: true
@@ -60,13 +60,15 @@ backbase:
     transaction:
       worker:
         group-per-arrangement-id: true
+        worker-unit-executors: 1
+        delay-between-tasks: 1000
 
 
   plaid:
     client-name: "Backbase"
     client-id:
     secret:
-    env: sandbox
+    env: development
     webhook-base-url:
     default-reference-job-role-names:
       - "Retail User - EU"

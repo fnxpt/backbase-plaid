@@ -4,7 +4,6 @@ import com.backbase.buildingblocks.presentation.errors.BadRequestException;
 import com.backbase.proto.plaid.configuration.PlaidConfigurationProperties;
 import com.backbase.proto.plaid.model.Item;
 import com.backbase.proto.plaid.model.Webhook;
-import com.backbase.proto.plaid.repository.ItemRepository;
 import com.backbase.proto.plaid.repository.WebhookRepository;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.ItemWebhookUpdateRequest;
@@ -12,18 +11,15 @@ import com.plaid.client.request.TransactionsRefreshRequest;
 import com.plaid.client.response.ErrorResponse;
 import com.plaid.client.response.TransactionsRefreshResponse;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
-import static com.backbase.proto.plaid.model.Webhook.WebhookType.*;
-import static com.backbase.proto.plaid.model.Webhook.WebhookCode.*;
+import static com.backbase.proto.plaid.model.Webhook.WebhookType.ITEM;
+import static com.backbase.proto.plaid.model.Webhook.WebhookType.TRANSACTIONS;
 
 
 /**
@@ -38,21 +34,23 @@ public class WebhookService {
 
     private final PlaidConfigurationProperties plaidConfigurationProperties;
 
-    private final PlaidTransactionsService transactionsService;
+    private final TransactionsService transactionsService;
 
     private final WebhookRepository webhookRepository;
 
-    private final ItemRepository itemRepository;
+    private final ItemService itemService;
+
+    private final AccessTokenService accessTokenService;
 
     /**
      * Sets up the webhook with configurations.
      *
      * @param accessToken provides authenticator in Plaid
-     * @param itemId identifies Item for which the webhook is notifying for
+     * @param item      identifies Item for which the webhook is notifying for
      */
-    public void setupWebhook(String accessToken, String itemId) {
+    public void setupWebhook(String accessToken, Item item) {
 
-        String webhookUrl = plaidConfigurationProperties.getWebhookBaseUrl() + "/webhook/" + itemId;
+        String webhookUrl = plaidConfigurationProperties.getWebhookBaseUrl() + "/webhook/" + item.getItemId();
         log.info("Setting up webhook for item: {} with url:
         try {
             plaidClient.service().itemWebhookUpdate(new ItemWebhookUpdateRequest(accessToken, webhookUrl)).execute().body();
@@ -68,19 +66,20 @@ public class WebhookService {
      * @param webhook webhook being used
      */
 
+
     public void process(Webhook webhook) {
         log.info("Processing webhook: {} for item: {}", webhook.getWebhookType(), webhook.getItemId());
         webhook.setCreatedAt(LocalDateTime.now());
         webhookRepository.save(webhook);
         try {
-            validateWebhook(webhook);
+            if (validateWebhook(webhook)) {
+                if (webhook.getWebhookType() == TRANSACTIONS)
+                    processTransactions(webhook);
+                else if (webhook.getWebhookType() == ITEM)
+                    processItem(webhook);
 
-            if(webhook.getWebhookType() == TRANSACTIONS)
-                processTransactions(webhook);
-            else if(webhook.getWebhookType() == ITEM)
-                processItem(webhook);
-
-            webhook.setCompleted(true);
+                webhook.setCompleted(true);
+            }
         } catch (Exception exception) {
             exception.printStackTrace();
             webhook.setError(exception.getMessage());
@@ -93,10 +92,22 @@ public class WebhookService {
      *
      * @param webhook the webhook to be validated
      */
-    private void validateWebhook(Webhook webhook) {
+    protected boolean validateWebhook(Webhook webhook) {
+
+        PlaidConfigurationProperties.Environment environment = plaidConfigurationProperties.getEnv();
+
+        // If we recieve a webhook from an deleted item, delete the webhook
+
+        if (!itemService.isValidItem(webhook.getItemId())) {
+            log.error("Webhook for item: {} is invalid, as item is not registered in Plaid database", webhook.getItemId());
+            webhook.setCompleted(true);
+            webhook.setError("WEBHOOK REFERS TO NON EXISTING ITEM");
+            return false;
+        }
+        return true;
+
         //TODO:
-        // need a jwt to validate
-        // getInternalJwt in plaid link service
+        // Extract JWT from incoming header in the Plaid Webhook Controller
         // once have the header of the jwt use the webhook_verification_key/get endpoint to verify
         // https://plaid.com/docs/api/webhook-verification/
         // Validate if web hook is really coming from plaid. Throw exception if it doesn't
@@ -110,26 +121,28 @@ public class WebhookService {
      */
     private void processTransactions(Webhook webhook) {
 
+        Item item = itemService.getItem(webhook.getItemId());
+
         switch (webhook.getWebhookCode()) {
             case INITIAL_UPDATE: {
                 // Fired when an Item's initial transaction pull is completed.
                 // Note: The default pull is 30 days.
                 log.info("Process Initial Update");
-                transactionsService.ingestInitialUpdate(webhook.getItemId());
+                transactionsService.ingestInitialUpdate(item);
                 break;
             }
             case HISTORICAL_UPDATE: {
-                transactionsService.ingestHistoricalUpdate(webhook.getItemId());
+                transactionsService.ingestHistoricalUpdate(item);
                 break;
             }
             case DEFAULT_UPDATE: {
                 log.info("Process Default Update");
-                transactionsService.ingestDefaultUpdate(webhook.getItemId());
+                transactionsService.ingestDefaultUpdate(item);
                 break;
             }
             case TRANSACTIONS_REMOVED: {
                 log.info("Process transactions removed");
-                transactionsService.removeTransactions( webhook.getRemovedTransactions());
+                transactionsService.removeTransactions(item, webhook.getRemovedTransactions());
                 break;
             }
             default: {
@@ -145,21 +158,19 @@ public class WebhookService {
      * @param webhook that notifies Item updates
      */
     private void processItem(Webhook webhook) {
+
+        Item item = itemService.getItem(webhook.getItemId());
+
         log.info("Webhook Acknowledged");
         //TODO: Update Item Database. Update Token Status HERE
-        switch (webhook.getWebhookCode()){
+        switch (webhook.getWebhookCode()) {
             case ERROR: {
                 log.info("Issue with Item, Resolved by going through link update");
                 break;
             }
             case PENDING_EXPIRATION: {
                 log.info("The Items access token will expire in 7 days, Resolved by going through link update");
-                Optional<Item> byItemId = itemRepository.findByItemId(webhook.getItemId());
-                byItemId.ifPresent(item -> {
-                    item.setExpiryDate(LocalDate.now().plusDays(7));
-                    itemRepository.save(item);
-
-                } );
+                itemService.setPendingExpiration(item);
                 break;
             }
             case USER_PERMISSION_REVOKED: {
@@ -184,12 +195,12 @@ public class WebhookService {
     @SneakyThrows
     public void refresh(String itemId) {
         log.info("Refreshing Transactions for: {}", itemId);
-        Item item = itemRepository.findByItemId(itemId).orElseThrow(() -> new BadRequestException("Invalid item id: " + itemId));
+        Item item = itemService.getItem(itemId);
         TransactionsRefreshRequest transactionsRefreshRequest = new TransactionsRefreshRequest(item.getAccessToken());
         transactionsRefreshRequest.clientId = plaidConfigurationProperties.getClientId();
         transactionsRefreshRequest.secret = plaidConfigurationProperties.getSecret();
         Response<TransactionsRefreshResponse> execute = plaidClient.service().transactionsRefresh(transactionsRefreshRequest).execute();
-        if(execute.isSuccessful()) {
+        if (execute.isSuccessful()) {
             TransactionsRefreshResponse body = execute.body();
             assert body != null;
             log.info("Refresh response: {}", body.getRequestId());

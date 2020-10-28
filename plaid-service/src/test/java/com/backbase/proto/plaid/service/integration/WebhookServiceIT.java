@@ -20,8 +20,6 @@ import org.springframework.test.context.junit4.SpringRunner;
     classes = PlaidApplication.class
 )
 @Slf4j
-@Ignore
-
 public class WebhookServiceIT {
 
     static {

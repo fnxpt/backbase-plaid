@@ -4,6 +4,7 @@ import com.backbase.buildingblocks.presentation.errors.BadRequestException;
 import com.backbase.proto.plaid.configuration.PlaidConfigurationProperties;
 import com.backbase.proto.plaid.mapper.AccountMapper;
 import com.backbase.proto.plaid.model.Institution;
+import com.backbase.proto.plaid.model.Item;
 import com.backbase.proto.plaid.repository.AccountRepository;
 import com.backbase.stream.configuration.AccessControlConfiguration;
 import com.backbase.stream.legalentity.model.JobProfileUser;
@@ -15,7 +16,6 @@ import com.backbase.stream.legalentity.model.User;
 import com.backbase.stream.product.BatchProductIngestionSaga;
 import com.backbase.stream.product.ProductIngestionSagaConfiguration;
 import com.backbase.stream.product.task.ProductGroupTask;
-import com.backbase.stream.productcatalog.ProductCatalogService;
 import com.backbase.stream.productcatalog.configuration.ProductCatalogServiceConfiguration;
 import com.backbase.stream.productcatalog.model.ProductCatalog;
 import com.backbase.stream.productcatalog.model.ProductKind;
@@ -39,6 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import retrofit2.Response;
 
 import static com.backbase.proto.plaid.utils.ProductTypeUtils.mapProductType;
@@ -71,7 +72,7 @@ public class AccountService {
 
     private final BatchProductIngestionSaga batchProductIngestionSaga;
 
-    private final ProductCatalogService productCatalogService;
+    private final TransactionsService transactionService;
 
     /**
      * Sends a request to Plaid for the accounts of a given item by parsing in the Access Token.
@@ -187,4 +188,17 @@ public class AccountService {
     }
 
 
+    @Transactional
+    public void deleteAccountByItemId(Item item) {
+        log.info("Deleteing account and it's transactions from Pliad");
+        accountRepository.findAllByItemId(item.getItemId()).stream()
+            .map(com.backbase.proto.plaid.model.Account::getAccountId)
+            .forEach(accountId -> transactionService.deleteTransactionsByAccountId(item, accountId));
+        accountRepository.deleteAccountsByItemId(item.getItemId());
+    }
+
+
+    public List<com.backbase.proto.plaid.model.Account> findAllByItemId(String itemId) {
+        return accountRepository.findAllByItemId(itemId);
+    }
 }

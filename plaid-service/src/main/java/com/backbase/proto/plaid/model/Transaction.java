@@ -47,7 +47,7 @@ public class Transaction {
     @Column(name = "iso_currency_code")
     private String isoCurrencyCode;
 
-    @Column(name = "category")
+    @Column(name = "categories")
     @Convert(converter = StringListConverter.class)
     private List<String> category;
 
@@ -68,7 +68,7 @@ public class Transaction {
     @Convert(converter = LocationConverter.class)
     private Location location;
 
-    @Column(name = "payment_mata")
+    @Column(name = "payment_meta")
     @Lob
     @Convert(converter = PaymentMetaConverter.class)
     private PaymentMeta paymentMeta;

@@ -4,7 +4,7 @@ import com.backbase.proto.plaid.api.LinkApi;
 import com.backbase.proto.plaid.model.PlaidLinkRequest;
 import com.backbase.proto.plaid.model.PlaidLinkResponse;
 import com.backbase.proto.plaid.model.SetAccessTokenRequest;
-import com.backbase.proto.plaid.service.PlaidLinkService;
+import com.backbase.proto.plaid.service.LinkService;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -21,15 +21,15 @@ public class LinkController implements LinkApi {
      * Plaid link service contains the client the webhook and all the tools required to communicate with
      * Plaid.
      */
-    private final PlaidLinkService plaidLinkService;
+    private final LinkService linkService;
 
     /**
      * Initialises Link Service.
      *
-     * @param plaidLinkService sets the link service of this class
+     * @param linkService sets the link service of this class
      */
-    public LinkController(PlaidLinkService plaidLinkService) {
-        this.plaidLinkService = plaidLinkService;
+    public LinkController(LinkService linkService) {
+        this.linkService = linkService;
         log.info("Plaid Controller created");
     }
 
@@ -42,7 +42,7 @@ public class LinkController implements LinkApi {
     @Override
     public ResponseEntity<PlaidLinkResponse> requestPlaidLink(@Valid PlaidLinkRequest plaidLinkRequest) {
         log.info("Requesting Plaid Link: {}", plaidLinkRequest);
-        PlaidLinkResponse plaidLink = plaidLinkService.createPlaidLink(plaidLinkRequest);
+        PlaidLinkResponse plaidLink = linkService.createPlaidLink(plaidLinkRequest);
         return ResponseEntity.ok(plaidLink);
     }
 
@@ -57,7 +57,7 @@ public class LinkController implements LinkApi {
     @Override
     public ResponseEntity<Void> setPublicAccessToken(@Valid SetAccessTokenRequest setAccessTokenRequest) {
         log.info("Set Plaid Public Token: {}", setAccessTokenRequest);
-        plaidLinkService.setPublicAccessToken(setAccessTokenRequest);
+        linkService.setPublicAccessToken(setAccessTokenRequest);
         return ResponseEntity.accepted().build();
     }
 
