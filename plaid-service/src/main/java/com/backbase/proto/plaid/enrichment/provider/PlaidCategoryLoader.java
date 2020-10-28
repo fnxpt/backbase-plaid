@@ -6,11 +6,8 @@ import com.backbase.transaction.enrichment.provider.domain.Category;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.CategoriesGetRequest;
 import com.plaid.client.response.CategoriesGetResponse;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
@@ -20,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * to be moved
@@ -66,9 +62,8 @@ public class PlaidCategoryLoader implements CategoryLoader {
             Response<CategoriesGetResponse> response = plaidClient.service().categoriesGet(new CategoriesGetRequest()).execute();
             if (response.isSuccessful()) {
                 List<CategoriesGetResponse.Category> categories = Objects.requireNonNull(response.body(), "Can't be null").getCategories();
-                List<Category> collect = categories.stream().map(category -> categoryService.map(category)).collect(Collectors.toList());
 
-                return collect;
+                return categories.stream().map(categoryService::map).collect(Collectors.toList());
 
             }
         } catch (IOException ex) {

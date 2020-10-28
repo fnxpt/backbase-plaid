@@ -1,24 +1,11 @@
 package com.backbase.proto.plaid.service;
 
-import com.backbase.transaction.enrichment.provider.domain.Category.Builder;
 import com.backbase.transaction.enrichment.provider.domain.Category;
-
+import com.backbase.transaction.enrichment.provider.domain.Category.Builder;
 import com.backbase.transaction.enrichment.provider.domain.CategoryType;
-import com.plaid.client.PlaidClient;
-import com.plaid.client.request.CategoriesGetRequest;
 import com.plaid.client.response.CategoriesGetResponse;
-import com.plaid.client.response.TransactionsGetResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
-import retrofit2.Call;
-import retrofit2.Response;
-
-import javax.websocket.server.ServerEndpoint;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * This class maps the category response from plaid to DBS for use in transaction enrichment
@@ -49,9 +36,10 @@ public class CategoryService {
                 return map(plaidCategory.getCategoryId(), plaidCategory.getHierarchy().get(1), parentID);
             case 3:
                 return map(plaidCategory.getCategoryId(), plaidCategory.getHierarchy().get(2), subParent);
+            default:
+                throw new IndexOutOfBoundsException("only accepts a hierarchy of height 3");
         }
 
-        return null;
     }
 
     /**

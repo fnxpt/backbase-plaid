@@ -2,12 +2,14 @@ package com.backbase.proto.plaid.converter;
 
 import com.backbase.proto.plaid.model.PaymentMeta;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 import java.io.IOException;
 
+@Slf4j
 @Converter
 public class PaymentMetaConverter implements AttributeConverter<PaymentMeta, String> {
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -25,7 +27,7 @@ public class PaymentMetaConverter implements AttributeConverter<PaymentMeta, Str
             try {
                 return objectMapper.writeValueAsString(paymentMeta);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.info("context{}", e);
             }
         }
         return null;
@@ -44,7 +46,7 @@ public class PaymentMetaConverter implements AttributeConverter<PaymentMeta, Str
             try {
                 return objectMapper.readValue(joined, PaymentMeta.class);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.info("context{}", e);
             }
 
         }

@@ -148,31 +148,35 @@ public class WebhookService {
         log.info("Webhook Acknowledged");
         //TODO: Update Item Database. Update Token Status HERE
         switch (webhook.getWebhookCode()){
-            case ERROR: {
+            case ERROR:
                 log.info("Issue with Item, Resolved by going through link update");
                 break;
-            }
-            case PENDING_EXPIRATION: {
-                log.info("The Items access token will expire in 7 days, Resolved by going through link update");
-                Optional<Item> byItemId = itemRepository.findByItemId(webhook.getItemId());
-                byItemId.ifPresent(item -> {
-                    item.setExpiryDate(LocalDate.now().plusDays(7));
-                    itemRepository.save(item);
 
-                } );
+            case PENDING_EXPIRATION:
+                pendingExpiration(webhook);
                 break;
-            }
-            case USER_PERMISSION_REVOKED: {
+
+            case USER_PERMISSION_REVOKED:
                 log.info("The end user has revoked the permission of access to an Item, Resolved by creating a new Item");
                 break;
-            }
-            case WEBHOOK_UPDATE_ACKNOWLEDGED: {
+
+            case WEBHOOK_UPDATE_ACKNOWLEDGED:
                 log.info("The Item's webhook is updated");
                 break;
-            }
+
             default:
                 throw new BadRequestException("Not a valid webhook code");
         }
+    }
+
+    private void pendingExpiration(Webhook webhook){
+        log.info("The Items access token will expire in 7 days, Resolved by going through link update");
+        Optional<Item> byItemId = itemRepository.findByItemId(webhook.getItemId());
+        byItemId.ifPresent(item -> {
+            item.setExpiryDate(LocalDate.now().plusDays(7));
+            itemRepository.save(item);
+
+        } );
     }
 
 

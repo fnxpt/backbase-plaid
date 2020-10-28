@@ -3,7 +3,6 @@ package com.backbase.proto.plaid.model;
 import com.backbase.proto.plaid.converter.LocationConverter;
 import com.backbase.proto.plaid.converter.PaymentMetaConverter;
 import com.backbase.proto.plaid.converter.StringListConverter;
-import liquibase.pro.packaged.S;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +20,7 @@ import java.util.List;
 @Table(name = "transaction")
 public class Transaction {
 
+    @SuppressWarnings("java:S115")
     public enum PaymentChannel {
         online,
         in_store,
@@ -78,11 +78,11 @@ public class Transaction {
         private String address;
         private String city;
         private String region;
-        private String postal_code;
+        private String postalCode;
         private String country;
         private Integer lat;
         private Integer lon;
-        private String store_number;
+        private String storeNumber;
     }
 
     @Data
