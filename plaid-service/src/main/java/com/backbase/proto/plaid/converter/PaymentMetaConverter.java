@@ -18,7 +18,7 @@ public class PaymentMetaConverter implements AttributeConverter<PaymentMeta, Str
      * Takes a list of strings and joins then with a ',' separator so it may be stored as a column in a database.
      *
      * @param paymentMeta the list to be converted into a string
-     * @return joined string containing the contents of the list parsed in
+     * @return json string containing the contents of the list parsed in
      */
 
     @Override
@@ -27,7 +27,7 @@ public class PaymentMetaConverter implements AttributeConverter<PaymentMeta, Str
             try {
                 return objectMapper.writeValueAsString(paymentMeta);
             } catch (IOException e) {
-                log.info("context{}", e);
+                log.error("Failed to write paymentMeta: {} to database format", paymentMeta, e);
             }
         }
         return null;
@@ -36,17 +36,17 @@ public class PaymentMetaConverter implements AttributeConverter<PaymentMeta, Str
     /**
      * Takes a string separated by ',' and splits it into a list to be stored as attributes.
      *
-     * @param joined a string to be turned to a list
+     * @param json a string to be turned to a list
      * @return the list of strings to be stored as attributes
      */
 
     @Override
-    public PaymentMeta convertToEntityAttribute(String joined) {
+    public PaymentMeta convertToEntityAttribute(String json) {
         if (!StringUtils.isEmpty(StringUtils.join())) {
             try {
-                return objectMapper.readValue(joined, PaymentMeta.class);
+                return objectMapper.readValue(json, PaymentMeta.class);
             } catch (IOException e) {
-                log.info("context{}", e);
+                log.error("Failed to read Payment meta: {} to database format", json, e);
             }
 
         }
