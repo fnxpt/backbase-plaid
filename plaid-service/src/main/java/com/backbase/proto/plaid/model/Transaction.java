@@ -3,7 +3,6 @@ package com.backbase.proto.plaid.model;
 import com.backbase.proto.plaid.converter.LocationConverter;
 import com.backbase.proto.plaid.converter.PaymentMetaConverter;
 import com.backbase.proto.plaid.converter.StringListConverter;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,13 +19,6 @@ import java.util.List;
 @Table(name = "transaction")
 public class Transaction {
 
-    @SuppressWarnings("java:S115")
-    public enum PaymentChannel {
-        online,
-        in_store,
-        other
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -39,7 +31,7 @@ public class Transaction {
     private boolean pending;
 
     @Column(name = "payment_channel")
-    private PaymentChannel paymentChannel;
+    private String paymentChannel;
 
     @Column(name = "amount")
     private Double amount;
@@ -47,7 +39,7 @@ public class Transaction {
     @Column(name = "iso_currency_code")
     private String isoCurrencyCode;
 
-    @Column(name = "category")
+    @Column(name = "categories")
     @Convert(converter = StringListConverter.class)
     private List<String> category;
 
@@ -68,34 +60,9 @@ public class Transaction {
     @Convert(converter = LocationConverter.class)
     private Location location;
 
-    @Column(name = "payment_mata")
+    @Column(name = "payment_meta")
     @Lob
     @Convert(converter = PaymentMetaConverter.class)
     private PaymentMeta paymentMeta;
-
-    @Data
-    public static class Location {
-        private String address;
-        private String city;
-        private String region;
-        private String postalCode;
-        private String country;
-        private Integer lat;
-        private Integer lon;
-        private String storeNumber;
-    }
-
-    @Data
-    public static class PaymentMeta {
-        private String referenceNumber;
-        private String ppdId;
-        private String payee;
-        private String byOrderOf;
-        private String payer;
-        private String paymentMethod;
-        private String paymentProcessor;
-        private String reason;
-
-    }
 
 }

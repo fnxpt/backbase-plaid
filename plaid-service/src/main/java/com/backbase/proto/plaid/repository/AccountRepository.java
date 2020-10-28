@@ -35,4 +35,8 @@ public interface AccountRepository extends CrudRepository<Account, Long> {
      * @return a list of accounts that belong to that Item
      */
     List<Account> findAllByItemId(String itemId);
+
+
+
+    void deleteAccountsByItemId(String itemId);
 }

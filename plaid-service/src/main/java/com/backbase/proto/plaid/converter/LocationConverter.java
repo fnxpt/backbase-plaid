@@ -53,8 +53,7 @@ public class LocationConverter implements AttributeConverter<Location, String> {
             } catch (IOException e) {
                 log.error("Failed to read Location from json", json, e);
             }
-
         }
-        return new Location();
+        return null;
     }
 }

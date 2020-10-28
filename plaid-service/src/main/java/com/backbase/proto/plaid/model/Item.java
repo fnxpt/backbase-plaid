@@ -38,4 +38,20 @@ public class Item {
 
     @Column(name = "expiry_date")
     private LocalDate expiryDate;
+
+    @Column(name = "state")
+    private String state;
+
+    @Column(name = "state_changed_date")
+    private LocalDateTime stateChangedDate;
+
+    @Column(name = "error_code")
+    private String errorCode;
+
+    @Column(name = "error_message")
+    private String errorMessage;
+
+    @Column(name = "error_display_message")
+    private String errorDisplayMessage;
+
 }

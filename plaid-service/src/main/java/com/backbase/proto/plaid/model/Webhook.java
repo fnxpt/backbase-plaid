@@ -50,6 +50,7 @@ public class Webhook {
     private String itemId;
 
     @Column(name = "error")
+    @Lob
     private String error;
 
     @Column(name = "new_transactions")

@@ -16,7 +16,6 @@ import org.springframework.test.context.junit4.SpringRunner;
     classes = PlaidApplication.class
 )
 @Slf4j
-@Ignore
 public class AccountServiceIT {
 
     static {
@@ -27,6 +26,7 @@ public class AccountServiceIT {
     private AccountService accountService;
 
     @Test
+    @Ignore
     public void testIngestAccounts() {
         //access-testing
         accountService.ingestPlaidAccounts(
@@ -34,6 +34,12 @@ public class AccountServiceIT {
             "lesley.knope",
             "8a808094748c4ca701749668ea030012");
         // check account repo for these accounts
+    }
+
+
+    @Test
+    public void testDeleteAccounts() {
+//        accountService.deleteAccountByItemId("LlpN6poaprSbWAGv69pPH5qAyBgr8EUkZjbyr");
     }
 
 }

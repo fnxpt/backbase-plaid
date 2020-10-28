@@ -8,7 +8,6 @@ import com.backbase.dbs.transaction.presentation.service.api.TransactionsApi;
 import com.backbase.dbs.transaction.presentation.service.model.TransactionsDeleteRequestBody;
 import com.backbase.proto.plaid.model.Account;
 import com.backbase.proto.plaid.model.Item;
-import com.backbase.proto.plaid.repository.AccountRepository;
 import com.backbase.proto.plaid.repository.ItemRepository;
 import com.backbase.stream.configuration.TransactionServiceConfiguration;
 import com.backbase.stream.product.service.ArrangementService;
@@ -17,6 +16,7 @@ import com.plaid.client.request.ItemRemoveRequest;
 import com.plaid.client.response.ErrorResponse;
 import com.plaid.client.response.ItemRemoveResponse;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -38,11 +38,11 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
 
-    private final AccountRepository accountRepository;
+    private final AccountService accountService;
 
     private final PlaidClient plaidClient;
 
-    private final ArrangementService arrangementService;
+    private final ArrangementService streamArrangementService;
 
     private final TransactionsApi transactionsApi;
 
@@ -65,27 +65,26 @@ public class ItemService {
         }
         Response<ItemRemoveResponse> response = null;
         try {
-
             response = plaidClient.service().itemRemove(new ItemRemoveRequest(item.getAccessToken())).execute();
         } catch (IOException e) {
             e.printStackTrace();
         }
         if (response != null && response.isSuccessful()) {
             deleteItemFromDBS(itemId);
+            accountService.deleteAccountByItemId(item);
 
 //            itemRepository.delete(item);
         } else {
             ErrorResponse errorResponse = plaidClient.parseError(response);
             log.error("Plaid error: {}", errorResponse.getErrorMessage());
         }
-
-
     }
+
 
     public void deleteItemFromDBS(String itemId) {
         // Delete accounts from DBS
-        List<Account> accounts = accountRepository.findAllByItemId(itemId);
-        accounts.forEach(account -> arrangementService.deleteArrangementByExternalId(account.getAccountId())
+        List<Account> accounts = accountService.findAllByItemId(itemId);
+        accounts.forEach(account -> streamArrangementService.deleteArrangementByExternalId(account.getAccountId())
             .onErrorResume(WebClientResponseException.NotFound.class, e -> {
                 log.info("Arrangement already deleted");
                 return Mono.empty();
@@ -102,16 +101,6 @@ public class ItemService {
             .block();
     }
 
-    /**
-     * Gets the Access Token of an Item from the Item database.
-     *
-     * @param itemId identifies the Item that the Access Token belongs to
-     * @return the Access Token of the Item, if the Item is not present in the data base an exception is thrown
-     * @throws BadRequestException When Item is not found
-     */
-    public String getAccessToken(String itemId) {
-        return itemRepository.findByItemId(itemId).orElseThrow(() -> new BadRequestException("Item not found")).getAccessToken();
-    }
 
     /**
      * Gets all items in the repo, used for resetting DBS and ingesting them
@@ -119,7 +108,7 @@ public class ItemService {
      * @return all Items stored
      */
     public List<Item> getAllItems() {
-        return  itemRepository.findAll();
+        return itemRepository.findAll();
     }
 
     public List<Item> getAllItemsByCreator() {
@@ -136,10 +125,30 @@ public class ItemService {
     private InternalJwt getInternalJwt() {
         return securityContextUtil.getOriginatingUserJwt().orElseThrow(() -> new IllegalStateException("Cannnot get internal JWT"));
     }
+
     private String getLoggedInUserId(InternalJwt internalJwt) {
         return internalJwt.getClaimsSet().getSubject().orElseThrow(() -> new IllegalStateException("Cannot get subject"));
     }
+
     private String getLoggedInUserId() {
         return getLoggedInUserId(getInternalJwt());
+    }
+
+    public boolean isValidItem(String itemId) {
+        return itemRepository.existsByItemId(itemId);
+    }
+
+    public Item getValidItem(String itemId) {
+        Item item = itemRepository.findByItemId(itemId).orElseThrow(() -> new BadRequestException("Item does not exist"));
+        if (item.getExpiryDate() == null) {
+            return item;
+        } else {
+            throw new BadRequestException("Item is expired");
+        }
+    }
+
+    public void setPendingExpiration(Item item) {
+        item.setExpiryDate(LocalDate.now().plusDays(7));
+        itemRepository.save(item);
     }
 }

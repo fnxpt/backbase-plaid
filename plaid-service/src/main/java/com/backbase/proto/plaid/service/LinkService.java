@@ -4,6 +4,7 @@ import com.backbase.buildingblocks.backend.security.auth.config.SecurityContextU
 import com.backbase.buildingblocks.jwt.internal.token.InternalJwt;
 import com.backbase.buildingblocks.presentation.errors.BadRequestException;
 import com.backbase.proto.plaid.configuration.PlaidConfigurationProperties;
+import com.backbase.proto.plaid.exceptions.IngestionFailedException;
 import com.backbase.proto.plaid.mapper.ItemMapper;
 import com.backbase.proto.plaid.model.Item;
 import com.backbase.proto.plaid.model.PlaidLinkRequest;
@@ -46,7 +47,7 @@ import java.util.stream.Collectors;
     ProductCatalogServiceConfiguration.class,
 
 })
-public class PlaidLinkService {
+public class LinkService {
 
     private final PlaidClient plaidClient;
     private final PlaidConfigurationProperties plaidConfigurationProperties;
@@ -61,11 +62,11 @@ public class PlaidLinkService {
 
     private final ItemService itemService;
 
-    private final PlaidTransactionsService transactionService;
+    private final TransactionsService transactionService;
 
     private final SecurityContextUtil securityContextUtil;
 
-    private Executor tempExecutor = Executors.newSingleThreadExecutor();
+    private final Executor tempExecutor = Executors.newSingleThreadExecutor();
 
     /**
      * Creates a Plaid Link Token
@@ -113,20 +114,21 @@ public class PlaidLinkService {
         String userId = getLoggedInUserId(internalJwt);
         String legalEntityId = getLoggedInLegalEntityInternal(internalJwt);
 
-        String itemId = accessToken.getItemId();
-        if(!itemRepository.existsByItemId(itemId)) {
-            log.info("Saving item: {}", itemId);
-            createItem(accessToken, userId);
-        } else {
-            log.info("Item already exists: {}", itemId);
-        }
+
+        Item item = itemRepository.findByItemId(accessToken.getItemId())
+            .orElseGet(() -> createItem(accessToken, userId));
 
         accountService.ingestPlaidAccounts(accessToken.getAccessToken(), userId, legalEntityId);
-        webhookService.setupWebhook(accessToken.getAccessToken(), itemId);
+        webhookService.setupWebhook(accessToken.getAccessToken(), item);
         setupWebHook(accessToken);
 
-        tempExecutor.execute(() ->
-                transactionService.ingestDefaultUpdate(itemId));
+        tempExecutor.execute(() -> {
+            try {
+                transactionService.ingestDefaultUpdate(item);
+            } catch (IngestionFailedException e) {
+                log.error("Failed to ingest transactions for item: " + item, e);
+            }
+        });
     }
 
     /**
@@ -136,11 +138,12 @@ public class PlaidLinkService {
      * @param userId
      */
     @NotNull
-    private void createItem(ItemPublicTokenExchangeResponse accessToken, String userId) {
+    private Item createItem(ItemPublicTokenExchangeResponse accessToken, String userId) {
         Item newItem = itemMapper.map(accessToken);
         newItem.setCreatedAt(LocalDateTime.now());
         newItem.setCreatedBy(userId);
         itemRepository.save(newItem);
+        return newItem;
     }
 
     /**

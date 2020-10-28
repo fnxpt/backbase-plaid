@@ -336,3 +336,33 @@ databaseChangeLog:
               - column:
                   name: expiry_date
                   type: DATETIME
+  - changeSet:
+      id: add-item-state-columns
+      author: lesley.knope
+      changes:
+        - addColumn:
+            tableName: item
+            columns:
+              - column:
+                  name: state
+                  type: VARCHAR(32)
+              - column:
+                  name: state_changed_date
+                  type: DATETIME
+              - column:
+                  name: error_code
+                  type: VARCHAR(128)
+              - column:
+                  name: error_message
+                  type: NCLOB
+              - column:
+                  name: error_display_message
+                  type: NCLOB
+  - changeSet:
+      id: change-error-column
+      author: lesley.knope
+      changes:
+        - modifyDataType:
+            columnName: error
+            newDataType: NCLOB
+            tableName: webhook
