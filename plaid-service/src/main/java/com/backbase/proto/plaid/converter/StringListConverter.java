@@ -44,4 +44,3 @@ public class StringListConverter implements AttributeConverter<List<String>, Str
     }
 
 }
-//jackson object mapper

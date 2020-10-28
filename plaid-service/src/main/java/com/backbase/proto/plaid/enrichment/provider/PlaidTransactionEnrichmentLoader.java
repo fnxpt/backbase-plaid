@@ -3,10 +3,7 @@ package com.backbase.proto.plaid.enrichment.provider;
 import com.backbase.transaction.enrichment.provider.api.TransactionEnrichmentLoader;
 import com.backbase.transaction.enrichment.provider.domain.Category;
 import com.backbase.transaction.enrichment.provider.domain.EnrichmentResult;
-import com.backbase.transaction.enrichment.provider.domain.Location;
 import com.backbase.transaction.enrichment.provider.domain.Transaction;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.plaid.client.PlaidClient;
 import lombok.AllArgsConstructor;
@@ -14,9 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * to be moved

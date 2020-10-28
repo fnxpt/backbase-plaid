@@ -4,7 +4,6 @@ import com.backbase.dbs.transaction.presentation.service.ApiClient;
 import com.backbase.dbs.transaction.presentation.service.api.TransactionsApi;
 import com.backbase.stream.configuration.TransactionServiceConfiguration;
 import com.plaid.client.PlaidClient;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

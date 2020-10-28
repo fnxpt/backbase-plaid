@@ -12,9 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * This class exposes Item API through a micro service allowing the call of end points to manage items.
@@ -24,7 +23,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ItemController implements ItemApi {
 
-    private final PlaidClient plaidClient;
     private final LinkItemMapper linkItemMapper;
 
     private final ItemService itemService;
@@ -41,13 +39,16 @@ public class ItemController implements ItemApi {
         return ResponseEntity.accepted().build();
     }
 
+    /**
+     * Gets all Linked Items for logged in user
+     * @return list of items with ok response
+     */
     @Override
     public ResponseEntity<GetItems> getItems() {
-        List<Item> allItemsByCreator = itemService.getAllItemsByCreator();
+        List<Item> allItemsByCreator = itemService.getAllItemsByCreator().stream().filter(item -> item.getInstitutionId() != null).collect(Collectors.toList());
 
-        List<Item> items = Optional.ofNullable(allItemsByCreator).orElseThrow(() -> new IllegalArgumentException("Instition not found"));
 
-        List<LinkItem> itemList = linkItemMapper.map(items);
+        List<LinkItem> itemList = linkItemMapper.map(allItemsByCreator);
         GetItems getItems = new GetItems();
         getItems.setItems(itemList);
 
