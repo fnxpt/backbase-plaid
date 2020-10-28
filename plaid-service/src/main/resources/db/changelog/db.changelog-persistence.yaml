@@ -358,3 +358,11 @@ databaseChangeLog:
               - column:
                   name: error_display_message
                   type: NCLOB
+  - changeSet:
+      id: change-error-column
+      author: lesley.knope
+      changes:
+        - modifyDataType:
+            columnName: error
+            newDataType: NCLOB
+            tableName: webhook

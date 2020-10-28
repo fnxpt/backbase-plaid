@@ -78,9 +78,8 @@ public class ItemService {
             ErrorResponse errorResponse = plaidClient.parseError(response);
             log.error("Plaid error: {}", errorResponse.getErrorMessage());
         }
-
-
     }
+
 
     public void deleteItemFromDBS(String itemId) {
         // Delete accounts from DBS
@@ -139,8 +138,13 @@ public class ItemService {
         return itemRepository.existsByItemId(itemId);
     }
 
-    public Item getItem(String itemId) {
-        return itemRepository.findByItemId(itemId).orElseThrow(() -> new BadRequestException("Item does not exist"));
+    public Item getValidItem(String itemId) {
+        Item item = itemRepository.findByItemId(itemId).orElseThrow(() -> new BadRequestException("Item does not exist"));
+        if (item.getExpiryDate() == null) {
+            return item;
+        } else {
+            throw new BadRequestException("Item is expired");
+        }
     }
 
     public void setPendingExpiration(Item item) {

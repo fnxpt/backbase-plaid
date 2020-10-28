@@ -4,6 +4,7 @@ import com.backbase.buildingblocks.backend.security.auth.config.SecurityContextU
 import com.backbase.buildingblocks.jwt.internal.token.InternalJwt;
 import com.backbase.buildingblocks.presentation.errors.BadRequestException;
 import com.backbase.proto.plaid.configuration.PlaidConfigurationProperties;
+import com.backbase.proto.plaid.exceptions.IngestionFailedException;
 import com.backbase.proto.plaid.mapper.ItemMapper;
 import com.backbase.proto.plaid.model.Item;
 import com.backbase.proto.plaid.model.PlaidLinkRequest;
@@ -121,8 +122,13 @@ public class LinkService {
         webhookService.setupWebhook(accessToken.getAccessToken(), item);
         setupWebHook(accessToken);
 
-        tempExecutor.execute(() ->
-                transactionService.ingestDefaultUpdate(item));
+        tempExecutor.execute(() -> {
+            try {
+                transactionService.ingestDefaultUpdate(item);
+            } catch (IngestionFailedException e) {
+                log.error("Failed to ingest transactions for item: " + item, e);
+            }
+        });
     }
 
     /**

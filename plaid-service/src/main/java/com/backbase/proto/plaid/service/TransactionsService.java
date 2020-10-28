@@ -2,6 +2,7 @@ package com.backbase.proto.plaid.service;
 
 import com.backbase.dbs.transaction.presentation.service.model.TransactionItemPost;
 import com.backbase.dbs.transaction.presentation.service.model.TransactionsDeleteRequestBody;
+import com.backbase.proto.plaid.exceptions.IngestionFailedException;
 import com.backbase.proto.plaid.mapper.PlaidToDBSTransactionMapper;
 import com.backbase.proto.plaid.mapper.PlaidToModelTransactionsMapper;
 import com.backbase.proto.plaid.model.Item;
@@ -17,13 +18,13 @@ import com.plaid.client.PlaidClient;
 import com.plaid.client.request.TransactionsGetRequest;
 import com.plaid.client.response.ErrorResponse;
 import com.plaid.client.response.TransactionsGetResponse;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Import;
@@ -56,31 +57,29 @@ public class TransactionsService {
 
     private final ItemRepository itemRepository;
 
+    private ErrorHandler errorHandler;
+
     /**
      * Ingests the Transactions of an Item.
      *
      * @param item identifies item the transaction belong to
      */
-    public void ingestInitialUpdate(Item item) {
+    public void ingestInitialUpdate(Item item) throws IngestionFailedException {
         LocalDate startDate = LocalDate.now().minusDays(30);
         LocalDate endDate = LocalDate.now();
-        // Pull transactions for a date range
         this.ingestTransactions(item, startDate, endDate);
     }
 
-    public void ingestHistoricalUpdate(Item item) {
+    public void ingestHistoricalUpdate(Item item) throws IngestionFailedException {
         LocalDate startDate = LocalDate.now().minusYears(2);
         LocalDate endDate = LocalDate.now();
-        // Pull transactions for a date range
         this.ingestTransactions(item, startDate, endDate);
     }
 
-    public void ingestDefaultUpdate(Item item) {
+    public void ingestDefaultUpdate(Item item) throws IngestionFailedException {
         LocalDate startDate = LocalDate.now().minusDays(14);
         LocalDate endDate = LocalDate.now();
-        // Pull transactions for a date range
         this.ingestTransactions(item, startDate, endDate);
-
     }
 
     public void removeTransactions(Item item, List<String> removedTransactions) {
@@ -92,14 +91,14 @@ public class TransactionsService {
      * Ingests Transactions, setting the start and end dates of the Transactions that are being requested
      * it also sets how many are to be ingested at one time and the offset for pagination.
      *
-     * @param item    identifies the Item the Transaction belongs to
+     * @param item      identifies the Item the Transaction belongs to
      * @param startDate the earliest Transaction date being requested
      * @param endDate   the latest Transaction being requested
      */
-    @SneakyThrows
-    public void ingestTransactions(Item item, LocalDate startDate, LocalDate endDate) {
+    public void ingestTransactions(Item item, LocalDate startDate, LocalDate endDate) throws IngestionFailedException {
         String accessToken = accessTokenService.getAccessToken(item.getItemId());
         this.ingestTransactions(item, accessToken, startDate, endDate, 100, 0);
+
     }
 
     /**
@@ -111,8 +110,7 @@ public class TransactionsService {
      * @param batchSize   the number of Transactions being ingested at one time
      * @param offset      used for pagination so each retrieval for one request is the next set of Transactions
      */
-    @SneakyThrows
-    private void ingestTransactions(Item item, String accessToken, LocalDate startDate, LocalDate endDate, int batchSize, int offset) {
+    private void ingestTransactions(Item item, String accessToken, LocalDate startDate, LocalDate endDate, int batchSize, int offset) throws IngestionFailedException {
         log.info("Ingesting transactions from: startDate: {} to: {} with batchSize: {} from offset: {}", startDate, endDate, batchSize, offset);
         TransactionsGetRequest transactionsGetRequest = new TransactionsGetRequest(
             accessToken,
@@ -124,9 +122,14 @@ public class TransactionsService {
 
 
         Response<TransactionsGetResponse> response =
-            plaidClient.service().transactionsGet(
+            null;
+        try {
+            response = plaidClient.service().transactionsGet(
                 transactionsGetRequest)
                 .execute();
+        } catch (IOException e) {
+            throw new IngestionFailedException("Failed to call Plaid Client", e);
+        }
 
         if (response.isSuccessful() && response.body() != null) {
             TransactionsGetResponse transactionsGetResponse = response.body();
@@ -173,12 +176,9 @@ public class TransactionsService {
 
         } else {
             ErrorResponse errorResponse = plaidClient.parseError(response);
-            item.setErrorCode(errorResponse.getErrorCode());
-            item.setState("FAILED");
-            item.setErrorDisplayMessage(errorResponse.getDisplayMessage());
-            item.setErrorMessage(errorResponse.getErrorMessage());
-            itemRepository.save(item);
+            errorHandler.handleErrorResponse(errorResponse, item);
             log.error("Failed to ingest transactions for: {}. Message: {}", item.getItemId(), errorResponse.getErrorMessage());
+            throw new IngestionFailedException(errorResponse);
         }
     }
 

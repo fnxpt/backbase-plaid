@@ -2,6 +2,7 @@ package com.backbase.proto.plaid.service;
 
 import com.backbase.buildingblocks.presentation.errors.BadRequestException;
 import com.backbase.proto.plaid.configuration.PlaidConfigurationProperties;
+import com.backbase.proto.plaid.exceptions.IngestionFailedException;
 import com.backbase.proto.plaid.model.Item;
 import com.backbase.proto.plaid.model.Webhook;
 import com.backbase.proto.plaid.repository.WebhookRepository;
@@ -17,9 +18,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
-
-import static com.backbase.proto.plaid.model.Webhook.WebhookType.ITEM;
-import static com.backbase.proto.plaid.model.Webhook.WebhookType.TRANSACTIONS;
 
 
 /**
@@ -46,7 +44,7 @@ public class WebhookService {
      * Sets up the webhook with configurations.
      *
      * @param accessToken provides authenticator in Plaid
-     * @param item      identifies Item for which the webhook is notifying for
+     * @param item        identifies Item for which the webhook is notifying for
      */
     public void setupWebhook(String accessToken, Item item) {
 
@@ -71,20 +69,31 @@ public class WebhookService {
         log.info("Processing webhook: {} for item: {}", webhook.getWebhookType(), webhook.getItemId());
         webhook.setCreatedAt(LocalDateTime.now());
         webhookRepository.save(webhook);
-        try {
-            if (validateWebhook(webhook)) {
-                if (webhook.getWebhookType() == TRANSACTIONS)
-                    processTransactions(webhook);
-                else if (webhook.getWebhookType() == ITEM)
-                    processItem(webhook);
+        if (validateWebhook(webhook)) {
 
-                webhook.setCompleted(true);
+
+            switch (webhook.getWebhookType()) {
+                case TRANSACTIONS: {
+                    try {
+                        processTransactions(webhook);
+                    } catch (IngestionFailedException e) {
+                        log.error("Failed to ingest transactions for item: " + webhook.getItemId(), e);
+                        webhook.setError(webhook.getError());
+                    } catch (Exception e) {
+                        log.error("Failed to ingest transactions for item: " + webhook.getItemId(), e);
+                        webhook.setError(e.getMessage());
+                    }
+                }
+                    break;
+                case ITEM: {
+                    processItem(webhook);
+                    break;
+                }
             }
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            webhook.setError(exception.getMessage());
+            webhook.setCompleted(true);
+
+            webhookRepository.save(webhook);
         }
-        webhookRepository.save(webhook);
     }
 
     /**
@@ -119,16 +128,14 @@ public class WebhookService {
      *
      * @param webhook webhook to process for updates
      */
-    private void processTransactions(Webhook webhook) {
+    private void processTransactions(Webhook webhook) throws IngestionFailedException {
 
-        Item item = itemService.getItem(webhook.getItemId());
+        Item item = itemService.getValidItem(webhook.getItemId());
 
         switch (webhook.getWebhookCode()) {
             case INITIAL_UPDATE: {
-                // Fired when an Item's initial transaction pull is completed.
-                // Note: The default pull is 30 days.
-                log.info("Process Initial Update");
                 transactionsService.ingestInitialUpdate(item);
+                log.info("Process Initial Update");
                 break;
             }
             case HISTORICAL_UPDATE: {
@@ -159,7 +166,7 @@ public class WebhookService {
      */
     private void processItem(Webhook webhook) {
 
-        Item item = itemService.getItem(webhook.getItemId());
+        Item item = itemService.getValidItem(webhook.getItemId());
 
         log.info("Webhook Acknowledged");
         //TODO: Update Item Database. Update Token Status HERE
@@ -195,7 +202,7 @@ public class WebhookService {
     @SneakyThrows
     public void refresh(String itemId) {
         log.info("Refreshing Transactions for: {}", itemId);
-        Item item = itemService.getItem(itemId);
+        Item item = itemService.getValidItem(itemId);
         TransactionsRefreshRequest transactionsRefreshRequest = new TransactionsRefreshRequest(item.getAccessToken());
         transactionsRefreshRequest.clientId = plaidConfigurationProperties.getClientId();
         transactionsRefreshRequest.secret = plaidConfigurationProperties.getSecret();
