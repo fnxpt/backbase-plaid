@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: plaid-transaction-enricher
+  labels:
+    app: plaid-transaction-enricher
+    tier: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: plaid-transaction-enricher
+    tier: backend
+  ports:
+    - port: 8080
+      targetPort: http

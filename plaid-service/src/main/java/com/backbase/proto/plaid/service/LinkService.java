@@ -118,7 +118,7 @@ public class LinkService {
         Item item = itemRepository.findByItemId(accessToken.getItemId())
             .orElseGet(() -> createItem(accessToken, userId));
 
-        accountService.ingestPlaidAccounts(accessToken.getAccessToken(), userId, legalEntityId);
+        accountService.ingestPlaidAccounts(item, accessToken.getAccessToken(), userId, legalEntityId);
         webhookService.setupWebhook(accessToken.getAccessToken(), item);
         setupWebHook(accessToken);
 

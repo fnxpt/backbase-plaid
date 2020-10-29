@@ -16,6 +16,7 @@ import com.backbase.stream.legalentity.model.User;
 import com.backbase.stream.product.BatchProductIngestionSaga;
 import com.backbase.stream.product.ProductIngestionSagaConfiguration;
 import com.backbase.stream.product.task.ProductGroupTask;
+import com.backbase.stream.productcatalog.ProductCatalogService;
 import com.backbase.stream.productcatalog.configuration.ProductCatalogServiceConfiguration;
 import com.backbase.stream.productcatalog.model.ProductCatalog;
 import com.backbase.stream.productcatalog.model.ProductKind;
@@ -74,6 +75,8 @@ public class AccountService {
 
     private final TransactionsService transactionService;
 
+    private final ProductCatalogService productCatalogService;
+
     /**
      * Sends a request to Plaid for the accounts of a given item by parsing in the Access Token.
      *
@@ -102,7 +105,7 @@ public class AccountService {
      * @param userId        required for institution retrieval
      * @param legalEntityId used to get Service and Master Agreements which are needed to perform action on the accounts ingested
      */
-    public void ingestPlaidAccounts(String accessToken, String userId, String legalEntityId) {
+    public void ingestPlaidAccounts(Item item, String accessToken, String userId, String legalEntityId) {
         AccountsBalanceGetResponse plaidAccounts = requestPlaidAccounts(accessToken);
 
         List<Account> accounts = plaidAccounts.getAccounts();
@@ -120,6 +123,7 @@ public class AccountService {
         ItemStatus itemStatus = plaidAccounts.getItem();
         String institutionId = itemStatus.getInstitutionId();
         Institution institution = institutionService.getInstitution(institutionId, userId);
+        item.setInstitutionId(institutionId);
 
         setupProductCatalog(accounts, institution);
 
@@ -185,6 +189,7 @@ public class AccountService {
                     })
                     .collect(Collectors.toList())));
             });
+        productCatalogService.setupProductCatalog(productCatalog);
     }
 
 

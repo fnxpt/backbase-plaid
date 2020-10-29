@@ -1,0 +1,91 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.backbase.proto.plaid</groupId>
+    <artifactId>plaid-transaction-enricher</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <packaging>jar</packaging>
+
+    <name>Backbase :: Plaid Enrichment Provider</name>
+
+    <properties>
+        <java.version>1.8</java.version>
+        <!-- Properties for the frontend code generation-->
+        <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
+
+            <jib-maven-plugin.version>2.4.0</jib-maven-plugin.version>
+            <!-- This is the patched image that supports editing batch payments in a batch order -->
+            <jib.from.image>repo.backbase.com/backbase-docker-releases/transaction-enricher:DBS-2.19.1</jib.from.image>
+            <jib.to.image.root>328033059293.dkr.ecr.eu-central-1.amazonaws.com/plaid-transaction-enricher</jib.to.image.root>
+
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.backbase.proto.plaid</groupId>
+            <artifactId>plaid-service</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.backbase.dbs.transaction</groupId>
+            <artifactId>transaction-enrichment-provider-api</artifactId>
+            <version>0.17</version>
+        </dependency>
+
+
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+            </plugin>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>${jib-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>default</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <container>
+                        <appRoot>/app/WEB-INF/</appRoot>
+                        <entrypoint>INHERIT</entrypoint>
+                        <environment>
+                            <SPRING_CONFIG_ADDITIONAL_LOCATION>
+                                /app/conf/cib-payments-extensions.yml
+                            </SPRING_CONFIG_ADDITIONAL_LOCATION>
+                        </environment>
+                    </container>
+                    <to>
+                        <image>${jib.to.image.root}</image>
+                    </to>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

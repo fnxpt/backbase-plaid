@@ -366,3 +366,12 @@ databaseChangeLog:
             columnName: error
             newDataType: NCLOB
             tableName: webhook
+  - changeSet:
+      id: location-can-be-nullable
+      author: lesley.knope
+      changes:
+        - dropNotNullConstraint:
+            columnName: location
+            columnDataType: NCLOB
+            tableName: transaction
+

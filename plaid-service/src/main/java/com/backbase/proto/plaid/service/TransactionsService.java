@@ -14,6 +14,10 @@ import com.backbase.stream.configuration.AccessControlConfiguration;
 import com.backbase.stream.configuration.TransactionServiceConfiguration;
 import com.backbase.stream.product.ProductIngestionSagaConfiguration;
 import com.backbase.stream.productcatalog.configuration.ProductCatalogServiceConfiguration;
+import com.backbase.stream.transaction.TransactionTask;
+import com.backbase.stream.transaction.TransactionUnitOfWorkExecutor;
+import com.backbase.stream.worker.exception.StreamTaskException;
+import com.backbase.stream.worker.model.UnitOfWork;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.TransactionsGetRequest;
 import com.plaid.client.response.ErrorResponse;
@@ -31,6 +35,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import retrofit2.Response;
 
 /**
@@ -56,6 +61,8 @@ public class TransactionsService {
     private final AccessTokenService accessTokenService;
 
     private final ItemRepository itemRepository;
+
+    private final TransactionUnitOfWorkExecutor transactionUnitOfWorkExecutor;
 
     private ErrorHandler errorHandler;
 
@@ -133,7 +140,7 @@ public class TransactionsService {
 
         if (response.isSuccessful() && response.body() != null) {
             TransactionsGetResponse transactionsGetResponse = response.body();
-            log.info("response: {}", transactionsGetResponse);
+            log.info("Received {} transactions from Plaid", transactionsGetResponse.getTransactions().size());
 
             transactionsGetResponse.getItem().getInstitutionId();
 
@@ -145,10 +152,10 @@ public class TransactionsService {
             // populates list with response
             List<TransactionsGetResponse.Transaction> transactions = transactionsGetResponse.getTransactions();
 
-            transactions.forEach(transaction -> {
-                if (!transactionRepository.existsByTransactionId(transaction.getTransactionId()))
-                    transactionRepository.save(plaidToModelTransactionsMapper.mapToDomain(transaction));
-            });
+//            transactions.forEach(transaction -> {
+//                if (!transactionRepository.existsByTransactionId(transaction.getTransactionId()))
+//                    transactionRepository.save(plaidToModelTransactionsMapper.mapToDomain(transaction));
+//            });
 
             transactionItemPosts = transactions.stream().map((TransactionsGetResponse.Transaction transaction) ->
                 plaidToDBSTransactionMapper.map(transaction, transactionsGetResponse.getItem().getInstitutionId())).collect(Collectors.toList());
@@ -161,11 +168,23 @@ public class TransactionsService {
             log.info("number of items expected: {}", totalTransactionsRequested);
             log.info("number retrieved this time : {}", totalTransactionRetrieved);
 
-            //processes list to Backbase
-            streamTransactionService.processTransactions(Flux.fromIterable(transactionItemPosts))
-                .doOnNext(transactionIds -> log.info("Ingested transactionIds: {}", transactionIds))
-                .collectList()
-                .block();
+
+            Flux<UnitOfWork<TransactionTask>> unitOfWorkFlux = transactionUnitOfWorkExecutor.prepareUnitOfWork(Flux.fromIterable(transactionItemPosts));
+            unitOfWorkFlux
+                .doOnNext(uow -> log.info("Executing unif of work: {}", uow.getUnitOfOWorkId()))
+                .flatMap(transactionUnitOfWorkExecutor::executeUnitOfWork)
+                .doOnNext(uow -> log.info("Finished executing unit of work: {}", uow.getUnitOfOWorkId()))
+                .onErrorResume(StreamTaskException.class, streamTaskException -> {
+                    log.info("Failed to ingest unitOfWOrk: {}",  streamTaskException.getTask(), streamTaskException);
+                    return Mono.empty();
+                })
+                .blockLast();
+//
+//            //processes list to Backbase
+//            streamTransactionService.processTransactions(Flux.fromIterable(transactionItemPosts))
+//                .doOnNext(transactionIds -> log.info("Ingested transactionIds: {}", transactionIds))
+//                .collectList()
+//                .block();
 
             if (batchSize < (totalTransactionsRequested - offset)) {
                 log.info("Ingesting next page of transactions from: {}", newOffset);
