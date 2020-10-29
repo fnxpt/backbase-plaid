@@ -28,6 +28,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
      */
     Optional<Item> findByItemId(String itemId);
 
+
     List<Item> findAllByCreatedBy(String userId);
 
 }

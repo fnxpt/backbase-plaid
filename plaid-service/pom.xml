@@ -178,11 +178,7 @@
             <artifactId>mysql-connector-java</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>com.backbase.dbs.transaction</groupId>
-            <artifactId>transaction-enrichment-provider-api</artifactId>
-            <version>0.17</version>
-        </dependency>
+
 
     </dependencies>
     <build>
@@ -220,6 +216,7 @@
                         <configuration>
                             <inputSpec>${project.basedir}/api/openapi.yaml</inputSpec>
                             <apiPackage>com.backbase.proto.plaid.api</apiPackage>
+<!--                            should be api.models-->
                             <modelPackage>com.backbase.proto.plaid.model</modelPackage>
                         </configuration>
                     </execution>

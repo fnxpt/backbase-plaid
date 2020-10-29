@@ -1,4 +1,4 @@
-package com.backbase.proto.plaid.enrichment.provider;
+package provider;
 
 import com.backbase.transaction.enrichment.provider.api.TransactionEnrichmentLoader;
 import com.backbase.transaction.enrichment.provider.domain.Category;
@@ -29,7 +29,6 @@ public class PlaidTransactionEnrichmentLoader implements TransactionEnrichmentLo
      *
      * @returnn plaid
      */
-    @Override
     public String getName() {
         return "plaid";
     }
@@ -40,7 +39,6 @@ public class PlaidTransactionEnrichmentLoader implements TransactionEnrichmentLo
      * @param transactions transactions to be enriched
      * @return enriched transactions
      */
-    @Override
     public List<EnrichmentResult> enrichTransactions(List<Transaction> transactions) {
         Map<String, Category> categories = Maps.uniqueIndex(categoryLoader.getAllCategories(false), Category::getId);
 //        List<EnrichmentResult> concatenatedList = transactions.stream().map(transaction -> getMockEntrichmentResult(transaction, categories))

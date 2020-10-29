@@ -4,6 +4,8 @@ import com.backbase.buildingblocks.jwt.internal.authentication.InternalJwtAuthen
 import com.backbase.buildingblocks.jwt.internal.token.InternalJwt;
 import com.backbase.buildingblocks.jwt.internal.token.InternalJwtClaimsSet;
 import com.backbase.proto.plaid.PlaidApplication;
+import com.backbase.proto.plaid.controller.ItemController;
+import com.backbase.proto.plaid.model.GetItems;
 import com.backbase.proto.plaid.model.Item;
 import com.backbase.proto.plaid.model.Transaction;
 import com.backbase.proto.plaid.repository.ItemRepository;
@@ -30,6 +32,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -83,6 +86,17 @@ public class LinkServiceIT {
 
     @Autowired
     private AccessTokenService accessTokenService;
+
+    @Autowired
+    private ItemController itemController;
+
+    @Test
+    public void testItemEndpoint(){
+        ResponseEntity<GetItems> items = itemController.getItems();
+        log.info("get Items endpoint response body: {}",items.getBody());
+
+
+    }
 
 //    @MockBean
 //    private PlaidClient plaidClient;

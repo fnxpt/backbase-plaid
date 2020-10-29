@@ -1,6 +1,5 @@
-package com.backbase.proto.plaid.enrichment.provider;
+package provider;
 
-import com.backbase.proto.plaid.service.CategoryService;
 import com.backbase.transaction.enrichment.provider.api.CategoryLoader;
 import com.backbase.transaction.enrichment.provider.domain.Category;
 import com.plaid.client.PlaidClient;

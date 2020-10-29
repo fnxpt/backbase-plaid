@@ -1,4 +1,4 @@
-package com.backbase.proto.plaid.service;
+package provider;
 
 import com.backbase.transaction.enrichment.provider.domain.Category;
 import com.backbase.transaction.enrichment.provider.domain.Category.Builder;
