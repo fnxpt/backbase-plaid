@@ -88,7 +88,6 @@ public class WebhookServiceIT {
         plaidWebhook.setWebhookCode(Webhook.WebhookCode.HISTORICAL_UPDATE);
         plaidWebhook.setWebhookType(TRANSACTIONS);
         plaidWebhook.setItemId("***REMOVED***");
-        plaidWebhook.setNewTransactions(376);
 
         webhookService.process(plaidWebhook);
     }

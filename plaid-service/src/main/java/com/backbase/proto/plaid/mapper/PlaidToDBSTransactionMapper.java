@@ -64,7 +64,7 @@ public class PlaidToDBSTransactionMapper {
         CreditDebitIndicator indicator;
         boolean amountIsNegative = amount.compareTo(BigDecimal.ZERO) < 0;
         if (amountIsNegative) {
-            log.info("Amount: {} is negative", amount);
+            log.debug("Amount: {} is negative", amount);
             indicator = CreditDebitIndicator.CRDT;
             amount = amount.negate();
         } else {
@@ -97,7 +97,7 @@ public class PlaidToDBSTransactionMapper {
         String billingStatus = mapBilling(transaction);
 
         bbTransaction.setBillingStatus(billingStatus);
-        log.info("Mapped Billing Status: {}", billingStatus);
+        log.debug("Mapped Billing Status: {}", billingStatus);
 
         if (transaction.getAuthorizedDate() != null) {
             bbTransaction.setValueDate(LocalDate.parse(transaction.getAuthorizedDate()));
@@ -127,7 +127,7 @@ public class PlaidToDBSTransactionMapper {
             description = transactionName;
         }
 
-        log.info("Mapped transaction name: {} to description: {}", transactionName, description);
+        log.debug("Mapped transaction name: {} to description: {}", transactionName, description);
 
         description = StringUtils.abbreviate(description, 140);
         bbTransaction.setDescription(description);
@@ -163,21 +163,21 @@ public class PlaidToDBSTransactionMapper {
 
         if (transaction.getMerchantName() != null) {
             counterpartyName = transaction.getMerchantName();
-            log.info("Mapped counter party name from merchant name: {}", counterpartyName);
+            log.debug("Mapped counter party name from merchant name: {}", counterpartyName);
         } else if (paymentMeta.getPayee() != null) {
             counterpartyName = paymentMeta.getPayee();
-            log.info("Mapped counter party name from payee name: {}", counterpartyName);
+            log.debug("Mapped counter party name from payee name: {}", counterpartyName);
         } else {
             PlaidConfigurationProperties.DescriptionParser descriptionParser = getDescriptionParser(institutionId);
             if (descriptionParser != null) {
                 counterpartyName = parse(transaction.getName(), descriptionParser.getCounterPartyName());
-                log.info("Mapped counter party name: {} from transaction name: {}", transaction.getName(), counterpartyName);
+                log.debug("Mapped counter party name: {} from transaction name: {}", transaction.getName(), counterpartyName);
             } else {
                 counterpartyName = transaction.getName();
             }
         }
         if (counterpartyName.length() > 128) {
-            log.warn("Counter party name: {} cannot be longer than 128 characters", counterpartyName);
+            log.debug("Counter party name: {} cannot be longer than 128 characters", counterpartyName);
             counterpartyName = StringUtils.abbreviate(counterpartyName, 128);
         }
         bbTransaction.setCounterPartyName(counterpartyName);
@@ -195,7 +195,7 @@ public class PlaidToDBSTransactionMapper {
         if (descriptionParser != null) {
             getMatch(transaction.getName(), descriptionParser.getCounterPartyBBAN())
                 .ifPresent(counterPartyAccountNumber -> {
-                    log.info("Mapping counter account number: {}", counterPartyAccountNumber);
+                    log.debug("Mapping counter account number: {}", counterPartyAccountNumber);
                     bbTransaction.setCounterPartyAccountNumber(StringUtils.abbreviate(counterPartyAccountNumber, 36));
                 });
         }
@@ -274,7 +274,7 @@ public class PlaidToDBSTransactionMapper {
      */
     private String getTransactionTypeGroup(TransactionsGetResponse.Transaction transaction) {
         String typeGroup = transactionTypeGroupMap.getOrDefault(transaction.getPaymentChannel().replace(" ", ""), transaction.getPaymentChannel());
-        log.info("Mapped Type Group: {} to: {}", transaction.getPaymentChannel(), typeGroup);
+        log.debug("Mapped Type Group: {} to: {}", transaction.getPaymentChannel(), typeGroup);
         return typeGroup;
     }
 
@@ -290,7 +290,7 @@ public class PlaidToDBSTransactionMapper {
             type = "Credit/Debit Card";
         }
 
-        log.info("Mapped Type: {} to: {}", transaction.getTransactionCode(), type);
+        log.debug("Mapped Type: {} to: {}", transaction.getTransactionCode(), type);
 
         return type;
     }

@@ -20,6 +20,7 @@ import com.plaid.client.response.AccountsBalanceGetResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Request;
 import okio.Timeout;
@@ -125,14 +126,14 @@ public class LinkServiceIT {
 //        itemService.deleteItem("***REMOVED***");
     }
 
-    @Test
-    @Ignore
-    public void testIngestAll() {
-        itemService.getAllItems().forEach(item -> accountService.ingestPlaidAccounts(accessTokenService.getAccessToken(item.getItemId()), "lesley.knope",
-            "8a808094748c4ca701749668ea030012"));
-//        itemService.deleteItem("***REMOVED***");
-//        itemService.deleteItem("***REMOVED***");
-    }
+//    @Test
+//    @Ignore
+//    public void testIngestAll() {
+//        itemService.getAllItems().forEach(item -> accountService.ingestPlaidAccounts(accessTokenService.getAccessToken(item.getItemId()), "lesley.knope",
+//            "8a808094748c4ca701749668ea030012"));
+////        itemService.deleteItem("***REMOVED***");
+////        itemService.deleteItem("***REMOVED***");
+//    }
 
     @Test
     public void testGetAllItems() {
@@ -161,8 +162,17 @@ public class LinkServiceIT {
 
         Assert.assertEquals("Expected 3 items: ", 3, me.size());
 
-
     }
+
+//    @Test
+//    public void resetSandbox() {
+//        List<Item> collect = itemRepository.findAll().stream()
+//            .filter(item -> item.getAccessToken().startsWith("access-sandbox"))
+//            .collect(Collectors.toList());
+//        for (Item item : collect) {
+//            itemService.deleteItem(item.getItemId());
+//        }
+//    }
 
 
     @Test
@@ -175,7 +185,7 @@ public class LinkServiceIT {
 //        item.setCreatedBy("me");
 //        itemRepository.save(item);
 
-        itemService.deleteItem("LlpN6poaprSbWAGv69pPH5qAyBgr8EUkZjbyr");
+//        itemService.deleteItem("LlpN6poaprSbWAGv69pPH5qAyBgr8EUkZjbyr");
 
 //        Assert.assertFalse(itemRepository.existsByItemId("4d6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr"));
     }

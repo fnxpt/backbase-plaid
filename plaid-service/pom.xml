@@ -26,7 +26,7 @@
         <codegen.npmPackage.version>${project.version}</codegen.npmPackage.version>
         <codegen.generateMocks>true</codegen.generateMocks>
         <boat-maven-plugin.output>${project.build.directory}/angular</boat-maven-plugin.output>
-        <stream.version>2.10.0</stream.version>
+        <stream.version>2.11.0</stream.version>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
     </properties>
 
@@ -221,32 +221,32 @@
                         </configuration>
                     </execution>
 
-<!--                    <execution>-->
-<!--                        <id>generete-angular</id>-->
-<!--                        <phase>generate-sources</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>generate</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <inputSpec>${project.basedir}/api/openapi.yaml</inputSpec>-->
-<!--                            <generatorName>typescript-angular</generatorName>-->
-<!--                            <output>${boat-maven-plugin.output}</output>-->
-<!--                            <generatorName>backbase-typescript-angular</generatorName>-->
-<!--                            <generateSupportingFiles>true</generateSupportingFiles>-->
-<!--                            <supportingFilesToGenerate>api.module.ts,configuration.ts,encoder.ts,variables.ts,models.ts,api.ts</supportingFilesToGenerate>-->
-<!--                            <additionalProperties>-->
-<!--                                ngVersion=${codegen.angularVersion},npmName=${codegen.npmPackage.name},npmVersion=${codegen.npmPackage.version},withMocks=${codegen.generateMocks}-->
-<!--                            </additionalProperties>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
+                    <execution>
+                        <id>generete-angular</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/api/openapi.yaml</inputSpec>
+                            <generatorName>typescript-angular</generatorName>
+                            <output>${boat-maven-plugin.output}</output>
+                            <generatorName>backbase-typescript-angular</generatorName>
+                            <generateSupportingFiles>true</generateSupportingFiles>
+                            <supportingFilesToGenerate>api.module.ts,configuration.ts,encoder.ts,variables.ts,models.ts,api.ts</supportingFilesToGenerate>
+                            <additionalProperties>
+                                ngVersion=${codegen.angularVersion},npmName=${codegen.npmPackage.name},npmVersion=${codegen.npmPackage.version},withMocks=${codegen.generateMocks}
+                            </additionalProperties>
+                        </configuration>
+                    </execution>
                 </executions>
-<!--                <dependencies>-->
-<!--                    <dependency>-->
-<!--                        <groupId>com.backbase.bb-cli</groupId>-->
-<!--                        <artifactId>backbase-typescript-angular-openapi-template</artifactId>-->
-<!--                        <version>1.0.5</version>-->
-<!--                    </dependency>-->
-<!--                </dependencies>-->
+                <dependencies>
+                    <dependency>
+                        <groupId>com.backbase.bb-cli</groupId>
+                        <artifactId>backbase-typescript-angular-openapi-template</artifactId>
+                        <version>1.0.5</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

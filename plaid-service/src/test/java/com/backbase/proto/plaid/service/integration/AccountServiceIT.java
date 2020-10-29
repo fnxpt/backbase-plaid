@@ -36,6 +36,7 @@ import static org.mockito.Mockito.when;
         classes = PlaidApplication.class
 )
 @Slf4j
+@Ignore
 public class AccountServiceIT {
 
     static {
@@ -118,11 +119,11 @@ public class AccountServiceIT {
     @Test
     @Ignore
     public void testIngestAccounts() {
-        accountService.ingestPlaidAccounts(
-                "access-testing",
-                "lesley.knope",
-                "8a808094748c4ca701749668ea030012");
-        Assert.assertTrue("Mock data was not saved",accountRepository.existsByAccountId("blgvvBlXw3cq5GMPwqB6s6q4dLKB9WcVqGDGo"));
+//        accountService.ingestPlaidAccounts(
+//                "access-testing",
+//                "lesley.knope",
+//                "8a808094748c4ca701749668ea030012");
+//        Assert.assertTrue("Mock data was not saved",accountRepository.existsByAccountId("blgvvBlXw3cq5GMPwqB6s6q4dLKB9WcVqGDGo"));
         // check account repo for these accounts
     }
 
