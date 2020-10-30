@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import retrofit2.Response;
 
 /**
@@ -171,7 +172,8 @@ public class TransactionsService {
 
             Flux<UnitOfWork<TransactionTask>> unitOfWorkFlux = transactionUnitOfWorkExecutor.prepareUnitOfWork(Flux.fromIterable(transactionItemPosts));
             unitOfWorkFlux
-                .doOnNext(uow -> log.info("Executing unif of work: {}", uow.getUnitOfOWorkId()))
+                .publishOn(Schedulers.single())
+                .doOnNext(uow -> log.info("Executing unit of work: {}", uow.getUnitOfOWorkId()))
                 .flatMap(transactionUnitOfWorkExecutor::executeUnitOfWork)
                 .doOnNext(uow -> log.info("Finished executing unit of work: {}", uow.getUnitOfOWorkId()))
                 .onErrorResume(StreamTaskException.class, streamTaskException -> {

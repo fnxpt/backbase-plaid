@@ -1,6 +1,7 @@
 package com.backbase.proto.plaid.service.integration;
 
 import com.backbase.proto.plaid.PlaidApplication;
+import com.backbase.proto.plaid.model.Item;
 import com.backbase.proto.plaid.repository.AccountRepository;
 import com.backbase.proto.plaid.repository.ItemRepository;
 import com.backbase.proto.plaid.service.AccountService;
@@ -9,6 +10,7 @@ import com.plaid.client.response.Account;
 import com.plaid.client.response.AccountsBalanceGetResponse;
 import com.plaid.client.response.ErrorResponse;
 import com.plaid.client.response.ItemStatus;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,7 +38,6 @@ import static org.mockito.Mockito.when;
         classes = PlaidApplication.class
 )
 @Slf4j
-@Ignore
 public class AccountServiceIT {
 
     static {
@@ -44,13 +45,14 @@ public class AccountServiceIT {
     }
 
     @Autowired
-    @MockBean
     private AccountService accountService;
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private ItemRepository itemRepository;
 
-    @Before
+
     public void setUp() {
         //mocked item
         List<Product> availableProducts = new ArrayList<>();
@@ -117,14 +119,15 @@ public class AccountServiceIT {
     }
 
     @Test
-    @Ignore
     public void testIngestAccounts() {
-//        accountService.ingestPlaidAccounts(
-//                "access-testing",
-//                "lesley.knope",
-//                "8a808094748c4ca701749668ea030012");
+
+        Item item = itemRepository.findByItemId("***REMOVED***").orElseThrow(() -> new NullPointerException());
+
+        accountService.ingestPlaidAccounts(item,
+                "***REMOVED***",
+                "lesley.knope",
+                "8a808094748c4ca701749668ea030012");
 //        Assert.assertTrue("Mock data was not saved",accountRepository.existsByAccountId("blgvvBlXw3cq5GMPwqB6s6q4dLKB9WcVqGDGo"));
-        // check account repo for these accounts
     }
 
 

@@ -1,10 +1,10 @@
 package com.backbase.proto.plaid.controller;
 
-import com.backbase.proto.plaid.api.WebhookApi;
 import com.backbase.proto.plaid.mapper.WebhookMapper;
-import com.backbase.proto.plaid.model.InlineObject;
-import com.backbase.proto.plaid.model.PlaidWebhook;
 import com.backbase.proto.plaid.service.WebhookService;
+import com.backbase.proto.plaid.webhook.api.WebhookApi;
+import com.backbase.proto.plaid.webhook.model.InlineObject;
+import com.backbase.proto.plaid.webhook.model.PlaidWebhook;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.factory.Mappers;

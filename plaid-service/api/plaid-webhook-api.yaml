@@ -1,0 +1,98 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Backbase Plaid Integration Service
+  license:
+    name: Backbase
+servers:
+  - url:
+paths:
+  /webhook/{itemId}:
+    post:
+      summary: Allow PLAID to push updates into DBS
+      operationId: processWebHook
+      parameters:
+        - name: itemId
+          description: The plaid item id to apply the webhook to
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - webhook
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaidWebhook'
+      responses:
+        '202':
+          description: "Accepted webhook"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /webhook/{itemId}/refresh-transactions:
+    post:
+      summary: Force refresh of transactions for item
+      operationId: refreshTransactions
+      parameters:
+        - name: itemId
+          description: The plaid item id to refresh
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - webhook
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                all:
+                  type: boolean
+                  default: true
+      responses:
+        '202':
+          description: "Accepted webhook"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    PlaidWebhook:
+      type: object
+      properties:
+        webhook_type:
+          type: string
+        webhook_code:
+          type: string
+        item_id:
+          type: string
+        error:
+          type: string
+        new_transactions:
+          type: integer
+        removed_transactions:
+          type: array
+          items:
+            type: string
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string

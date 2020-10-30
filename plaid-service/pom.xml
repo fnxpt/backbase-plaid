@@ -208,16 +208,28 @@
                 <version>0.2.6</version>
                 <executions>
                     <execution>
-                        <id>generete-stub</id>
+                        <id>generete-client-api</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>generate-spring-boot-embedded</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/api/openapi.yaml</inputSpec>
-                            <apiPackage>com.backbase.proto.plaid.api</apiPackage>
-<!--                            should be api.models-->
-                            <modelPackage>com.backbase.proto.plaid.model</modelPackage>
+                            <inputSpec>${project.basedir}/api/plaid-client-api.yaml</inputSpec>
+                            <apiPackage>com.backbase.proto.plaid.client.api</apiPackage>
+                            <modelPackage>com.backbase.proto.plaid.client.model</modelPackage>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>generete-webhook-api</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate-spring-boot-embedded</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/api/plaid-webhook-api.yaml</inputSpec>
+                            <apiPackage>com.backbase.proto.plaid.webhook.api</apiPackage>
+                            <modelPackage>com.backbase.proto.plaid.webhook.model</modelPackage>
                         </configuration>
                     </execution>
 
@@ -228,7 +240,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/api/openapi.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/api/plaid-client-api.yaml</inputSpec>
                             <generatorName>typescript-angular</generatorName>
                             <output>${boat-maven-plugin.output}</output>
                             <generatorName>backbase-typescript-angular</generatorName>

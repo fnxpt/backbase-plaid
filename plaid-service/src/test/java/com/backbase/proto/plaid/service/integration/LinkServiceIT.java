@@ -5,7 +5,6 @@ import com.backbase.buildingblocks.jwt.internal.token.InternalJwt;
 import com.backbase.buildingblocks.jwt.internal.token.InternalJwtClaimsSet;
 import com.backbase.proto.plaid.PlaidApplication;
 import com.backbase.proto.plaid.controller.ItemController;
-import com.backbase.proto.plaid.model.GetItems;
 import com.backbase.proto.plaid.model.Item;
 import com.backbase.proto.plaid.model.Transaction;
 import com.backbase.proto.plaid.repository.ItemRepository;
@@ -91,13 +90,13 @@ public class LinkServiceIT {
     @Autowired
     private ItemController itemController;
 
-    @Test
-    public void testItemEndpoint(){
-        ResponseEntity<GetItems> items = itemController.getItems();
-        log.info("get Items endpoint response body: {}",items.getBody());
-
-
-    }
+//    @Test
+//    public void testItemEndpoint(){
+//        ResponseEntity<GetItems> items = itemController.getItems();
+//        log.info("get Items endpoint response body: {}",items.getBody());
+//
+//
+//    }
 
 //    @MockBean
 //    private PlaidClient plaidClient;
@@ -119,7 +118,6 @@ public class LinkServiceIT {
 
 
     @Test
-    @Ignore
     public void testResetDBS() {
         itemService.getAllItems().forEach(item -> itemService.deleteItemFromDBS(item.getItemId()));
 //        itemService.deleteItem("***REMOVED***");
@@ -164,15 +162,15 @@ public class LinkServiceIT {
 
     }
 
-//    @Test
-//    public void resetSandbox() {
-//        List<Item> collect = itemRepository.findAll().stream()
-//            .filter(item -> item.getAccessToken().startsWith("access-sandbox"))
-//            .collect(Collectors.toList());
-//        for (Item item : collect) {
-//            itemService.deleteItem(item.getItemId());
-//        }
-//    }
+    @Test
+    public void resetSandbox() {
+        List<Item> collect = itemRepository.findAll().stream()
+            .filter(item -> item.getAccessToken().startsWith("access-sandbox"))
+            .collect(Collectors.toList());
+        for (Item item : collect) {
+            itemService.deleteItem(item.getItemId());
+        }
+    }
 
 
     @Test

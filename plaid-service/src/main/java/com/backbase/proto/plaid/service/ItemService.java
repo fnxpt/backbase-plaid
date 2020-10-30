@@ -116,10 +116,22 @@ public class ItemService {
         return getItemsByUserId(loggedInUserId);
     }
 
+    public List<Item> getAllItemsByCreator(String state) {
+        String loggedInUserId = getLoggedInUserId();
+        return getItemsByUserId(state, loggedInUserId);
+    }
+
     public List<Item> getItemsByUserId(String loggedInUserId) {
         log.info("Get all items for: {}", loggedInUserId);
         return itemRepository.findAllByCreatedBy(loggedInUserId);
     }
+
+    public List<Item> getItemsByUserId(String state, String loggedInUserId) {
+        log.info("Get all items for: {}", loggedInUserId);
+        return itemRepository.findAllByCreatedBy(loggedInUserId);
+    }
+
+
 
 
     private InternalJwt getInternalJwt() {

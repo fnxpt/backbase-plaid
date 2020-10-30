@@ -1,7 +1,7 @@
 package com.backbase.proto.plaid.mapper;
 
-import com.backbase.proto.plaid.model.PlaidWebhook;
 import com.backbase.proto.plaid.model.Webhook;
+import com.backbase.proto.plaid.webhook.model.PlaidWebhook;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

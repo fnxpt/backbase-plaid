@@ -4,7 +4,6 @@ import com.backbase.buildingblocks.jwt.internal.authentication.InternalJwtAuthen
 import com.backbase.buildingblocks.jwt.internal.token.InternalJwt;
 import com.backbase.buildingblocks.jwt.internal.token.InternalJwtClaimsSet;
 import com.backbase.proto.plaid.PlaidApplication;
-import com.backbase.proto.plaid.model.PlaidWebhook;
 import com.backbase.proto.plaid.model.Webhook;
 import com.backbase.proto.plaid.repository.WebhookRepository;
 import com.backbase.proto.plaid.service.WebhookService;
@@ -26,7 +25,6 @@ import static com.backbase.proto.plaid.model.Webhook.WebhookCode.DEFAULT_UPDATE;
 import static com.backbase.proto.plaid.model.Webhook.WebhookCode.INITIAL_UPDATE;
 import static com.backbase.proto.plaid.model.Webhook.WebhookType.TRANSACTIONS;
 
-@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest(
     classes = PlaidApplication.class
@@ -57,8 +55,6 @@ public class WebhookServiceIT {
     public void rerunFailedWebhooks() {
         webhookRepository.findAllByCompleted(false).stream().limit(1).forEach(webhookService::process);
     }
-
-
 
 
     @Test
