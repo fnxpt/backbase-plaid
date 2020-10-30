@@ -31,4 +31,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     List<Item> findAllByCreatedBy(String userId);
 
+    List<Item> findAllByCreatedByAndState(String userId, String state);
+
+
 }

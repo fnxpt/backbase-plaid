@@ -1,9 +1,9 @@
 package com.backbase.proto.plaid.controller;
 
-import com.backbase.proto.plaid.api.LinkApi;
-import com.backbase.proto.plaid.model.PlaidLinkRequest;
-import com.backbase.proto.plaid.model.PlaidLinkResponse;
-import com.backbase.proto.plaid.model.SetAccessTokenRequest;
+import com.backbase.proto.plaid.client.api.LinkApi;
+import com.backbase.proto.plaid.client.model.PlaidLinkRequest;
+import com.backbase.proto.plaid.client.model.PlaidLinkResponse;
+import com.backbase.proto.plaid.client.model.SetAccessTokenRequest;
 import com.backbase.proto.plaid.service.LinkService;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;

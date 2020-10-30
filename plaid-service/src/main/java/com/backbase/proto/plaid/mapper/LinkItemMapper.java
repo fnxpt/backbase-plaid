@@ -1,9 +1,9 @@
 package com.backbase.proto.plaid.mapper;
 
+import com.backbase.proto.plaid.client.model.LinkItem;
 import com.backbase.proto.plaid.model.Account;
 import com.backbase.proto.plaid.model.Institution;
 import com.backbase.proto.plaid.model.Item;
-import com.backbase.proto.plaid.model.LinkItem;
 import com.backbase.proto.plaid.repository.AccountRepository;
 import com.backbase.proto.plaid.repository.InstitutionRepository;
 import lombok.RequiredArgsConstructor;

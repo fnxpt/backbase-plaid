@@ -1,7 +1,7 @@
 openapi: "3.0.0"
 info:
   version: 1.0.0
-  title: Backbase Plaid Integration Service
+  title: Backbase Plaid Client API
   license:
     name: Backbase
 servers:
@@ -51,6 +51,28 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /items:
+    get:
+      tags:
+        - item
+      summary: "Gets a list of Items for user logged in"
+      operationId: "getItems"
+      parameters:
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: list of items and data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LinkItem"
+
   /items/{itemId}:
     delete:
       tags:
@@ -67,77 +89,6 @@ paths:
       responses:
         '202':
           description: "Deleted item complete"
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-  /items:
-    get:
-      tags:
-        - item
-      summary: "Gets a list of Items for user logged in"
-      operationId: "getItems"
-      responses:
-        '200':
-          description: list of items and data
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GetItems"
-  /webhook/{itemId}:
-    post:
-      summary: Allow PLAID to push updates into DBS
-      operationId: processWebHook
-      parameters:
-        - name: itemId
-          description: The plaid item id to apply the webhook to
-          in: path
-          required: true
-          schema:
-            type: string
-      tags:
-        - webhook
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PlaidWebhook'
-      responses:
-        '202':
-          description: "Accepted webhook"
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-  /webhook/{itemId}/refresh-transactions:
-    post:
-      summary: Force refresh of transactions for item
-      operationId: refreshTransactions
-      parameters:
-        - name: itemId
-          description: The plaid item id to refresh
-          in: path
-          required: true
-          schema:
-            type: string
-      tags:
-        - webhook
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                all:
-                  type: boolean
-                  default: true
-      responses:
-        '202':
-          description: "Accepted webhook"
         default:
           description: unexpected error
           content:
@@ -194,33 +145,7 @@ components:
           type: string
         webhook:
           type: string
-    PlaidWebhook:
-      type: object
-      properties:
-        webhook_type:
-          type: string
-          enum:
-            - TRANSACTIONS
-            - ITEM
-        webhook_code:
-          type: string
-          enum:
-            - INITIAL_UPDATE
-            - HISTORICAL_UPDATE
-            - DEFAULT_UPDATE
-            - TRANSACTIONS_REMOVED
-            - WEBHOOK_UPDATE_ACKNOWLEDGED
-            - ERROR
-        item_id:
-          type: string
-        error:
-          type: string
-        new_transactions:
-          type: integer
-        removed_transactions:
-          type: array
-          items:
-            type: string
+
     Metadata:
       type: object
       properties:
@@ -255,7 +180,6 @@ components:
           type: string
         name:
           type: string
-
     Error:
       type: object
       required:
@@ -267,13 +191,7 @@ components:
           format: int32
         message:
           type: string
-    GetItems:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/LinkItem'
+
     LinkItem:
       type: object
       properties:
