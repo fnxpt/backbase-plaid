@@ -6,8 +6,10 @@ import com.backbase.buildingblocks.presentation.errors.BadRequestException;
 import com.backbase.buildingblocks.presentation.errors.UnauthorizedException;
 import com.backbase.dbs.transaction.presentation.service.api.TransactionsApi;
 import com.backbase.dbs.transaction.presentation.service.model.TransactionsDeleteRequestBody;
+import com.backbase.proto.plaid.mapper.LinkItemMapper;
 import com.backbase.proto.plaid.model.Account;
 import com.backbase.proto.plaid.model.Item;
+import com.backbase.proto.plaid.model.LinkItem;
 import com.backbase.proto.plaid.repository.ItemRepository;
 import com.backbase.stream.configuration.TransactionServiceConfiguration;
 import com.backbase.stream.product.service.ArrangementService;
@@ -47,6 +49,8 @@ public class ItemService {
     private final TransactionsApi transactionsApi;
 
     private final SecurityContextUtil securityContextUtil;
+
+    private final LinkItemMapper linkItemMapper;
 
     /**
      * Deletes an item from the Item database, Client Service, and all relevant data such as its Accounts and
@@ -111,24 +115,28 @@ public class ItemService {
         return itemRepository.findAll();
     }
 
-    public List<Item> getAllItemsByCreator() {
+    public List<LinkItem> getAllItemsByCreator() {
         String loggedInUserId = getLoggedInUserId();
         return getItemsByUserId(loggedInUserId);
     }
 
-    public List<Item> getAllItemsByCreator(String state) {
+    public List<LinkItem> getAllItemsByCreator(String state) {
         String loggedInUserId = getLoggedInUserId();
         return getItemsByUserId(state, loggedInUserId);
     }
 
-    public List<Item> getItemsByUserId(String loggedInUserId) {
+    public List<LinkItem> getItemsByUserId(String loggedInUserId) {
         log.info("Get all items for: {}", loggedInUserId);
-        return itemRepository.findAllByCreatedBy(loggedInUserId);
+        return itemRepository.findAllByCreatedBy(loggedInUserId).stream()
+                .map(linkItemMapper::map)
+                .collect(Collectors.toList());
     }
 
-    public List<Item> getItemsByUserId(String state, String loggedInUserId) {
+    public List<LinkItem> getItemsByUserId(String state, String loggedInUserId) {
         log.info("Get all items for: {}", loggedInUserId);
-        return itemRepository.findAllByCreatedBy(loggedInUserId);
+        return itemRepository.findAllByCreatedBy(loggedInUserId).stream()
+                .map(linkItemMapper::map)
+                .collect(Collectors.toList());
     }
 
 

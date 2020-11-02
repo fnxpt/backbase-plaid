@@ -2,6 +2,7 @@ package com.backbase.proto.plaid.service;
 
 import com.backbase.buildingblocks.presentation.errors.BadRequestException;
 import com.backbase.proto.plaid.configuration.PlaidConfigurationProperties;
+import com.backbase.proto.plaid.exceptions.AccountBalanceException;
 import com.backbase.proto.plaid.mapper.AccountMapper;
 import com.backbase.proto.plaid.model.Institution;
 import com.backbase.proto.plaid.model.Item;
@@ -30,10 +31,13 @@ import com.plaid.client.response.Account;
 import com.plaid.client.response.AccountsBalanceGetResponse;
 import com.plaid.client.response.ErrorResponse;
 import com.plaid.client.response.ItemStatus;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -53,9 +57,9 @@ import static com.backbase.proto.plaid.utils.ProductTypeUtils.mapSubTypeId;
 @Slf4j
 @RequiredArgsConstructor
 @Import({
-    ProductIngestionSagaConfiguration.class,
-    AccessControlConfiguration.class,
-    ProductCatalogServiceConfiguration.class,
+        ProductIngestionSagaConfiguration.class,
+        AccessControlConfiguration.class,
+        ProductCatalogServiceConfiguration.class,
 
 })
 public class AccountService {
@@ -76,6 +80,8 @@ public class AccountService {
     private final TransactionsService transactionService;
 
     private final ProductCatalogService productCatalogService;
+
+    private final AccessTokenService accessTokenService;
 
     /**
      * Sends a request to Plaid for the accounts of a given item by parsing in the Access Token.
@@ -128,19 +134,19 @@ public class AccountService {
         setupProductCatalog(accounts, institution);
 
         LegalEntity legalEntityByInternalId = legalEntityService.getLegalEntityByInternalId(legalEntityId)
-            .blockOptional()
-            .orElseThrow(() -> new BadRequestException("Legal Entity does not exist"));
+                .blockOptional()
+                .orElseThrow(() -> new BadRequestException("Legal Entity does not exist"));
 
         JobProfileUser jobProfileUser = new JobProfileUser();
         jobProfileUser.setReferenceJobRoleNames(plaidConfigurationProperties.getDefaultReferenceJobRoleNames());
         jobProfileUser.setLegalEntityReference(new LegalEntityReference()
-            .internalId(legalEntityId)
-            .externalId(legalEntityByInternalId.getExternalId()));
+                .internalId(legalEntityId)
+                .externalId(legalEntityByInternalId.getExternalId()));
         jobProfileUser.setUser(new User().externalId(userId));
 
         ServiceAgreement serviceAgreement = legalEntityService.getMasterServiceAgreementForInternalLegalEntityId(legalEntityId)
-            .blockOptional()
-            .orElseThrow(() -> new BadRequestException("Legal Entity does not have a valid service agreement"));
+                .blockOptional()
+                .orElseThrow(() -> new BadRequestException("Legal Entity does not have a valid service agreement"));
 
         ProductGroup productGroup = new ProductGroup();
         productGroup.setServiceAgreement(serviceAgreement);
@@ -148,15 +154,15 @@ public class AccountService {
         productGroup.setDescription("External Products Linked with Plaid");
         productGroup.addUsersItem(jobProfileUser);
         productGroup.setCustomProducts(accounts.stream()
-            .map(account -> accountMapper.mapToStream(accessToken, itemStatus, institution, account)).collect(Collectors.toList()));
+                .map(account -> accountMapper.mapToStream(accessToken, itemStatus, institution, account)).collect(Collectors.toList()));
 
         batchProductIngestionSaga.process(new ProductGroupTask().data(productGroup))
-            .doOnNext(StreamTask::logSummary)
-            .doOnError(StreamTaskException.class, e -> {
-                log.error("Failed ot setup Product Group: {}", e.getMessage(), e);
-                e.getTask().logSummary();
-            })
-            .block();
+                .doOnNext(StreamTask::logSummary)
+                .doOnError(StreamTaskException.class, e -> {
+                    log.error("Failed ot setup Product Group: {}", e.getMessage(), e);
+                    e.getTask().logSummary();
+                })
+                .block();
 
     }
 
@@ -169,26 +175,26 @@ public class AccountService {
         ProductCatalog productCatalog = new ProductCatalog();
         productCatalog.setProductTypes(new ArrayList<>());
         plaidAccounts.stream()
-            .collect(Collectors.groupingBy(Account::getType))
-            .forEach((type, accounts) -> {
-                String kindId = mapProductType(institution, type);
-                ProductKind productKindsItem = new ProductKind()
-                    .externalKindId(kindId)
-                    .kindUri(kindId)
-                    .kindName(institution.getName() + " " + StringUtils.capitalize(type));
-                productCatalog.addProductKindsItem(productKindsItem);
-                productCatalog.getProductTypes().addAll((accounts.stream()
-                    .map(Account::getSubtype).collect(Collectors.toSet())
-                    .stream().map(subtype -> {
-                        String productTypeId = mapSubTypeId(institution, subtype);
-                        return new ProductType()
-                            .externalId(productTypeId)
-                            .externalProductId(productTypeId)
-                            .externalProductKindId(kindId)
-                            .productTypeName(StringUtils.capitalize(subtype));
-                    })
-                    .collect(Collectors.toList())));
-            });
+                .collect(Collectors.groupingBy(Account::getType))
+                .forEach((type, accounts) -> {
+                    String kindId = mapProductType(institution, type);
+                    ProductKind productKindsItem = new ProductKind()
+                            .externalKindId(kindId)
+                            .kindUri(kindId)
+                            .kindName(institution.getName() + " " + StringUtils.capitalize(type));
+                    productCatalog.addProductKindsItem(productKindsItem);
+                    productCatalog.getProductTypes().addAll((accounts.stream()
+                            .map(Account::getSubtype).collect(Collectors.toSet())
+                            .stream().map(subtype -> {
+                                String productTypeId = mapSubTypeId(institution, subtype);
+                                return new ProductType()
+                                        .externalId(productTypeId)
+                                        .externalProductId(productTypeId)
+                                        .externalProductKindId(kindId)
+                                        .productTypeName(StringUtils.capitalize(subtype));
+                            })
+                            .collect(Collectors.toList())));
+                });
         productCatalogService.setupProductCatalog(productCatalog);
     }
 
@@ -197,8 +203,8 @@ public class AccountService {
     public void deleteAccountByItemId(Item item) {
         log.info("Deleteing account and it's transactions from Pliad");
         accountRepository.findAllByItemId(item.getItemId()).stream()
-            .map(com.backbase.proto.plaid.model.Account::getAccountId)
-            .forEach(accountId -> transactionService.deleteTransactionsByAccountId(item, accountId));
+                .map(com.backbase.proto.plaid.model.Account::getAccountId)
+                .forEach(accountId -> transactionService.deleteTransactionsByAccountId(item, accountId));
         accountRepository.deleteAccountsByItemId(item.getItemId());
     }
 
@@ -206,4 +212,35 @@ public class AccountService {
     public List<com.backbase.proto.plaid.model.Account> findAllByItemId(String itemId) {
         return accountRepository.findAllByItemId(itemId);
     }
+
+    public List<Account> getAccountBalance(List<String> accountIds) {
+
+        return accountIds.stream().map(accountRepository::findByAccountId)
+                .collect(Collectors.groupingBy(com.backbase.proto.plaid.model.Account::getItemId))
+                .entrySet().parallelStream()
+                .flatMap(itemAccounts -> {
+                    String itemId = itemAccounts.getKey();
+                    String accessToken = accessTokenService.getAccessToken(itemId);
+                    Response<AccountsBalanceGetResponse> execute = null;
+                    try {
+                        AccountsBalanceGetRequest accountsBalanceGetRequest = new AccountsBalanceGetRequest(accessToken);
+                        accountsBalanceGetRequest.withAccountIds(itemAccounts.getValue().stream().map(com.backbase.proto.plaid.model.Account::getAccountId).collect(Collectors.toList()));
+                        execute = plaidClient.service().accountsBalanceGet(accountsBalanceGetRequest).execute();
+                    } catch (IOException e) {
+                        log.error("Failed to get account balance for: {}", itemId, e);
+                        throw new AccountBalanceException("Failed to get account balance for: " + itemId, e);
+                    }
+                    if (!execute.isSuccessful()) {
+                        log.error("Failed to get account balance for: {}", itemId);
+                        ErrorResponse errorResponse = plaidClient.parseError(execute);
+                        throw new AccountBalanceException(errorResponse);
+                    }
+                    AccountsBalanceGetResponse body = execute.body();
+                    assert body != null;
+                    return body.getAccounts().stream();
+                }).collect(Collectors.toList());
+
+    }
+
+
 }

@@ -1,0 +1,122 @@
+@startuml
+actor User
+participant App
+
+box "Plaid Link" #LightYellow
+participant "Plaid Link" as PLink
+end box
+box "Backbase Plaid Service" #LightBlue
+participant "Plaid Link Service" as PLServe
+participant "Item Service" as IServe
+participant "Account Service" as AServe
+participant "WebhookService" as WServe
+participant "Transaction Service" as TServe
+database "Backbase Database" as BD
+end box
+
+box "Backbase DBS"
+participant "Product Ingestion Saga" as S #lightGreen
+participant "Transaction Ingestion Saga" as TS #lightGreen
+participant "Access Control" as AC
+participant "Product Summary" as PS
+participant "Transactions" as T
+end box
+
+box "Plaid" #LightYellow
+participant "Plaid" as Plaid
+end box
+
+box "External Bank" #FFBBBB
+participant "External Bank" as EB
+end box
+
+
+== Link external accounts ==
+User -> App: Link Accounts (Create item)
+activate App
+    App -> PLServe: Create Plaid Link
+    activate PLServe
+     PLServe -> Plaid: <<linkTokenCreateRequest>> request containing configuration properties
+        activate Plaid
+         Plaid --> PLServe: linkTokenCreateResponse, contains Link Token
+        deactivate Plaid
+     App <-- PLServe: Link Token
+     deactivate PLServe
+
+     App-> PLink: Invoke link UI
+        activate PLink
+            PLink -> User: Link UI
+            activate User
+            User -> User: User selects Bank
+            User -> EB: User authenticates with External Bank and gives Consent to Plaid
+            activate EB
+            EB -> Plaid: Consent
+            Plaid -> PLink: Public Access Token
+            PLink -> App: Public Access Token
+            deactivate EB
+            deactivate PLink
+        deactivate User
+     deactivate
+     App -> PLServe: Public Token
+
+    activate PLServe
+     PLServe -> Plaid: <<Public Token Exchange>> exchanges the public token for an access token and an Item ID
+          Plaid --> PLServe: Exchange response contain Access token and Item ID
+          PLServe -> BD: Persist Item ID, user ID, access Token
+
+     == ingest accounts ==
+
+     PLServe -> AServe: Ingest Plaid Accounts, access token
+     activate AServe
+     AServe -> Plaid: <<Request Plaid Accounts>> access token
+        activate Plaid
+            Plaid --> AServe: List of Plaid accounts for the users Item
+        deactivate Plaid
+     AServe-> BD: accounts
+     AServe -> AServe: Map Accounts to Arrangements
+     AServe -> S: Ingest Product Group
+     activate S
+     S -> PS: Post Arrangements
+     PS -> S: Ingested Arrangements
+     S -> AC: Greate Data Group
+     AC -> S: Data Group
+     S -> AC: Assign Data Group with Permissions
+     S -> AC: Link Data Group to Service Agreement
+     deactivate S
+     deactivate AServe
+== webhooks ==
+
+     PLServe -> WServe: Set up webhook, access token item id
+     activate WServe
+     WServe -> BD: Store webhook data
+     WServe -> Plaid: <<Item Webhook Update request>> contains access token and webhook url
+     Plaid --> WServe: Item webhook update response, contains Item available for update
+     deactivate WServe
+== ingest transactions ==
+    PLServe -> TServe: Ingest transactions,  access token
+    activate TServe
+    PLServe -> App: Link Created
+    deactivate PLServe
+
+    TServe -> Plaid: <<Get transactions for Item>> \naccess token, start date of transactions end date of transactions\n(with offset for pagination)
+    Plaid --> TServe: List of transactions
+    TServe -> TS: Ingest Transactions
+    deactivate TServe
+
+== plaid push transactions ==
+
+    Plaid -> WServe: Webhook containing number of updated tranactions
+    activate WServe
+    WServe -> TServe: Ingest Transactions
+    deactivate WServe
+    activate TServe
+    TServe -> Plaid: <<Get transactions for Item>> \naccess token, start date of transactions end date of transactions\n(with offset for pagination)
+    Plaid --> TServe: List of transactions
+    TServe -> TS: Processes Transactions
+    deactivate TServe
+    deactivate WServe
+
+
+
+
+@enduml
