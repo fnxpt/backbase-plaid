@@ -233,32 +233,32 @@
                         </configuration>
                     </execution>
 
-                    <execution>
-                        <id>generete-angular</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${project.basedir}/api/plaid-client-api.yaml</inputSpec>
-                            <generatorName>typescript-angular</generatorName>
-                            <output>${boat-maven-plugin.output}</output>
-                            <generatorName>backbase-typescript-angular</generatorName>
-                            <generateSupportingFiles>true</generateSupportingFiles>
-                            <supportingFilesToGenerate>api.module.ts,configuration.ts,encoder.ts,variables.ts,models.ts,api.ts</supportingFilesToGenerate>
-                            <additionalProperties>
-                                ngVersion=${codegen.angularVersion},npmName=${codegen.npmPackage.name},npmVersion=${codegen.npmPackage.version},withMocks=${codegen.generateMocks}
-                            </additionalProperties>
-                        </configuration>
-                    </execution>
+<!--                    <execution>-->
+<!--                        <id>generete-angular</id>-->
+<!--                        <phase>generate-sources</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>generate</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <inputSpec>${project.basedir}/api/plaid-client-api.yaml</inputSpec>-->
+<!--                            <generatorName>typescript-angular</generatorName>-->
+<!--                            <output>${boat-maven-plugin.output}</output>-->
+<!--                            <generatorName>backbase-typescript-angular</generatorName>-->
+<!--                            <generateSupportingFiles>true</generateSupportingFiles>-->
+<!--                            <supportingFilesToGenerate>api.module.ts,configuration.ts,encoder.ts,variables.ts,models.ts,api.ts</supportingFilesToGenerate>-->
+<!--                            <additionalProperties>-->
+<!--                                ngVersion=${codegen.angularVersion},npmName=${codegen.npmPackage.name},npmVersion=${codegen.npmPackage.version},withMocks=${codegen.generateMocks}-->
+<!--                            </additionalProperties>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.backbase.bb-cli</groupId>
-                        <artifactId>backbase-typescript-angular-openapi-template</artifactId>
-                        <version>1.0.5</version>
-                    </dependency>
-                </dependencies>
+<!--                <dependencies>-->
+<!--                    <dependency>-->
+<!--                        <groupId>com.backbase.bb-cli</groupId>-->
+<!--                        <artifactId>backbase-typescript-angular-openapi-template</artifactId>-->
+<!--                        <version>1.0.5</version>-->
+<!--                    </dependency>-->
+<!--                </dependencies>-->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

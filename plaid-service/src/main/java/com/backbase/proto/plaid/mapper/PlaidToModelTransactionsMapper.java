@@ -9,8 +9,10 @@ import org.mapstruct.Mapping;
 
 @Mapper
 public interface PlaidToModelTransactionsMapper {
+
     @Mapping(target = "id", ignore = true)
-    Transaction mapToDomain(TransactionsGetResponse.Transaction source);
+    @Mapping(target = "ingested", ignore = true)
+    Transaction mapToDomain(TransactionsGetResponse.Transaction source, String itemId);
 
     PaymentMeta map(com.plaid.client.response.TransactionsGetResponse.Transaction.PaymentMeta value);
     @Mapping(target = "store_number", source = "storeNumber")

@@ -1,23 +1,19 @@
 package com.backbase.proto.plaid.service;
 
-import com.backbase.dbs.transaction.presentation.service.model.TransactionItemPost;
+import com.backbase.dbs.transaction.presentation.service.api.TransactionsApi;
 import com.backbase.dbs.transaction.presentation.service.model.TransactionsDeleteRequestBody;
 import com.backbase.proto.plaid.exceptions.IngestionFailedException;
-import com.backbase.proto.plaid.mapper.PlaidToDBSTransactionMapper;
+import com.backbase.proto.plaid.mapper.ModelToDBSMapper;
 import com.backbase.proto.plaid.mapper.PlaidToModelTransactionsMapper;
 import com.backbase.proto.plaid.model.Item;
 import com.backbase.proto.plaid.model.Transaction;
 import com.backbase.proto.plaid.repository.ItemRepository;
 import com.backbase.proto.plaid.repository.TransactionRepository;
-import com.backbase.stream.TransactionService;
 import com.backbase.stream.configuration.AccessControlConfiguration;
 import com.backbase.stream.configuration.TransactionServiceConfiguration;
 import com.backbase.stream.product.ProductIngestionSagaConfiguration;
 import com.backbase.stream.productcatalog.configuration.ProductCatalogServiceConfiguration;
-import com.backbase.stream.transaction.TransactionTask;
 import com.backbase.stream.transaction.TransactionUnitOfWorkExecutor;
-import com.backbase.stream.worker.exception.StreamTaskException;
-import com.backbase.stream.worker.model.UnitOfWork;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.TransactionsGetRequest;
 import com.plaid.client.response.ErrorResponse;
@@ -32,11 +28,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import retrofit2.Response;
 
 /**
@@ -54,10 +50,11 @@ import retrofit2.Response;
 public class TransactionsService {
 
     private final PlaidClient plaidClient;
-    private final TransactionService streamTransactionService;
-    private final PlaidToDBSTransactionMapper plaidToDBSTransactionMapper;
+    private final TransactionsApi transactionsApi;
     private final PlaidToModelTransactionsMapper plaidToModelTransactionsMapper = Mappers.getMapper(PlaidToModelTransactionsMapper.class);
     private final TransactionRepository transactionRepository;
+
+    private final ModelToDBSMapper modelToDBSMapper;
 
     private final AccessTokenService accessTokenService;
 
@@ -92,7 +89,7 @@ public class TransactionsService {
 
     public void removeTransactions(Item item, List<String> removedTransactions) {
         List<TransactionsDeleteRequestBody> deleteRequests = removedTransactions.stream().map(id -> new TransactionsDeleteRequestBody().id(id)).collect(Collectors.toList());
-        streamTransactionService.deleteTransactions(Flux.fromIterable(deleteRequests));
+        transactionsApi.postDelete(deleteRequests).block();
     }
 
     /**
@@ -105,7 +102,8 @@ public class TransactionsService {
      */
     public void ingestTransactions(Item item, LocalDate startDate, LocalDate endDate) throws IngestionFailedException {
         String accessToken = accessTokenService.getAccessToken(item.getItemId());
-        this.ingestTransactions(item, accessToken, startDate, endDate, 100, 0);
+        this.storePlaidTransactions(item, accessToken, startDate, endDate, 100, 0);
+        this.ingestPlaidTransactions(item);
 
     }
 
@@ -118,7 +116,7 @@ public class TransactionsService {
      * @param batchSize   the number of Transactions being ingested at one time
      * @param offset      used for pagination so each retrieval for one request is the next set of Transactions
      */
-    private void ingestTransactions(Item item, String accessToken, LocalDate startDate, LocalDate endDate, int batchSize, int offset) throws IngestionFailedException {
+    private void storePlaidTransactions(Item item, String accessToken, LocalDate startDate, LocalDate endDate, int batchSize, int offset) throws IngestionFailedException {
         log.info("Ingesting transactions from: startDate: {} to: {} with batchSize: {} from offset: {}", startDate, endDate, batchSize, offset);
         TransactionsGetRequest transactionsGetRequest = new TransactionsGetRequest(
             accessToken,
@@ -128,9 +126,7 @@ public class TransactionsService {
         options.count = batchSize;
         options.offset = offset;
 
-
-        Response<TransactionsGetResponse> response =
-            null;
+        Response<TransactionsGetResponse> response;
         try {
             response = plaidClient.service().transactionsGet(
                 transactionsGetRequest)
@@ -143,54 +139,29 @@ public class TransactionsService {
             TransactionsGetResponse transactionsGetResponse = response.body();
             log.info("Received {} transactions from Plaid", transactionsGetResponse.getTransactions().size());
 
-            transactionsGetResponse.getItem().getInstitutionId();
-
-            //convert transactions from plaid into transactions dbs
-
-            // everytime called its set to null no the total tranactions in the list will always be less then all the transaction wanted
-
-            List<TransactionItemPost> transactionItemPosts = null;
             // populates list with response
             List<TransactionsGetResponse.Transaction> transactions = transactionsGetResponse.getTransactions();
 
-//            transactions.forEach(transaction -> {
-//                if (!transactionRepository.existsByTransactionId(transaction.getTransactionId()))
-//                    transactionRepository.save(plaidToModelTransactionsMapper.mapToDomain(transaction));
-//            });
-
-            transactionItemPosts = transactions.stream().map((TransactionsGetResponse.Transaction transaction) ->
-                plaidToDBSTransactionMapper.map(transaction, transactionsGetResponse.getItem().getInstitutionId())).collect(Collectors.toList());
+            transactions.forEach(transaction -> {
+                if (!transactionRepository.existsByTransactionId(transaction.getTransactionId())) {
+                    log.info("Storing transaction: {}", transaction.getTransactionId());
+                    transactionRepository.save(plaidToModelTransactionsMapper.mapToDomain(transaction, item.getItemId()));
+                } else {
+                    log.info("Transaction: {} already stored", transaction.getTransactionId());
+                }
+            });
 
             Integer totalTransactionsRequested = transactionsGetResponse.getTotalTransactions();
-            int totalTransactionRetrieved = transactionItemPosts.size();
+            int totalTransactionRetrieved = transactions.size();
             // if there are too many left to retrieve get the next batch
             int newOffset = offset + totalTransactionRetrieved;
             log.info("number of items retrieved: {}", newOffset);
             log.info("number of items expected: {}", totalTransactionsRequested);
             log.info("number retrieved this time : {}", totalTransactionRetrieved);
 
-
-            Flux<UnitOfWork<TransactionTask>> unitOfWorkFlux = transactionUnitOfWorkExecutor.prepareUnitOfWork(Flux.fromIterable(transactionItemPosts));
-            unitOfWorkFlux
-                .publishOn(Schedulers.single())
-                .doOnNext(uow -> log.info("Executing unit of work: {}", uow.getUnitOfOWorkId()))
-                .flatMap(transactionUnitOfWorkExecutor::executeUnitOfWork)
-                .doOnNext(uow -> log.info("Finished executing unit of work: {}", uow.getUnitOfOWorkId()))
-                .onErrorResume(StreamTaskException.class, streamTaskException -> {
-                    log.info("Failed to ingest unitOfWOrk: {}",  streamTaskException.getTask(), streamTaskException);
-                    return Mono.empty();
-                })
-                .blockLast();
-//
-//            //processes list to Backbase
-//            streamTransactionService.processTransactions(Flux.fromIterable(transactionItemPosts))
-//                .doOnNext(transactionIds -> log.info("Ingested transactionIds: {}", transactionIds))
-//                .collectList()
-//                .block();
-
             if (batchSize < (totalTransactionsRequested - offset)) {
                 log.info("Ingesting next page of transactions from: {}", newOffset);
-                ingestTransactions(item, accessToken, startDate, endDate, batchSize, newOffset);
+                storePlaidTransactions(item, accessToken, startDate, endDate, batchSize, newOffset);
             } else {
                 log.info("Finished ingestion of transactions");
             }
@@ -201,6 +172,24 @@ public class TransactionsService {
             log.error("Failed to ingest transactions for: {}. Message: {}", item.getItemId(), errorResponse.getErrorMessage());
             throw new IngestionFailedException(errorResponse);
         }
+    }
+
+
+    public void ingestPlaidTransactions(Item item) {
+
+        int pageSize = 5;
+        Mono.fromSupplier(() -> transactionRepository.findAllByItemId(item.getItemId(), PageRequest.of(0, pageSize)))
+            .expand(page -> {
+                if (page.hasNext()) {
+                    return Mono.fromSupplier(() -> transactionRepository.findAllByItemId(item.getItemId(), page.nextPageable()));
+                } else {
+                    return Mono.empty();
+                }
+            }).flatMap(page -> Flux.fromIterable(page.getContent()))
+            .map(transaction -> modelToDBSMapper.map(transaction, item.getInstitutionId()))
+            .buffer(pageSize)
+            .flatMap(transactionsApi::postTransactions)
+            .blockLast();
     }
 
     /**
