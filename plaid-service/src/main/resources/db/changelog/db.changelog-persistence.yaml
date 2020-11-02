@@ -374,4 +374,81 @@ databaseChangeLog:
             columnName: location
             columnDataType: NCLOB
             tableName: transaction
-
+  - changeSet:
+      id: add-item-id-column-to-transactions
+      author: lesley.knope
+      changes:
+        - addColumn:
+            tableName: transaction
+            columns:
+              - column:
+                  name: item_id
+                  type: varchar(128)
+  - changeSet:
+      id: add-indexes
+      author: lesley.knope
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  descending: true
+                  name: item_id
+            indexName: idx_transaction_item_id
+            tableName: transaction
+            unique: false
+        - createIndex:
+            columns:
+              - column:
+                  descending: true
+                  name: transaction_id
+            indexName: idx_transaction_transaction_id
+            tableName: transaction
+            unique: true
+  - changeSet:
+      id: add-ingested-column
+      author: lesley.knope
+      changes:
+        - addColumn:
+            tableName: transaction
+            columns:
+              - column:
+                  name: ingested
+                  type: boolean
+  - changeSet:
+      id: add-missing-transaction-column
+      author: lesley.knope
+      changes:
+        - addColumn:
+            tableName: transaction
+            columns:
+              - column:
+                  name: merchant_name
+                  type: varchar(512)
+              - column:
+                  name: unofficial_currency_code
+                  type: varchar(5)
+              - column:
+                  name: category_id
+                  type: varchar(32)
+              - column:
+                  name: original_description
+                  type: varchar(512)
+              - column:
+                  name: transaction_type
+                  type: varchar(32)
+              - column:
+                  name: account_owner
+                  type: varchar(512)
+              - column:
+                  name: transaction_code
+                  type: varchar(512)
+  - changeSet:
+      id: add-missing-pending-transaction-id-column
+      author: lesley.knope
+      changes:
+        - addColumn:
+            tableName: transaction
+            columns:
+              - column:
+                  name: pending_transaction_id
+                  type: varchar(48)

@@ -4,6 +4,9 @@ import com.backbase.dbs.transaction.presentation.service.model.CreditDebitIndica
 import com.backbase.dbs.transaction.presentation.service.model.Currency;
 import com.backbase.dbs.transaction.presentation.service.model.TransactionItemPost;
 import com.backbase.proto.plaid.configuration.PlaidConfigurationProperties;
+import com.backbase.proto.plaid.model.Location;
+import com.backbase.proto.plaid.model.PaymentMeta;
+import com.backbase.proto.plaid.model.Transaction;
 import com.plaid.client.response.TransactionsGetResponse;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -23,7 +26,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class PlaidToDBSTransactionMapper {
+public class ModelToDBSMapper {
 
     private final PlaidConfigurationProperties transactionConfigurationProperties;
     private final Map<String, String> transactionTypeGroupMap;
@@ -34,7 +37,7 @@ public class PlaidToDBSTransactionMapper {
      *
      * @param transactionConfigurationProperties contains methods for setting the Type Group and Type for DBS Transactions
      */
-    public PlaidToDBSTransactionMapper(PlaidConfigurationProperties transactionConfigurationProperties) {
+    public ModelToDBSMapper(PlaidConfigurationProperties transactionConfigurationProperties) {
         this.transactionConfigurationProperties = transactionConfigurationProperties;
         this.transactionTypeGroupMap = transactionConfigurationProperties.getTransactions().getTransactionTypeGroupMap();
         this.transactionTypeMap = transactionConfigurationProperties.getTransactions().getTransactionTypeMap();
@@ -45,7 +48,7 @@ public class PlaidToDBSTransactionMapper {
      * @param transaction a Transaction from the list retrieved by Plaid
      * @return DBS Transaction for ingestion
      */
-    public TransactionItemPost map(TransactionsGetResponse.Transaction transaction, String institutionId) {
+    public TransactionItemPost map(Transaction transaction, String institutionId) {
 
         String arrangementId = transaction.getAccountId();
 
@@ -55,7 +58,7 @@ public class PlaidToDBSTransactionMapper {
         //set required data
         bbTransaction.setExternalArrangementId(arrangementId);
         bbTransaction.setExternalId(transaction.getTransactionId());
-        bbTransaction.setBookingDate(LocalDate.parse(transaction.getDate()));
+        bbTransaction.setBookingDate(transaction.getDate());
 
         mapDescription(transaction, bbTransaction, institutionId);
 
@@ -84,7 +87,7 @@ public class PlaidToDBSTransactionMapper {
         bbTransaction.setType(transactionType);
         // nullable data
         bbTransaction.setCategory(transaction.getCategory().get(0));
-        TransactionsGetResponse.Transaction.PaymentMeta paymentMeta = transaction.getPaymentMeta();
+        PaymentMeta paymentMeta = transaction.getPaymentMeta();
         String referenceNumber = paymentMeta.getReferenceNumber();
 
         bbTransaction.setReference(referenceNumber);
@@ -100,7 +103,7 @@ public class PlaidToDBSTransactionMapper {
         log.debug("Mapped Billing Status: {}", billingStatus);
 
         if (transaction.getAuthorizedDate() != null) {
-            bbTransaction.setValueDate(LocalDate.parse(transaction.getAuthorizedDate()));
+            bbTransaction.setValueDate(transaction.getAuthorizedDate());
         }
 
 
@@ -115,7 +118,7 @@ public class PlaidToDBSTransactionMapper {
      * @param bbTransaction the Transaction to be ingested by Backbase
      * @param institutionId the identifier for the institution that the Transaction belongs to
      */
-    private void mapDescription(TransactionsGetResponse.Transaction transaction, TransactionItemPost bbTransaction, String institutionId) {
+    private void mapDescription(Transaction transaction, TransactionItemPost bbTransaction, String institutionId) {
         String description;
 
         PlaidConfigurationProperties.DescriptionParser descriptionParser = getDescriptionParser(institutionId);
@@ -140,8 +143,8 @@ public class PlaidToDBSTransactionMapper {
      * @param transaction Transaction parsed from Plaids Clients side
      * @param bbTransaction Backbase Transaction to be ingested and displayed in the front end
      */
-    private void mapLocation(TransactionsGetResponse.Transaction transaction, TransactionItemPost bbTransaction) {
-        TransactionsGetResponse.Transaction.Location location = transaction.getLocation();
+    private void mapLocation(Transaction transaction, TransactionItemPost bbTransaction) {
+        Location location = transaction.getLocation();
 
         if (location != null) {
             bbTransaction.setCounterPartyCity(location.getCity());
@@ -157,9 +160,9 @@ public class PlaidToDBSTransactionMapper {
      * @param bbTransaction the Backbase transaction to be ingested
      * @param institutionId identifies the institution the Transaction belongs to
      */
-    private void mapCounterParty(TransactionsGetResponse.Transaction transaction, TransactionItemPost bbTransaction, String institutionId) {
+    private void mapCounterParty(Transaction transaction, TransactionItemPost bbTransaction, String institutionId) {
         String counterpartyName;
-        TransactionsGetResponse.Transaction.PaymentMeta paymentMeta = transaction.getPaymentMeta();
+        PaymentMeta paymentMeta = transaction.getPaymentMeta();
 
         if (transaction.getMerchantName() != null) {
             counterpartyName = transaction.getMerchantName();
@@ -190,7 +193,7 @@ public class PlaidToDBSTransactionMapper {
      * @param bbTransaction the Backbase Transaction to be ingested
      * @param institutionId identifies the institution the Transaction belongs to
      */
-    private void mapCounterPartyBBAN(TransactionsGetResponse.Transaction transaction, TransactionItemPost bbTransaction, String institutionId) {
+    private void mapCounterPartyBBAN(Transaction transaction, TransactionItemPost bbTransaction, String institutionId) {
         PlaidConfigurationProperties.DescriptionParser descriptionParser = getDescriptionParser(institutionId);
         if (descriptionParser != null) {
             getMatch(transaction.getName(), descriptionParser.getCounterPartyBBAN())
@@ -209,10 +212,10 @@ public class PlaidToDBSTransactionMapper {
      * @return the billing status to be added to the Backbase Transaction
      */
     @NotNull
-    private String mapBilling(TransactionsGetResponse.Transaction transaction) {
+    private String mapBilling(Transaction transaction) {
         String billingStatus;
 
-        if (Boolean.TRUE.equals(transaction.getPending()))
+        if (Boolean.TRUE.equals(transaction.isPending()))
             billingStatus = "PENDING";
         else
             billingStatus = "BILLED";
@@ -272,7 +275,7 @@ public class PlaidToDBSTransactionMapper {
      * @param transaction
      * @return
      */
-    private String getTransactionTypeGroup(TransactionsGetResponse.Transaction transaction) {
+    private String getTransactionTypeGroup(Transaction transaction) {
         String typeGroup = transactionTypeGroupMap.getOrDefault(transaction.getPaymentChannel().replace(" ", ""), transaction.getPaymentChannel());
         log.debug("Mapped Type Group: {} to: {}", transaction.getPaymentChannel(), typeGroup);
         return typeGroup;
@@ -284,7 +287,7 @@ public class PlaidToDBSTransactionMapper {
      * @param transaction
      * @return
      */
-    private String getTransactionType(TransactionsGetResponse.Transaction transaction) {
+    private String getTransactionType(Transaction transaction) {
         String type = transactionTypeMap.getOrDefault(transaction.getTransactionCode(), transaction.getTransactionCode());
         if (type == null) {
             type = "Credit/Debit Card";

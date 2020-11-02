@@ -24,14 +24,8 @@ public class Transaction {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "transaction_id")
-    private String transactionId;
-
-    @Column(name = "pending")
-    private boolean pending;
-
-    @Column(name = "payment_channel")
-    private String paymentChannel;
+    @Column(name = "account_id")
+    private String accountId;
 
     @Column(name = "amount")
     private Double amount;
@@ -39,30 +33,69 @@ public class Transaction {
     @Column(name = "iso_currency_code")
     private String isoCurrencyCode;
 
+    @Column(name = "unofficial_currency_code")
+    private String unofficialCurrencyCode;
+
     @Column(name = "categories")
     @Convert(converter = StringListConverter.class)
     private List<String> category;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "category_id")
+    private String categoryId;
 
     @Column(name = "date")
     private LocalDate date;
-
-    @Column(name = "authorized_date")
-    private LocalDate authorizedDate;
-
-    @Column(name = "account_id")
-    private String accountId;
 
     @Column(name = "location")
     @Lob
     @Convert(converter = LocationConverter.class)
     private Location location;
 
+    @Column(name = "merchant_name")
+    private String merchantName;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "original_description")
+    private String originalDescription;
+
     @Column(name = "payment_meta")
     @Lob
     @Convert(converter = PaymentMetaConverter.class)
     private PaymentMeta paymentMeta;
+
+    @Column(name = "pending")
+    private boolean pending;
+
+    @Column(name = "pending_transaction_id")
+    private boolean pendingTransactionId;
+
+    @Column(name = "transaction_id")
+    private String transactionId;
+
+    @Column(name = "transaction_type")
+    private String transactionType;
+
+    @Column(name = "account_owner")
+    private String accountOwner;
+
+    @Column(name = "authorized_date")
+    private LocalDate authorizedDate;
+
+
+    @Column(name= "transaction_code")
+    private String transactionCode;
+
+    @Column(name = "payment_channel")
+    private String paymentChannel;
+
+//   Additional fields
+
+    @Column(name = "item_id")
+    private String itemId;
+
+    @Column(name = "ingested")
+    private boolean ingested;
 
 }

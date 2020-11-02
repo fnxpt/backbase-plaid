@@ -70,8 +70,6 @@ public class WebhookService {
         webhook.setCreatedAt(LocalDateTime.now());
         webhookRepository.save(webhook);
         if (validateWebhook(webhook)) {
-
-
             switch (webhook.getWebhookType()) {
                 case TRANSACTIONS: {
                     try {
