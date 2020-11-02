@@ -1,42 +1,43 @@
-//package com.backbase.proto.plaid.service.integration;
-//
-//import com.backbase.dbs.transaction.presentation.service.model.TransactionItemPost;
-//import com.backbase.proto.plaid.PlaidApplication;
-//import com.backbase.proto.plaid.mapper.ModelToDBSMapper;
-//import com.backbase.proto.plaid.mapper.PlaidToDBSTransactionMapper;
-//import com.backbase.proto.plaid.mapper.PlaidToModelTransactionsMapper;
-//import com.backbase.proto.plaid.model.PaymentMeta;
-//import com.backbase.proto.plaid.model.Transaction;
-//import com.plaid.client.response.TransactionsGetResponse;
-//import lombok.extern.slf4j.Slf4j;
-//import org.junit.Assert;
-//import org.junit.Ignore;
-//import org.junit.Test;
-//import org.junit.runner.RunWith;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.test.context.junit4.SpringRunner;
-//
-//import java.time.LocalDate;
-//import java.util.ArrayList;
-//import java.util.List;
-//
-//import static org.mockito.Mockito.mock;
-//import static org.mockito.Mockito.when;
-//
-//@RunWith(SpringRunner.class)
-//@SpringBootTest(
-//        classes = PlaidApplication.class
-//)
-//@Slf4j
-//@Ignore
-//public class TransactionIT {
+package com.backbase.proto.plaid.service.integration;
+
+import com.backbase.proto.plaid.PlaidApplication;
+import com.backbase.proto.plaid.service.ItemService;
+import com.backbase.proto.plaid.service.TransactionsService;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(
+        classes = PlaidApplication.class
+)
+@Slf4j
+public class TransactionIT {
+
+    static {
+        System.setProperty("SIG_SECRET_KEY", "***REMOVED***");
+    }
+
+    @Autowired public ItemService itemService;
+    @Autowired public TransactionsService transactionsService;
+
+    @Test
+    public void testTransactionIngestion() {
+        itemService.getAllItems().forEach(transactionsService::ingestTransactionsToDBS);
+    }
+
+
+
 //    @Autowired
 //    com.backbase.proto.plaid.mapper.PlaidToModelTransactionsMapper plaidToModelTransactionsMapper;
-//
+
 //    @Test
 //    public void testTransactionMapping(){
-//        TransactionsGetResponse.Transaction mockTransaction= mock(TransactionsGetResponse.Transaction.class);
+//        TransactionsGetResponse.Transaction mockTransaction = mock(TransactionsGetResponse.Transaction.class);
 //
 //        when(mockTransaction.getAccountId()).thenReturn("BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp");
 //        when(mockTransaction.getAmount()).thenReturn(2307.21);
@@ -86,7 +87,7 @@
 //        Assert.assertEquals("incorrect transcation mapping",expected,
 //                plaidToModelTransactionsMapper.map(mockTransaction, "ins_117650"));
 //    }
-//
-//
-//
-//}
+
+
+
+}

@@ -5,7 +5,8 @@ eureka:
 logging:
   level:
     io.netty.util: info
-    root: info
+    root: trace
+    org.apache: info
     com.backbase: info
 #    org.springframework: warn
 #    org.hibernate: debug

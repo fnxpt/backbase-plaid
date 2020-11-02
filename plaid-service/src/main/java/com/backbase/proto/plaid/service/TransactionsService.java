@@ -1,6 +1,7 @@
 package com.backbase.proto.plaid.service;
 
 import com.backbase.dbs.transaction.presentation.service.api.TransactionsApi;
+import com.backbase.dbs.transaction.presentation.service.model.TransactionIds;
 import com.backbase.dbs.transaction.presentation.service.model.TransactionsDeleteRequestBody;
 import com.backbase.proto.plaid.exceptions.IngestionFailedException;
 import com.backbase.proto.plaid.mapper.ModelToDBSMapper;
@@ -24,6 +25,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.factory.Mappers;
@@ -61,6 +63,9 @@ public class TransactionsService {
     private final ItemRepository itemRepository;
 
     private final TransactionUnitOfWorkExecutor transactionUnitOfWorkExecutor;
+
+
+    private final EntityManager entityManager;
 
     private ErrorHandler errorHandler;
 
@@ -103,7 +108,7 @@ public class TransactionsService {
     public void ingestTransactions(Item item, LocalDate startDate, LocalDate endDate) throws IngestionFailedException {
         String accessToken = accessTokenService.getAccessToken(item.getItemId());
         this.storePlaidTransactions(item, accessToken, startDate, endDate, 100, 0);
-        this.ingestPlaidTransactions(item);
+        this.ingestTransactionsToDBS(item);
 
     }
 
@@ -175,8 +180,7 @@ public class TransactionsService {
     }
 
 
-    public void ingestPlaidTransactions(Item item) {
-
+    public void ingestTransactionsToDBS(Item item) {
         int pageSize = 5;
         Mono.fromSupplier(() -> transactionRepository.findAllByItemId(item.getItemId(), PageRequest.of(0, pageSize)))
             .expand(page -> {
@@ -185,12 +189,25 @@ public class TransactionsService {
                 } else {
                     return Mono.empty();
                 }
-            }).flatMap(page -> Flux.fromIterable(page.getContent()))
+            })
+            .flatMap(page -> Flux.fromIterable(page.getContent()))
             .map(transaction -> modelToDBSMapper.map(transaction, item.getInstitutionId()))
             .buffer(pageSize)
             .flatMap(transactionsApi::postTransactions)
-            .blockLast();
+            .onErrorResume(throwable -> {
+                log.error("Failed to ingest transactions", throwable);
+                return Mono.empty();
+            })
+            .collectList()
+            .map(transactionIds -> {
+                log.info("Ingested transactions: {}", transactionIds);
+                if(!transactionIds.isEmpty())
+                    transactionRepository.updateIngested(true, transactionIds.stream().map(TransactionIds::getExternalId).collect(Collectors.toList()));
+                return transactionIds;
+            })
+            .block();
     }
+
 
     /**
      * Converts date from local to date.
