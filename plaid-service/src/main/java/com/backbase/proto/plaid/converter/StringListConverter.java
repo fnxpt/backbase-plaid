@@ -1,5 +1,6 @@
 package com.backbase.proto.plaid.converter;
 
+import java.util.Collections;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.AttributeConverter;
@@ -36,10 +37,10 @@ public class StringListConverter implements AttributeConverter<List<String>, Str
      */
     @Override
     public List<String> convertToEntityAttribute(String joined) {
-        if(StringUtils.isEmpty(StringUtils.join())) {
-            return new ArrayList<>();
+        if(StringUtils.isEmpty(joined)) {
+            return Collections.emptyList();
         } else {
-            return new ArrayList<>(Arrays.asList(joined.split(",")));
+            return Arrays.asList(joined.split(","));
         }
     }
 

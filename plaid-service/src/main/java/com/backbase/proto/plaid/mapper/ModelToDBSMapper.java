@@ -7,6 +7,7 @@ import com.backbase.proto.plaid.configuration.PlaidConfigurationProperties;
 import com.backbase.proto.plaid.model.Location;
 import com.backbase.proto.plaid.model.PaymentMeta;
 import com.backbase.proto.plaid.model.Transaction;
+import com.plaid.client.PlaidClient;
 import com.plaid.client.response.TransactionsGetResponse;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -32,15 +34,20 @@ public class ModelToDBSMapper {
     private final Map<String, String> transactionTypeGroupMap;
     private final Map<String, String> transactionTypeMap;
 
+    private final PlaidClient plaidClient;
+
     /**
      * Sets the configuration properties used for the mapping.
      *
      * @param transactionConfigurationProperties contains methods for setting the Type Group and Type for DBS Transactions
+     * @param plaidClient Plaid Client
+     *
      */
-    public ModelToDBSMapper(PlaidConfigurationProperties transactionConfigurationProperties) {
+    public ModelToDBSMapper(PlaidConfigurationProperties transactionConfigurationProperties, PlaidClient plaidClient) {
         this.transactionConfigurationProperties = transactionConfigurationProperties;
         this.transactionTypeGroupMap = transactionConfigurationProperties.getTransactions().getTransactionTypeGroupMap();
         this.transactionTypeMap = transactionConfigurationProperties.getTransactions().getTransactionTypeMap();
+        this.plaidClient = plaidClient;
     }
     /**
      * This maps the individual fields of the Plaid transaction to the Backbase Transaction.
@@ -52,7 +59,6 @@ public class ModelToDBSMapper {
 
         String arrangementId = transaction.getAccountId();
 
-        Currency transactionAmountCurrency = new Currency();
 
         TransactionItemPost bbTransaction = new TransactionItemPost();
         //set required data
@@ -73,11 +79,8 @@ public class ModelToDBSMapper {
         } else {
             indicator = CreditDebitIndicator.DBIT;
         }
-        transactionAmountCurrency.setAmount(String.valueOf(amount));
-        transactionAmountCurrency.setCurrencyCode(transaction.getIsoCurrencyCode());
-        bbTransaction.setTransactionAmountCurrency(transactionAmountCurrency);
 
-
+        bbTransaction.setTransactionAmountCurrency(new Currency().amount(String.valueOf(amount)).currencyCode(transaction.getIsoCurrencyCode()));
         bbTransaction.setCreditDebitIndicator(indicator);
 
         String transactionTypeGroup = getTransactionTypeGroup(transaction);
@@ -86,6 +89,10 @@ public class ModelToDBSMapper {
         bbTransaction.setTypeGroup(transactionTypeGroup);
         bbTransaction.setType(transactionType);
         // nullable data
+
+
+
+        // This category is not yet refined. This will be done by the transaction enricher
         bbTransaction.setCategory(transaction.getCategory().get(0));
         PaymentMeta paymentMeta = transaction.getPaymentMeta();
         String referenceNumber = paymentMeta.getReferenceNumber();

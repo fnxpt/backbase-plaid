@@ -47,11 +47,11 @@ public class LocationConverter implements AttributeConverter<Location, String> {
      */
     @Override
     public Location convertToEntityAttribute(String json) {
-        if (!StringUtils.isEmpty(StringUtils.join())) {
+        if (!StringUtils.isEmpty(json)) {
             try {
                 return objectMapper.readValue(json, Location.class);
             } catch (IOException e) {
-                log.error("Failed to read Location from json", json, e);
+                log.error("Failed to read Location from json: {}", json, e);
             }
         }
         return null;

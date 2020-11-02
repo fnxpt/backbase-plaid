@@ -42,7 +42,7 @@ public class PaymentMetaConverter implements AttributeConverter<PaymentMeta, Str
 
     @Override
     public PaymentMeta convertToEntityAttribute(String json) {
-        if (!StringUtils.isEmpty(StringUtils.join())) {
+        if (!StringUtils.isEmpty(json)) {
             try {
                 return objectMapper.readValue(json, PaymentMeta.class);
             } catch (IOException e) {
@@ -50,6 +50,6 @@ public class PaymentMetaConverter implements AttributeConverter<PaymentMeta, Str
             }
 
         }
-        return new PaymentMeta();
+        return null;
     }
 }

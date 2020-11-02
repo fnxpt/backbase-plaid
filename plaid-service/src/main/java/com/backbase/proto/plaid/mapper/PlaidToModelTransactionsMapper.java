@@ -15,7 +15,9 @@ public interface PlaidToModelTransactionsMapper {
     Transaction mapToDomain(TransactionsGetResponse.Transaction source, String itemId);
 
     PaymentMeta map(com.plaid.client.response.TransactionsGetResponse.Transaction.PaymentMeta value);
-    @Mapping(target = "store_number", source = "storeNumber")
-    @Mapping(target = "postal_code", source = "postalCode")
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "latitude", source = "lat")
+    @Mapping(target = "longitude", source = "lon")
     Location map(com.plaid.client.response.TransactionsGetResponse.Transaction.Location value);
 }
