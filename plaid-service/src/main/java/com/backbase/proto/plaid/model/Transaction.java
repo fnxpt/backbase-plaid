@@ -69,7 +69,7 @@ public class Transaction {
     private boolean pending;
 
     @Column(name = "pending_transaction_id")
-    private boolean pendingTransactionId;
+    private String pendingTransactionId;
 
     @Column(name = "transaction_id")
     private String transactionId;

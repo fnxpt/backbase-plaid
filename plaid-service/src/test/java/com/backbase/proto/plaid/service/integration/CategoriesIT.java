@@ -20,14 +20,6 @@ public class CategoriesIT {
         System.setProperty("SIG_SECRET_KEY", "***REMOVED***");
     }
 
-//    @Autowired
-//    private PlaidCategoryLoader plaidCategoryLoader;
-//
-//    @Test
-//    public void testIngestAccounts() {
-//
-//        List<Category> allCategories = plaidCategoryLoader.getAllCategories();
-//        log.info("allCategories: {}", allCategories);
-//    }
+
 
 }

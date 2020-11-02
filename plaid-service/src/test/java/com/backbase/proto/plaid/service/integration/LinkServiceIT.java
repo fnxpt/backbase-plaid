@@ -4,16 +4,14 @@ import com.backbase.buildingblocks.jwt.internal.authentication.InternalJwtAuthen
 import com.backbase.buildingblocks.jwt.internal.token.InternalJwt;
 import com.backbase.buildingblocks.jwt.internal.token.InternalJwtClaimsSet;
 import com.backbase.proto.plaid.PlaidApplication;
+import com.backbase.proto.plaid.client.model.LinkItem;
 import com.backbase.proto.plaid.controller.ItemController;
 import com.backbase.proto.plaid.model.Item;
 import com.backbase.proto.plaid.model.Transaction;
+import com.backbase.proto.plaid.repository.AccountRepository;
 import com.backbase.proto.plaid.repository.ItemRepository;
 import com.backbase.proto.plaid.repository.TransactionRepository;
-import com.backbase.proto.plaid.service.AccessTokenService;
-import com.backbase.proto.plaid.service.AccountService;
-import com.backbase.proto.plaid.service.ItemService;
-import com.backbase.proto.plaid.service.TransactionsService;
-import com.backbase.proto.plaid.service.WebhookService;
+import com.backbase.proto.plaid.service.*;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.response.AccountsBalanceGetResponse;
 import java.io.IOException;
@@ -79,10 +77,17 @@ public class LinkServiceIT {
     private AccountService accountService;
 
     @Autowired
+    private LinkService linkService;
+
+    @Autowired
     private ItemRepository itemRepository;
 
     @Autowired
     private TransactionRepository transactionRepository;
+
+    @Autowired
+    private AccountRepository accountRepository;
+
 
     @Autowired
     private AccessTokenService accessTokenService;
@@ -90,23 +95,19 @@ public class LinkServiceIT {
     @Autowired
     private ItemController itemController;
 
-//    @Test
-//    public void testItemEndpoint(){
-//        ResponseEntity<GetItems> items = itemController.getItems();
-//        log.info("get Items endpoint response body: {}",items.getBody());
-//
-//
-//    }
+    @Test
+    public void testItemEndpoint(){
+        ResponseEntity<List<LinkItem>> items = itemController.getItems("ACTIVE");
+        log.info("get Items endpoint response body: {}",items.getBody());
+    }
 
-//    @MockBean
-//    private PlaidClient plaidClient;
-//
+
 //    @Before
 //    public void setUp() throws IOException {
 //
 //        Response<AccountsBalanceGetResponse> mockResponse = null;
 //
-//        Mockito.when(plaidClient.service().accountsBalanceGet(any()).execute()).thenReturn(mockResponse);
+//        Mockito.when(accountRepository.deleteAccountsByItemId()).thenReturn(mockResponse);
 //
 //    }
 
@@ -135,30 +136,37 @@ public class LinkServiceIT {
 
     @Test
     public void testGetAllItems() {
-        Item item = new Item();
-        item.setItemId("Ed6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr");
+        Item item = itemRepository.findByItemId("Ed6bjzrDLJfGvZWwnkQlfxwoNz54B5C97ejBr").orElse(new Item());
+
+
+        item.setItemId("Ed6bjzrDLJfGvZWwnkQlfxwoNz54B5C97ejBr");
         item.setAccessToken("access-testing");
         item.setCreatedAt(LocalDateTime.now());
+        item.setInstitutionId("ins_3");
         item.setCreatedBy("me");
         itemRepository.save(item);
 
-        Item item1 = new Item();
-        item1.setItemId("***REMOVED***");
+        Item item1 = itemRepository.findByItemId("Ed6bjzr5LJfGvZWwnkQlfxwoNz54B5CGs57sw3").orElse(new Item());
+        item1.setItemId("Ed6bjzr5LJfGvZWwnkQlfxwoNz54B5CGs57sw3");
         item1.setAccessToken("access-testing");
         item1.setCreatedAt(LocalDateTime.now());
+        item.setInstitutionId("ins_3");
         item1.setCreatedBy("me");
         itemRepository.save(item1);
 
-        Item item2 = new Item();
-        item2.setItemId("***REMOVED***");
+        Item item2 = itemRepository.findByItemId("Ed6bjzrDLJfdrFD7ba3FQlfxwoNz54B5C9j6ng").orElse(new Item());
+        item2.setItemId("Ed6bjzrDLJfdrFD7ba3FQlfxwoNz54B5C9j6ng");
         item2.setAccessToken("access-testing");
         item2.setCreatedAt(LocalDateTime.now());
+        item.setInstitutionId("ins_3");
         item2.setCreatedBy("me");
         itemRepository.save(item2);
 
         List<Item> me = itemService.getItemsByUserId("me");
 
-        Assert.assertEquals("Expected 3 items: ", 3, me.size());
+
+// already added 3 under me
+        Assert.assertEquals("Expected 6 items: ", 6, me.size());
 
     }
 
@@ -188,9 +196,10 @@ public class LinkServiceIT {
 //        Assert.assertFalse(itemRepository.existsByItemId("4d6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr"));
     }
 
+
+
     @Test
     public void testAccountMapping(){
-
 
 
     }
@@ -207,6 +216,8 @@ public class LinkServiceIT {
 
     @Test
     public void testInstitutionMapping(){
+
+
 
     }
 

@@ -1,17 +1,15 @@
 package com.backbase.proto.plaid.repository;
 
 import com.backbase.proto.plaid.model.Transaction;
-import io.netty.channel.oio.AbstractOioChannel;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * This class enables the use of and access to the Transactions database where data on the Plaid Transaction is stored.
