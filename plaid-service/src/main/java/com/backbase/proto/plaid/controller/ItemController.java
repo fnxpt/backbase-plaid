@@ -2,17 +2,19 @@ package com.backbase.proto.plaid.controller;
 
 import com.backbase.proto.plaid.client.api.ItemApi;
 import com.backbase.proto.plaid.client.model.LinkItem;
-import com.backbase.proto.plaid.mapper.LinkItemMapper;
-import com.backbase.proto.plaid.model.Item;
+import com.backbase.proto.plaid.mapper.ModelToPresentationMapper;
+import com.backbase.proto.plaid.mapper.PresentationToModelMapper;
 import com.backbase.proto.plaid.service.ItemService;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.factory.Mappers;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This class exposes Item API through a micro service allowing the call of end points to manage items.
@@ -22,7 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ItemController implements ItemApi {
 
-    private final LinkItemMapper linkItemMapper;
+    private final ModelToPresentationMapper modelToPresentationMapper = Mappers.getMapper(ModelToPresentationMapper.class);
+    private final PresentationToModelMapper presentationToModelMapper = Mappers.getMapper(PresentationToModelMapper.class);
 
     private final ItemService itemService;
 
@@ -45,9 +48,13 @@ public class ItemController implements ItemApi {
      */
     @Override
     public ResponseEntity<List<LinkItem>> getItems(@NotNull @Valid String state) {
-        List<Item> allItemsByCreator = itemService.getAllItemsByCreator().stream().filter(item -> item.getInstitutionId() != null).collect(Collectors.toList());
 
-        return ResponseEntity.ok(linkItemMapper.map(allItemsByCreator));
+
+        List<LinkItem> links = itemService.getAllItemsByCreator(state).stream()
+                .map(modelToPresentationMapper::mapItem)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(links);
 
     }
 

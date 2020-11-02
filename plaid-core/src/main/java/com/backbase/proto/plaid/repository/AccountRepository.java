@@ -2,6 +2,8 @@ package com.backbase.proto.plaid.repository;
 
 import com.backbase.proto.plaid.model.Account;
 import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,7 +11,7 @@ import org.springframework.stereotype.Repository;
  * This class is used to access account database, to manipulate and use the data.
  */
 @Repository
-public interface AccountRepository extends CrudRepository<Account, Long> {
+public interface AccountRepository extends JpaRepository<Account, Long> {
 
     /**
      * Finds an account stored in account table by its ID.

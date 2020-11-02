@@ -4,7 +4,7 @@ eureka:
 
 logging:
   level:
-    root: debug
+    root: info
 
 spring:
   jpa:
@@ -35,6 +35,8 @@ backbase:
   security:
     public:
       paths:
+        - /*
+        - /**/*
         - /webhook/*
         - /webhook/*/refresh-transactions
     csrf:
@@ -51,7 +53,7 @@ backbase:
     client-name: "Backbase"
     client-id:
     secret:
-    env: sandbox
+    env: development
     webhook-base-url:
     default-reference-job-role-names:
       - "Retail User - EU"
@@ -96,17 +98,3 @@ management:
   health:
     jms:
       enabled: false
-
-stream:
-  start:
-    title: "Stream Plaid"
-    subTitle: Stream <strong class="highlight">Plaid</strong>
-    header: Stream <strong class="highlight">Plaid</strong>
-    description: "Seamlessly integrate with Plaid with Stream Plaid. This service is provides an implementation for Account Integration Services, Transactions and Payments"
-    footer: "Plaid"
-    defaultAction:
-      name: Swagger
-      href: swagger-ui.html
-    navbarLinks:
-      - name: Communtiy
-        href: https://community.backbase.com
