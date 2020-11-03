@@ -67,64 +67,64 @@ public class WebhookServiceIT {
     @Autowired
     private PlaidClient plaidClient;
 
-    @Before
-    public void setup() throws IOException {
-        PlaidClient.Builder mockBuilder;
-        mockBuilder = mock(PlaidClient.Builder.class);
-        PlaidClient mockPlaidClient = mock(PlaidClient.class);
-        when(mockBuilder.build()).thenReturn(mockPlaidClient);
-        when(PlaidClient.newBuilder()).thenReturn(mockBuilder);
-// ask bart
-        Response<TransactionsGetResponse> response = mock(Response.class);
-        when(mockPlaidClient.service().transactionsGet(any()).execute()).thenReturn(response);
-        TransactionsGetResponse responseBody = mock(TransactionsGetResponse.class);
-        when(response.body()).thenReturn(responseBody);
-        when(responseBody.getItem().getInstitutionId()).thenReturn("ins_3");
-
-        TransactionsGetResponse.Transaction mockTransaction= mock(TransactionsGetResponse.Transaction.class);
-
-        when(mockTransaction.getAccountId()).thenReturn("BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp");
-        when(mockTransaction.getAmount()).thenReturn(2307.21);
-        when(mockTransaction.getIsoCurrencyCode()).thenReturn("USD");
-        List<String> categories = new ArrayList<>();
-        categories.add("Shops");
-        categories.add("Computers and Electronics");
-        when(mockTransaction.getCategory()).thenReturn(categories);
-        when(mockTransaction.getCategoryId()).thenReturn("19013000");
-        when(mockTransaction.getDate()).thenReturn("2017-01-29");
-        when(mockTransaction.getAuthorizedDate()).thenReturn("2017-01-27");
-
-        TransactionsGetResponse.Transaction.Location location = mock(TransactionsGetResponse.Transaction.Location.class);
-        when(location.getAddress()).thenReturn("300 Post St");
-        when(location.getCity()).thenReturn("San Francisco");
-        when(location.getCountry()).thenReturn("US");
-        when(location.getRegion()).thenReturn("CA");
-        when(location.getPostalCode()).thenReturn("94108");
-        when(location.getLat()).thenReturn(40.740352);
-        when(location.getLon()).thenReturn(-74.001761);
-        when(location.getStoreNumber()).thenReturn("1235");
-
-        when(mockTransaction.getLocation()).thenReturn(location);
-        when(mockTransaction.getName()).thenReturn("Apple Store");
-        when(mockTransaction.getMerchantName()).thenReturn("Apple");
-
-        TransactionsGetResponse.Transaction.PaymentMeta mockPaymentMeta = mock(TransactionsGetResponse.Transaction.PaymentMeta.class);
-        when(mockTransaction.getPaymentMeta()).thenReturn(mockPaymentMeta);
-
-        when(mockTransaction.getPaymentChannel()).thenReturn("in_store");
-        when(mockTransaction.getPending()).thenReturn(false);
-        when(mockTransaction.getPendingTransactionId()).thenReturn(null);
-        when(mockTransaction.getAccountOwner()).thenReturn(null);
-        when(mockTransaction.getTransactionId()).thenReturn("lPNjeW1nR6CDn5okmGQ6hEpMo4lLNoSrzqDje");
-        when(mockTransaction.getTransactionCode()).thenReturn(null);
-        when(mockTransaction.getTransactionType()).thenReturn("place");
-
-        List<TransactionsGetResponse.Transaction> mockTransactions = new ArrayList<>();
-        mockTransactions.add(mockTransaction);
-        when(responseBody.getTransactions()).thenReturn(mockTransactions);
-
-
-    }
+//    @Before
+//    public void setup() throws IOException {
+//        PlaidClient.Builder mockBuilder;
+//        mockBuilder = mock(PlaidClient.Builder.class);
+//        PlaidClient mockPlaidClient = mock(PlaidClient.class);
+//        when(mockBuilder.build()).thenReturn(mockPlaidClient);
+//        when(PlaidClient.newBuilder()).thenReturn(mockBuilder);
+//// ask bart
+//        Response<TransactionsGetResponse> response = mock(Response.class);
+//        when(mockPlaidClient.service().transactionsGet(any()).execute()).thenReturn(response);
+//        TransactionsGetResponse responseBody = mock(TransactionsGetResponse.class);
+//        when(response.body()).thenReturn(responseBody);
+//        when(responseBody.getItem().getInstitutionId()).thenReturn("ins_3");
+//
+//        TransactionsGetResponse.Transaction mockTransaction= mock(TransactionsGetResponse.Transaction.class);
+//
+//        when(mockTransaction.getAccountId()).thenReturn("BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp");
+//        when(mockTransaction.getAmount()).thenReturn(2307.21);
+//        when(mockTransaction.getIsoCurrencyCode()).thenReturn("USD");
+//        List<String> categories = new ArrayList<>();
+//        categories.add("Shops");
+//        categories.add("Computers and Electronics");
+//        when(mockTransaction.getCategory()).thenReturn(categories);
+//        when(mockTransaction.getCategoryId()).thenReturn("19013000");
+//        when(mockTransaction.getDate()).thenReturn("2017-01-29");
+//        when(mockTransaction.getAuthorizedDate()).thenReturn("2017-01-27");
+//
+//        TransactionsGetResponse.Transaction.Location location = mock(TransactionsGetResponse.Transaction.Location.class);
+//        when(location.getAddress()).thenReturn("300 Post St");
+//        when(location.getCity()).thenReturn("San Francisco");
+//        when(location.getCountry()).thenReturn("US");
+//        when(location.getRegion()).thenReturn("CA");
+//        when(location.getPostalCode()).thenReturn("94108");
+//        when(location.getLat()).thenReturn(40.740352);
+//        when(location.getLon()).thenReturn(-74.001761);
+//        when(location.getStoreNumber()).thenReturn("1235");
+//
+//        when(mockTransaction.getLocation()).thenReturn(location);
+//        when(mockTransaction.getName()).thenReturn("Apple Store");
+//        when(mockTransaction.getMerchantName()).thenReturn("Apple");
+//
+//        TransactionsGetResponse.Transaction.PaymentMeta mockPaymentMeta = mock(TransactionsGetResponse.Transaction.PaymentMeta.class);
+//        when(mockTransaction.getPaymentMeta()).thenReturn(mockPaymentMeta);
+//
+//        when(mockTransaction.getPaymentChannel()).thenReturn("in_store");
+//        when(mockTransaction.getPending()).thenReturn(false);
+//        when(mockTransaction.getPendingTransactionId()).thenReturn(null);
+//        when(mockTransaction.getAccountOwner()).thenReturn(null);
+//        when(mockTransaction.getTransactionId()).thenReturn("lPNjeW1nR6CDn5okmGQ6hEpMo4lLNoSrzqDje");
+//        when(mockTransaction.getTransactionCode()).thenReturn(null);
+//        when(mockTransaction.getTransactionType()).thenReturn("place");
+//
+//        List<TransactionsGetResponse.Transaction> mockTransactions = new ArrayList<>();
+//        mockTransactions.add(mockTransaction);
+//        when(responseBody.getTransactions()).thenReturn(mockTransactions);
+//
+//
+//    }
 
     @Test
     public void testWebhookRefresh() {
@@ -191,17 +191,6 @@ public class WebhookServiceIT {
         webhookService.process(plaidWebhook);
         Item item = itemRepository.findByItemId("***REMOVED***").orElseThrow(() -> new IllegalStateException("Cannot get item"));
         Assert.assertEquals("match", LocalDate.now().plusDays(7), item.getExpiryDate());
-    }
-
-    @Test
-    private void testItemUserPermissionRevoked(){
-        Webhook plaidWebhook = new Webhook();
-        plaidWebhook.setWebhookType(ITEM);
-        plaidWebhook.setWebhookCode(Webhook.WebhookCode.USER_PERMISSION_REVOKED);
-        plaidWebhook.setItemId("***REMOVED***");
-
-        webhookService.process(plaidWebhook);
-
     }
 
 

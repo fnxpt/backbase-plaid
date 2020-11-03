@@ -2,19 +2,19 @@ package com.backbase.proto.plaid.service;
 
 import com.backbase.dbs.transaction.presentation.service.api.TransactionsApi;
 import com.backbase.dbs.transaction.presentation.service.model.TransactionIds;
+import com.backbase.dbs.transaction.presentation.service.model.TransactionItemPost;
 import com.backbase.dbs.transaction.presentation.service.model.TransactionsDeleteRequestBody;
 import com.backbase.proto.plaid.exceptions.IngestionFailedException;
 import com.backbase.proto.plaid.mapper.ModelToDBSMapper;
 import com.backbase.proto.plaid.mapper.PlaidToModelTransactionsMapper;
 import com.backbase.proto.plaid.model.Item;
 import com.backbase.proto.plaid.model.Transaction;
-import com.backbase.proto.plaid.repository.ItemRepository;
 import com.backbase.proto.plaid.repository.TransactionRepository;
 import com.backbase.stream.configuration.AccessControlConfiguration;
 import com.backbase.stream.configuration.TransactionServiceConfiguration;
 import com.backbase.stream.product.ProductIngestionSagaConfiguration;
 import com.backbase.stream.productcatalog.configuration.ProductCatalogServiceConfiguration;
-import com.backbase.stream.transaction.TransactionUnitOfWorkExecutor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.TransactionsGetRequest;
 import com.plaid.client.response.ErrorResponse;
@@ -22,18 +22,19 @@ import com.plaid.client.response.TransactionsGetResponse;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import retrofit2.Response;
 
@@ -60,12 +61,7 @@ public class TransactionsService {
 
     private final AccessTokenService accessTokenService;
 
-    private final ItemRepository itemRepository;
-
-    private final TransactionUnitOfWorkExecutor transactionUnitOfWorkExecutor;
-
-
-    private final EntityManager entityManager;
+    private final ObjectMapper objectMapper;
 
     private ErrorHandler errorHandler;
 
@@ -182,30 +178,55 @@ public class TransactionsService {
 
     public void ingestTransactionsToDBS(Item item) {
         int pageSize = 5;
-        Mono.fromSupplier(() -> transactionRepository.findAllByItemId(item.getItemId(), PageRequest.of(0, pageSize)))
-            .expand(page -> {
-                if (page.hasNext()) {
-                    return Mono.fromSupplier(() -> transactionRepository.findAllByItemId(item.getItemId(), page.nextPageable()));
-                } else {
-                    return Mono.empty();
-                }
-            })
-            .flatMap(page -> Flux.fromIterable(page.getContent()))
+        Page<Transaction> page = transactionRepository.findAllByItemIdAndIngested(item.getItemId(), false, PageRequest.of(0, pageSize));
+
+        List<TransactionIds> transactionIds = new ArrayList<>();
+
+        // Ingest First Page
+        page = ingestTransactionsPage(page, item, transactionIds);
+
+        // Ingest Subsequent pages
+        while (page.hasNext()) {
+            page = ingestTransactionsPage(page, item, transactionIds);
+        }
+
+        updateIngestedStatus(transactionIds);
+    }
+
+    @SneakyThrows
+    protected Page<Transaction> ingestTransactionsPage(Page<Transaction> page, Item item, List<TransactionIds> allTransactionIds) {
+        log.info("Ingesting transactions: {}", page);
+
+        List<TransactionItemPost> transactionItemPosts = page.getContent().stream()
             .map(transaction -> modelToDBSMapper.map(transaction, item.getInstitutionId()))
-            .buffer(pageSize)
-            .flatMap(transactionsApi::postTransactions)
+            .collect(Collectors.toList());
+
+        String contents = objectMapper.writeValueAsString(transactionItemPosts);
+
+        List<TransactionIds> transactionIds = transactionsApi.postTransactions(transactionItemPosts)
+            .collectList()
             .onErrorResume(throwable -> {
-                log.error("Failed to ingest transactions", throwable);
+                log.error("Failed to ingest transactions: {}", contents);
                 return Mono.empty();
             })
-            .collectList()
-            .map(transactionIds -> {
-                log.info("Ingested transactions: {}", transactionIds);
-                if(!transactionIds.isEmpty())
-                    transactionRepository.updateIngested(true, transactionIds.stream().map(TransactionIds::getExternalId).collect(Collectors.toList()));
-                return transactionIds;
-            })
             .block();
+        assert transactionIds != null;
+        allTransactionIds.addAll(transactionIds);
+
+        if (page.hasNext()) {
+            return transactionRepository.findAllByItemIdAndIngested(item.getItemId(), false, page.nextPageable());
+        } else {
+            return page;
+        }
+    }
+
+
+    @Transactional
+    protected List<TransactionIds> updateIngestedStatus(List<TransactionIds> transactionIds) {
+        log.info("Ingested transactions: {}", transactionIds.stream().map(TransactionIds::getExternalId).collect(Collectors.joining(",")));
+        if (!transactionIds.isEmpty())
+            transactionRepository.updateIngested(true, transactionIds.stream().map(TransactionIds::getExternalId).collect(Collectors.toList()));
+        return transactionIds;
     }
 
 
