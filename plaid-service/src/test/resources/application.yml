@@ -5,7 +5,7 @@ eureka:
 logging:
   level:
     io.netty.util: info
-    root: trace
+    root: info
     org.apache: info
     com.backbase: info
 #    org.springframework: warn
@@ -52,6 +52,15 @@ spring:
     enabled: false
 
 backbase:
+  security:
+    public:
+      paths:
+        - /*
+        - /**/*
+        - /webhook/*
+        - /webhook/*/refresh-transactions
+    csrf:
+      enabled: false
   stream:
     dbs:
       user-manager-base-url:

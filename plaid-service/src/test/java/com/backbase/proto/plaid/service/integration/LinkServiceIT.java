@@ -11,41 +11,33 @@ import com.backbase.proto.plaid.model.Transaction;
 import com.backbase.proto.plaid.repository.AccountRepository;
 import com.backbase.proto.plaid.repository.ItemRepository;
 import com.backbase.proto.plaid.repository.TransactionRepository;
-import com.backbase.proto.plaid.service.*;
-import com.plaid.client.PlaidClient;
-import com.plaid.client.response.AccountsBalanceGetResponse;
-import java.io.IOException;
+import com.backbase.proto.plaid.service.AccessTokenService;
+import com.backbase.proto.plaid.service.AccountService;
+import com.backbase.proto.plaid.service.ItemService;
+import com.backbase.proto.plaid.service.LinkService;
+import com.backbase.proto.plaid.service.TransactionsService;
+import com.backbase.proto.plaid.service.WebhookService;
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Request;
-import okio.Timeout;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import java.time.LocalDateTime;
-import java.util.List;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
-        classes = PlaidApplication.class
+    classes = PlaidApplication.class
 )
 @Slf4j
 public class LinkServiceIT {
@@ -56,7 +48,7 @@ public class LinkServiceIT {
 
     @Before
     public void setup() {
-        Map<String, Object> claims  = new HashMap<>();
+        Map<String, Object> claims = new HashMap<>();
         claims.put("sub", "lesley.knope");
         InternalJwtClaimsSet internalJwtClaimsSet = new InternalJwtClaimsSet(claims);
         InternalJwt internalJwt = new InternalJwt("", internalJwtClaimsSet);
@@ -96,9 +88,9 @@ public class LinkServiceIT {
     private ItemController itemController;
 
     @Test
-    public void testItemEndpoint(){
+    public void testItemEndpoint() {
         ResponseEntity<List<LinkItem>> items = itemController.getItems("ACTIVE");
-        log.info("get Items endpoint response body: {}",items.getBody());
+        log.info("get Items endpoint response body: {}", items.getBody());
     }
 
 
@@ -113,7 +105,7 @@ public class LinkServiceIT {
 
     @Test
     @Ignore
-    public void testGetTransactions(){
+    public void testGetTransactions() {
 //        plaidTransactionsService.ingestHistoricalUpdate("***REMOVED***");
     }
 
@@ -125,14 +117,13 @@ public class LinkServiceIT {
 //        itemService.deleteItem("***REMOVED***");
     }
 
-//    @Test
-//    @Ignore
-//    public void testIngestAll() {
-//        itemService.getAllItems().forEach(item -> accountService.ingestPlaidAccounts(accessTokenService.getAccessToken(item.getItemId()), "lesley.knope",
-//            "8a808094748c4ca701749668ea030012"));
-////        itemService.deleteItem("***REMOVED***");
-////        itemService.deleteItem("***REMOVED***");
-//    }
+
+    @Test
+    public void testIngestItem() {
+        Item item = itemRepository.findByItemId("***REMOVED***").get();
+        accountService.ingestPlaidAccounts(item, item.getAccessToken(),  "lesley.knope","8a80807b7588a11701758940f08e001b");
+    }
+
 
     @Test
     public void testGetAllItems() {
@@ -162,11 +153,8 @@ public class LinkServiceIT {
         item2.setCreatedBy("me");
         itemRepository.save(item2);
 
-        List<Item> me = itemService.getItemsByUserId("me");
-
-
-// already added 3 under me
-        Assert.assertEquals("Expected 6 items: ", 6, me.size());
+        // already added 3 under me
+        Assert.assertEquals("Expected 6 items: ", 6, itemService.getItemsByUserId("me"));
 
     }
 
@@ -183,7 +171,7 @@ public class LinkServiceIT {
 
     @Test
     @Ignore
-    public void testDeleteItem(){
+    public void testDeleteItem() {
 //        Item item = new Item();
 //        item.setItemId("4d6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr");
 //        item.setAccessToken("access-testing");
@@ -197,16 +185,15 @@ public class LinkServiceIT {
     }
 
 
-
     @Test
-    public void testAccountMapping(){
+    public void testAccountMapping() {
 
 
     }
 
     @Test
     @Ignore
-    public void testTransactionMapping(){
+    public void testTransactionMapping() {
         Transaction transaction = new Transaction();
 
         transactionRepository.save(transaction);
@@ -215,14 +202,10 @@ public class LinkServiceIT {
     }
 
     @Test
-    public void testInstitutionMapping(){
-
+    public void testInstitutionMapping() {
 
 
     }
-
-
-
 
 
 }

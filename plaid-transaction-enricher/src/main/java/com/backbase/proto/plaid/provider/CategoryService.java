@@ -1,4 +1,4 @@
-package provider;
+package com.backbase.proto.plaid.provider;
 
 import com.backbase.transaction.enrichment.provider.domain.Category;
 import com.backbase.transaction.enrichment.provider.domain.Category.Builder;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
  * This class maps the category response from plaid to DBS for use in transaction enrichment
  */
 @RequiredArgsConstructor
-@Service
 public class CategoryService {
     /**
      * Keep track of the current point in the hierarchy of categories being read in

@@ -49,6 +49,12 @@ spec:
               value: SERVICE
             - name: SPRING_CLOUD_STREAM_DEFAULT_BINDER
               value: "activemq"
+            - name: SPRING_ACTIVEMQ_BROKER_URL
+              value: ssl://b-9d1ef816-ccb2-4ec5-a4e8-3e2c2c9bbda0-1.mq.eu-central-1.amazonaws.com:61617
+            - name: SPRING_ACTIVEMQ_USER
+              value: admin
+            - name: SPRING_ACTIVEMQ_PASSWORD
+              value: ***REMOVED***1
             - name: SPRING_DATASOURCE_VALIDATIONQUERY
               value: SELECT 1
             - name: SPRING_LIQUIBASE_ENABLED
@@ -58,17 +64,19 @@ spec:
             - name: spring.cloud.loadbalancer.ribbon.enabled
               value: "false"
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://proto.cdem7uw0kede.eu-central-1.rds.amazonaws.com/plaid?useSSL=false
+              value: jdbc:mysql://proto.cdem7uw0kede.eu-central-1.rds.amazonaws.com/dbs_transactions_enrichment?useSSL=false
             - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
               value: com.mysql.jdbc.Driver
             - name: SPRING_DATASOURCE_USERNAME
               value: backbase
-            - name: SPRING_DATASOURCE_PLATFORM
-              value: mysql
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key:
                   name: backbase-env-mysql
+            - name: BUILDINGBLOCKS_SECURITY_CSRF_ENABLED
+              value: "false"
+            - name: "backbase.transaction.enrichment.provider"
+              value: plaid
             - name: JAVA_TOOL_OPTIONS
-              value: "-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=n,quiet=y"
+              value: "-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=n,quiet=y -Dlogging.level.root=debug -Dbackbase.activemq.sslconfig=false -Dmanagement.health.jms.enabled=false -Dspring.sleuth.sampler.probability=1 -Dspring.zipkin.enabled=true -Dspring.zipkin.baseUrl=http://meister-collector.observability.svc.cluster.local:9411 -Dmanagement.endpoints.web.exposure.include=* -Dmanagement.endpoints.enabled-by-default=true"

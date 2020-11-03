@@ -1,13 +1,11 @@
-package provider;
+package com.backbase.proto.plaid.provider;
 
 import com.backbase.transaction.enrichment.provider.api.CategoryLoader;
 import com.backbase.transaction.enrichment.provider.domain.Category;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.CategoriesGetRequest;
 import com.plaid.client.response.CategoriesGetResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
 import java.io.IOException;
@@ -21,12 +19,18 @@ import java.util.stream.Collectors;
  * to be moved
  * Loads categories from plaid that are to be used to enrich a transaction
  */
-@RequiredArgsConstructor
 @Slf4j
-@Service
 public class PlaidCategoryLoader implements CategoryLoader {
+
+
     private final CategoryService categoryService;
     private final PlaidClient plaidClient;
+
+    public PlaidCategoryLoader(CategoryService categoryService, PlaidClient plaidClient) {
+        this.categoryService = categoryService;
+        this.plaidClient = plaidClient;
+    }
+
 
     /**
      * ges the name of the provider of categories

@@ -4,7 +4,7 @@ eureka:
 
 logging:
   level:
-    root: debug
+    root: info
 
 spring:
   jpa:
@@ -51,7 +51,7 @@ backbase:
     client-name: "Backbase"
     client-id:
     secret:
-    env: sandbox
+    env: development
     webhook-base-url:
     default-reference-job-role-names:
       - "Retail User - EU"

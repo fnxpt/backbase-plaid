@@ -4,9 +4,11 @@ build:
   tagPolicy:
     sha256: {}
   artifacts:
-    - image: plaid-service
+    - image: plaid-transaction-enricher
       context: .
-      jib: {}
+      jib: {
+
+      }
 deploy:
   kubectl:
     flags:
