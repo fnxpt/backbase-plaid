@@ -47,17 +47,17 @@ public interface AccountMapper {
      * @return the Backbase product, containing all account data retrieved from Plaid
      */
     default Product mapToStream(String accessToken, ItemStatus item, Institution institution, com.plaid.client.response.Account account) {
-        Map<String, Object> additions = new HashMap<>();
-        additions.put("plaidInstitutionId", institution.getInstitutionId());
-        additions.put("plaidAccountOfficialName", account.getOfficialName());
-        additions.put("institutionName", institution.getName());
-        additions.put("institutionLogo", institution.getLogo());
+//        Map<String, Object> additions = new HashMap<>();
+//        additions.put("plaidInstitutionId", institution.getInstitutionId());
+//        additions.put("plaidAccountOfficialName", account.getOfficialName());
+//        additions.put("institutionName", institution.getName());
+//        additions.put("institutionLogo", institution.getLogo());
 
         Product product = new Product();
         product.setExternalId(account.getAccountId());
         product.setName(account.getName());
-        product.setBankAlias(account.getName());
-        product.setAdditions(additions);
+        product.setBankAlias(account.getOfficialName());
+//        product.setAdditions(additions);
         String productTypeExternalId = mapSubTypeId(institution, account.getSubtype());
         product.setProductTypeExternalId(productTypeExternalId);
         product.setBBAN(account.getMask());
