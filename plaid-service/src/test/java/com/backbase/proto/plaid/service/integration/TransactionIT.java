@@ -1,6 +1,8 @@
 package com.backbase.proto.plaid.service.integration;
 
+import com.backbase.dbs.transaction.presentation.service.api.TransactionsApi;
 import com.backbase.proto.plaid.PlaidApplication;
+import com.backbase.proto.plaid.repository.TransactionRepository;
 import com.backbase.proto.plaid.service.ItemService;
 import com.backbase.proto.plaid.service.TransactionsService;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,19 @@ public class TransactionIT {
 
     @Autowired public ItemService itemService;
     @Autowired public TransactionsService transactionsService;
+
+
+    @Autowired public TransactionRepository transactionRepository;
+
+    @Autowired public TransactionsApi transactionsApi;
+
+
+
+    @Test
+    public void reset() {
+
+//        transactionsApi.postDelete()
+    }
 
     @Test
     public void testTransactionIngestion() {

@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: plaid-transaction-enricher
+  name: plaid-category-collector
   labels:
-    app: plaid-transaction-enricher
+    app: plaid-category-collector
     tier: backend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: plaid-transaction-enricher
+      app: plaid-category-collector
       tier: backend
   template:
     metadata:
       labels:
-        app: plaid-transaction-enricher
+        app: plaid-category-collector
         tier: backend
     spec:
       containers:
-        - name: plaid-transaction-enricher
-          image: plaid-transaction-enricher
+        - name: plaid-category-collector
+          image: plaid-category-collector
           ports:
             - name: http
               containerPort: 8080
@@ -64,7 +64,7 @@ spec:
             - name: spring.cloud.loadbalancer.ribbon.enabled
               value: "false"
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://proto.cdem7uw0kede.eu-central-1.rds.amazonaws.com/dbs_transactions_enrichment?useSSL=false
+              value: jdbc:mysql://proto.cdem7uw0kede.eu-central-1.rds.amazonaws.com/dbs_categories?useSSL=false
             - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
               value: com.mysql.jdbc.Driver
             - name: SPRING_DATASOURCE_USERNAME
@@ -78,8 +78,11 @@ spec:
               value: "false"
             - name: "backbase.transaction.enrichment.provider"
               value: plaid
-            - name: "BACKBASE_PLAID_SERVICE_BASE_URL"
-              value: "http://plaid-service:8080/"
-
+            - name: BACKBASE_PLAID_CLIENT_ID
+              value: "***REMOVED***"
+            - name: BACKBASE_PLAID_SECRET
+              value: "***REMOVED***"
+            - name: BACKBASE_PLAID_ENV
+              value: "development"
             - name: JAVA_TOOL_OPTIONS
               value: "-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=n,quiet=y -Dlogging.level.root=info -Dbackbase.activemq.sslconfig=false -Dmanagement.health.jms.enabled=false -Dspring.sleuth.sampler.probability=1 -Dspring.zipkin.enabled=true -Dspring.zipkin.baseUrl=http://meister-collector.observability.svc.cluster.local:9411 -Dmanagement.endpoints.web.exposure.include=* -Dmanagement.endpoints.enabled-by-default=true"

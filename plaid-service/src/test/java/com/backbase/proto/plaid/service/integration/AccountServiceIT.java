@@ -17,17 +17,14 @@ import java.util.*;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mapstruct.factory.Mappers;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
-import retrofit2.Response;
 
 import static com.plaid.client.request.common.Product.BALANCE;
 import static com.plaid.client.request.common.Product.TRANSACTIONS;
@@ -40,6 +37,7 @@ import static org.mockito.Mockito.when;
         classes = PlaidApplication.class
 )
 @Slf4j
+@Ignore
 public class AccountServiceIT {
 
     static {

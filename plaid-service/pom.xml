@@ -45,9 +45,81 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.backbase.proto.plaid</groupId>
-            <artifactId>plaid-core</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.backbase.buildingblocks</groupId>
+            <artifactId>persistence</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.backbase.buildingblocks</groupId>
+            <artifactId>service-sdk-starter-mapping</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.backbase.buildingblocks</groupId>
+            <artifactId>communication</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.backbase.buildingblocks</groupId>
+            <artifactId>auth-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+        <!--Add plaid quickstart spec dependency-->
+        <!--what is artifact id -->
+        <dependency>
+            <groupId>com.plaid</groupId>
+            <artifactId>plaid-java</artifactId>
+            <version>7.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.backbase.stream</groupId>
+            <artifactId>product-ingestion-saga</artifactId>
+            <version>${stream.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.backbase.stream</groupId>
+            <artifactId>product-catalog-core</artifactId>
+            <version>${stream.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.backbase.stream</groupId>
+            <artifactId>transactions-core</artifactId>
+            <version>${stream.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>6.0.18.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>20.1.0</version>
         </dependency>
 
         <dependency>
@@ -138,84 +210,131 @@
                 <version>0.2.6</version>
                 <executions>
                     <execution>
-                        <id>generete-client-api</id>
+                        <id>generate-client-api</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>generate-spring-boot-embedded</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/api/plaid-client-api.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/../plaid-api/src/main/resources/plaid-client-api.yaml
+                            </inputSpec>
                             <apiPackage>com.backbase.proto.plaid.client.api</apiPackage>
                             <modelPackage>com.backbase.proto.plaid.client.model</modelPackage>
                         </configuration>
                     </execution>
-
                     <execution>
-                        <id>generete-webhook-api</id>
+                        <id>generate-webhook-api</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>generate-spring-boot-embedded</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/api/plaid-webhook-api.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/../plaid-api/src/main/resources/plaid-webhook-api.yaml
+                            </inputSpec>
                             <apiPackage>com.backbase.proto.plaid.webhook.api</apiPackage>
                             <modelPackage>com.backbase.proto.plaid.webhook.model</modelPackage>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>generate-service-api</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate-spring-boot-embedded</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/../plaid-api/src/main/resources/plaid-service-api.yaml
+                            </inputSpec>
+                            <apiPackage>com.backbase.proto.plaid.service.api</apiPackage>
+                            <modelPackage>com.backbase.proto.plaid.service.model</modelPackage>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>account-integration-spec</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <generatorName>spring</generatorName>
+                            <inputSpec>
+                                ${project.basedir}/api/com/backbase/dbs/account/account-integration-spec/service-api/service-api/openapi.yaml
+                            </inputSpec>
+                            <generateApiTests>false</generateApiTests>
+                            <generateApis>true</generateApis>
+                            <generateModels>true</generateModels>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+                            <configOptions>
+                                <library>spring-boot</library>
+                                <useTags>true</useTags>
+                                <reactive>false</reactive>
+                                <java8>true</java8>
+                                <dateLibrary>java8</dateLibrary>
+                                <interfaceOnly>true</interfaceOnly>
+                                <skipDefaultInterface>true</skipDefaultInterface>
+                                <modelPackage>com.backbase.stream.dbs.account.outbound.model</modelPackage>
+                                <apiPackage>com.backbase.stream.dbs.account.outbound.api</apiPackage>
+                            </configOptions>
+                            <typeMappings>
+                                <typeMapping>Double=java.math.BigDecimal</typeMapping>
+                            </typeMappings>
+                        </configuration>
+                    </execution>
 
-<!--                    <execution>-->
-<!--                        <id>generete-angular</id>-->
-<!--                        <phase>generate-sources</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>generate</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <inputSpec>${project.basedir}/api/plaid-client-api.yaml</inputSpec>-->
-<!--                            <generatorName>typescript-angular</generatorName>-->
-<!--                            <output>${boat-maven-plugin.output}</output>-->
-<!--                            <generatorName>backbase-typescript-angular</generatorName>-->
-<!--                            <generateSupportingFiles>true</generateSupportingFiles>-->
-<!--                            <supportingFilesToGenerate>api.module.ts,configuration.ts,encoder.ts,variables.ts,models.ts,api.ts</supportingFilesToGenerate>-->
-<!--                            <additionalProperties>-->
-<!--                                ngVersion=${codegen.angularVersion},npmName=${codegen.npmPackage.name},npmVersion=${codegen.npmPackage.version},withMocks=${codegen.generateMocks}-->
-<!--                            </additionalProperties>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--                <dependencies>-->
-<!--                    <dependency>-->
-<!--                        <groupId>com.backbase.bb-cli</groupId>-->
-<!--                        <artifactId>backbase-typescript-angular-openapi-template</artifactId>-->
-<!--                        <version>1.0.5</version>-->
-<!--                    </dependency>-->
-<!--                </dependencies>-->
-<!--                    <execution>-->
-<!--                        <id>generete-angular</id>-->
-<!--                        <phase>generate-sources</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>generate</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <inputSpec>${project.basedir}/api/plaid-client-api.yaml</inputSpec>-->
-<!--                            <generatorName>typescript-angular</generatorName>-->
-<!--                            <output>${boat-maven-plugin.output}</output>-->
-<!--                            <generatorName>backbase-typescript-angular</generatorName>-->
-<!--                            <generateSupportingFiles>true</generateSupportingFiles>-->
-<!--                            <supportingFilesToGenerate>api.module.ts,configuration.ts,encoder.ts,variables.ts,models.ts,api.ts</supportingFilesToGenerate>-->
-<!--                            <additionalProperties>-->
-<!--                                ngVersion=${codegen.angularVersion},npmName=${codegen.npmPackage.name},npmVersion=${codegen.npmPackage.version},withMocks=${codegen.generateMocks}-->
-<!--                            </additionalProperties>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
+
+                    <!--                    <execution>-->
+                    <!--                        <id>generete-angular</id>-->
+                    <!--                        <phase>generate-sources</phase>-->
+                    <!--                        <goals>-->
+                    <!--                            <goal>generate</goal>-->
+                    <!--                        </goals>-->
+                    <!--                        <configuration>-->
+                    <!--                            <inputSpec>${project.basedir}/api/plaid-client-api.yaml</inputSpec>-->
+                    <!--                            <generatorName>typescript-angular</generatorName>-->
+                    <!--                            <output>${boat-maven-plugin.output}</output>-->
+                    <!--                            <generatorName>backbase-typescript-angular</generatorName>-->
+                    <!--                            <generateSupportingFiles>true</generateSupportingFiles>-->
+                    <!--                            <supportingFilesToGenerate>api.module.ts,configuration.ts,encoder.ts,variables.ts,models.ts,api.ts</supportingFilesToGenerate>-->
+                    <!--                            <additionalProperties>-->
+                    <!--                                ngVersion=${codegen.angularVersion},npmName=${codegen.npmPackage.name},npmVersion=${codegen.npmPackage.version},withMocks=${codegen.generateMocks}-->
+                    <!--                            </additionalProperties>-->
+                    <!--                        </configuration>-->
+                    <!--                    </execution>-->
+                    <!--                </executions>-->
+                    <!--                <dependencies>-->
+                    <!--                    <dependency>-->
+                    <!--                        <groupId>com.backbase.bb-cli</groupId>-->
+                    <!--                        <artifactId>backbase-typescript-angular-openapi-template</artifactId>-->
+                    <!--                        <version>1.0.5</version>-->
+                    <!--                    </dependency>-->
+                    <!--                </dependencies>-->
+                    <!--                    <execution>-->
+                    <!--                        <id>generete-angular</id>-->
+                    <!--                        <phase>generate-sources</phase>-->
+                    <!--                        <goals>-->
+                    <!--                            <goal>generate</goal>-->
+                    <!--                        </goals>-->
+                    <!--                        <configuration>-->
+                    <!--                            <inputSpec>${project.basedir}/api/plaid-client-api.yaml</inputSpec>-->
+                    <!--                            <generatorName>typescript-angular</generatorName>-->
+                    <!--                            <output>${boat-maven-plugin.output}</output>-->
+                    <!--                            <generatorName>backbase-typescript-angular</generatorName>-->
+                    <!--                            <generateSupportingFiles>true</generateSupportingFiles>-->
+                    <!--                            <supportingFilesToGenerate>api.module.ts,configuration.ts,encoder.ts,variables.ts,models.ts,api.ts</supportingFilesToGenerate>-->
+                    <!--                            <additionalProperties>-->
+                    <!--                                ngVersion=${codegen.angularVersion},npmName=${codegen.npmPackage.name},npmVersion=${codegen.npmPackage.version},withMocks=${codegen.generateMocks}-->
+                    <!--                            </additionalProperties>-->
+                    <!--                        </configuration>-->
+                    <!--                    </execution>-->
                 </executions>
-<!--                <dependencies>-->
-<!--                    <dependency>-->
-<!--                        <groupId>com.backbase.bb-cli</groupId>-->
-<!--                        <artifactId>backbase-typescript-angular-openapi-template</artifactId>-->
-<!--                        <version>1.0.5</version>-->
-<!--                    </dependency>-->
-<!--                </dependencies>-->
+                <!--                <dependencies>-->
+                <!--                    <dependency>-->
+                <!--                        <groupId>com.backbase.bb-cli</groupId>-->
+                <!--                        <artifactId>backbase-typescript-angular-openapi-template</artifactId>-->
+                <!--                        <version>1.0.5</version>-->
+                <!--                    </dependency>-->
+                <!--                </dependencies>-->
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>

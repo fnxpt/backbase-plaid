@@ -1,35 +1,32 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: plaid-transaction-enricher
+  name: plaid-category-collector
   labels:
-    app: plaid-transaction-enricher
+    app: plaid-category-collector
     tier: backend
 spec:
   type: ClusterIP
   selector:
-    app: plaid-transaction-enricher
+    app: plaid-category-collector
     tier: backend
   ports:
     - port: 8080
       targetPort: http
 
 ---
-######## THIS WILL OVERWRITE THE OUT OF THE BOX ENRICHER
 apiVersion: v1
 kind: Service
 metadata:
-  name: transaction-enricher
+  name: transaction-category-collector
   labels:
-    app: plaid-transaction-enricher
+    app: plaid-category-collector
     tier: backend
 spec:
   type: ClusterIP
   selector:
-    app: plaid-transaction-enricher
+    app: plaid-category-collector
     tier: backend
   ports:
     - port: 8080
       targetPort: http
-
-

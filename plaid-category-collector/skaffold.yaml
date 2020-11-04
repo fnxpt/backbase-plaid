@@ -4,7 +4,7 @@ build:
   tagPolicy:
     sha256: {}
   artifacts:
-    - image: plaid-transaction-enricher
+    - image: plaid-category-collector
       context: .
       jib: {
         args: [-Pdocker-image]

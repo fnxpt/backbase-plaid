@@ -35,6 +35,7 @@ backbase:
   security:
     public:
       paths:
+        - /service-api/v2/*
         - /webhook/*
         - /webhook/*/refresh-transactions
     csrf:
