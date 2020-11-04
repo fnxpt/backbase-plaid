@@ -4,15 +4,11 @@ import com.backbase.proto.plaid.client.api.LinkApi;
 import com.backbase.proto.plaid.client.model.PlaidLinkRequest;
 import com.backbase.proto.plaid.client.model.PlaidLinkResponse;
 import com.backbase.proto.plaid.client.model.SetAccessTokenRequest;
-import com.backbase.proto.plaid.mapper.ModelToPresentationMapper;
-import com.backbase.proto.plaid.mapper.PresentationToModelMapper;
 import com.backbase.proto.plaid.service.LinkService;
+import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.mapstruct.factory.Mappers;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
 
 /**
  * This class exposes Link API allowing the call of link endpoints that allow a link to be initialised.
@@ -26,8 +22,7 @@ public class LinkController implements LinkApi {
      * Plaid.
      */
     private final LinkService linkService;
-    private final PresentationToModelMapper presentationToModelMapper = Mappers.getMapper(PresentationToModelMapper.class);
-    private final ModelToPresentationMapper modelToPresentationMapper = Mappers.getMapper(ModelToPresentationMapper.class);
+
     /**
      * Initialises Link Service.
      *
@@ -47,7 +42,7 @@ public class LinkController implements LinkApi {
     @Override
     public ResponseEntity<PlaidLinkResponse> requestPlaidLink(@Valid PlaidLinkRequest plaidLinkRequest) {
         log.info("Requesting Plaid Link: {}", plaidLinkRequest);
-        return ResponseEntity.ok( modelToPresentationMapper.map(linkService.createPlaidLink(presentationToModelMapper.map(plaidLinkRequest))) );
+        return ResponseEntity.ok( linkService.createPlaidLink(plaidLinkRequest));
     }
 
     /**
@@ -61,7 +56,7 @@ public class LinkController implements LinkApi {
     @Override
     public ResponseEntity<Void> setPublicAccessToken(@Valid SetAccessTokenRequest setAccessTokenRequest) {
         log.info("Set Plaid Public Token: {}", setAccessTokenRequest);
-        linkService.setPublicAccessToken(presentationToModelMapper.mapAccessTokenRequest(setAccessTokenRequest));
+        linkService.setPublicAccessToken(setAccessTokenRequest);
         return ResponseEntity.accepted().build();
     }
 

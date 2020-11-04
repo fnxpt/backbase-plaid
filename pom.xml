@@ -12,10 +12,10 @@
     <name>Backbase :: Plaid</name>
 
     <modules>
-        <module>plaid-core</module>
         <module>plaid-service</module>
-        <module>plaid-arrangement-integration-outbound</module>
+        <module>plaid-transaction-enrichment-provider</module>
         <module>plaid-transaction-enricher</module>
+        <module>plaid-category-collector</module>
     </modules>
 
 </project>

@@ -1,0 +1,156 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Backbase Plaid Service API
+  license:
+    name: Backbase
+servers:
+  - url:
+paths:
+  /transactions/enrich:
+    post:
+      summary: Enrich Transactions
+      operationId: enrichTransactions
+      tags:
+        - enrich
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Transaction'
+      responses:
+        '200':
+          description: Plaid Link to use in when invoking the Plaid Link UI
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EnrichmentResult"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /categories:
+    get:
+      summary: Receive all categories
+      operationId: getAllCategories
+      tags:
+        - categories
+      parameters:
+        - name: parentsOnly
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        amount:
+          type: string
+        transactionType:
+          type: string
+          enum:
+            - CREDIT
+            - DEBIT
+    EnrichmentResult:
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        categoryId:
+          type: string
+        merchant:
+          $ref: "#/components/schemas/Merchant"
+    Merchant:
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        logo:
+          type: string
+        website:
+          type: string
+        location:
+          $ref: "#/components/schemas/Location"
+    Location:
+      properties:
+        id:
+          description: Location id
+          type: string
+        latitude:
+          description: Latitude of the transaction coordinate
+          type: number
+        longitude:
+          description: Longitude of the transaction coordinate
+          type: number
+        addressLine1:
+          type: string
+        addressLine2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postCode:
+          type: string
+        country:
+          type: string
+        completeAddress:
+          description: Full address of where the transaction happened
+          type: string
+    Category:
+      properties:
+        id:
+          description: Category id
+          type: string
+        parentId:
+          description: Category Parent Id
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - INCOME
+            - EXPENSE
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+
+

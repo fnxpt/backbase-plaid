@@ -80,7 +80,7 @@ backbase:
     client-name: "Backbase"
     client-id:
     secret:
-    env: development
+    env: sandbox
     webhook-base-url:
     default-reference-job-role-names:
       - "Retail User - EU"
