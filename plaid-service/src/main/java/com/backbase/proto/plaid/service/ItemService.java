@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import retrofit2.Response;
@@ -58,6 +59,7 @@ public class ItemService {
      *
      * @param itemId identifies the Item to be deleted
      */
+    @Transactional
     public void deleteItem(String itemId) {
 
         log.info("Unlinking item: {}", itemId);
@@ -76,6 +78,9 @@ public class ItemService {
         if (response != null && response.isSuccessful()) {
             deleteItemFromDBS(itemId);
             accountService.deleteAccountByItemId(item);
+            item.setState("DELETED");
+            item.setExpiryDate(LocalDate.now());
+            itemRepository.save(item);
 
 //            itemRepository.delete(item);
         } else {
