@@ -54,16 +54,20 @@ backbase:
     client-name: "Backbase"
     client-id:
     secret:
-    env: development
+    env: sandbox
     webhook-base-url:
     default-reference-job-role-names:
       - "Retail User - EU"
     country-codes:
-      - CA
+      - US
       - NL
     products:
       - auth
       - transactions
+    accounts:
+      accountTypeMap:
+        depository: "current-account"
+        credit: "credit-card"
     transactions:
       # Payment,Withdrawal,Loans,Fees
       transactionTypeGroupMap:

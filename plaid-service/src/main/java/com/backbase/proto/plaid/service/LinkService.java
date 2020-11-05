@@ -116,11 +116,13 @@ public class LinkService {
 
 
         Item item = itemRepository.findByItemId(accessToken.getItemId())
-            .orElseGet(() -> createItem(accessToken, userId));
+            .orElseGet(() -> {
+                String institutionId = setAccessTokenRequest.getMetadata().getInstitution().getInstitutionId();
+                return createItem(accessToken, userId, institutionId);
+            });
 
         accountService.ingestPlaidAccounts(item, accessToken.getAccessToken(), userId, legalEntityId);
         webhookService.setupWebhook(accessToken.getAccessToken(), item);
-        setupWebHook(accessToken);
 
         tempExecutor.execute(() -> {
             try {
@@ -138,22 +140,14 @@ public class LinkService {
      * @param userId
      */
     @NotNull
-    private Item createItem(ItemPublicTokenExchangeResponse accessToken, String userId) {
+    private Item createItem(ItemPublicTokenExchangeResponse accessToken, String userId, String institutionId) {
         Item newItem = itemMapper.map(accessToken);
         newItem.setCreatedAt(LocalDateTime.now());
         newItem.setCreatedBy(userId);
+        newItem.setInstitutionId(institutionId);
+        newItem.setState("ACTIVE");
         itemRepository.save(newItem);
         return newItem;
-    }
-
-    /**
-     * Sets up a webhook.
-     *
-     * @param accessToken used for authentication in Plaid
-     */
-    private void setupWebHook(ItemPublicTokenExchangeResponse accessToken) {
-      // does nothing because it is yet to be implemented ?
-        // should get rid of unused perimeter
     }
 
     /**

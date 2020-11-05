@@ -3,7 +3,12 @@ package com.backbase.proto.plaid.service.integration;
 import com.backbase.proto.plaid.PlaidApplication;
 import com.backbase.proto.plaid.service.CategoryService;
 import com.backbase.proto.plaid.service.model.Category;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -43,5 +48,13 @@ public class CategoriesIT {
     }
 
 
+    @Test
+    public void testUndoubleNames() {
+        List<Category> categories = categoryService.getAllCategories(false);
+
+        ArrayList<Category> collect = categories.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Category::getName))), ArrayList::new));
+
+        log.info("categories: {}", categories);
+    }
 
 }

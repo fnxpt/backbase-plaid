@@ -189,7 +189,7 @@ public class AccountServiceIT {
         expected.setProductTypeExternalId("67576987y-checking");
         expected.setBBAN("0000");
         expected.setAvailableBalance(new AvailableBalance().amount(BigDecimal.valueOf(23631.9805)).currencyCode("USD"));
-        Assert.assertEquals("doesn' match", expected,accountMapper.mapToStream(accessToken,itemStatus,institution,account));
+        Assert.assertEquals("doesn' match", expected, accountService.mapToStream(accessToken,itemStatus,institution,account));
 
     }
 

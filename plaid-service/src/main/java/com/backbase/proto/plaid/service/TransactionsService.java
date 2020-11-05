@@ -5,12 +5,13 @@ import com.backbase.dbs.transaction.presentation.service.model.TransactionIds;
 import com.backbase.dbs.transaction.presentation.service.model.TransactionItemPost;
 import com.backbase.dbs.transaction.presentation.service.model.TransactionsDeleteRequestBody;
 import com.backbase.proto.plaid.exceptions.IngestionFailedException;
-import com.backbase.proto.plaid.mapper.TransactionMapper;
 import com.backbase.proto.plaid.mapper.PlaidToModelTransactionsMapper;
+import com.backbase.proto.plaid.mapper.TransactionMapper;
 import com.backbase.proto.plaid.model.Item;
 import com.backbase.proto.plaid.model.Transaction;
 import com.backbase.proto.plaid.repository.TransactionRepository;
 import com.backbase.proto.plaid.service.model.EnrichmentResult;
+import com.backbase.proto.plaid.service.model.Merchant;
 import com.backbase.stream.configuration.AccessControlConfiguration;
 import com.backbase.stream.configuration.TransactionServiceConfiguration;
 import com.backbase.stream.product.ProductIngestionSagaConfiguration;
@@ -24,13 +25,15 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
@@ -179,8 +182,8 @@ public class TransactionsService {
 
 
     public void ingestTransactionsToDBS(Item item) {
-        int pageSize = 5;
-        Page<Transaction> page = transactionRepository.findAllByItemId(item.getItemId(),  PageRequest.of(0, pageSize));
+        int pageSize = 10;
+        Page<Transaction> page = transactionRepository.findAllByItemIdAndIngested(item.getItemId(),false, PageRequest.of(0, pageSize));
 
         List<TransactionIds> transactionIds = new ArrayList<>();
 
@@ -216,7 +219,7 @@ public class TransactionsService {
         allTransactionIds.addAll(transactionIds);
 
         if (page.hasNext()) {
-            return transactionRepository.findAllByItemIdAndIngested(item.getItemId(), true, page.nextPageable());
+            return transactionRepository.findAllByItemIdAndIngested(item.getItemId(), false, page.nextPageable());
         } else {
             return page;
         }
@@ -225,9 +228,18 @@ public class TransactionsService {
 
     @Transactional
     protected List<TransactionIds> updateIngestedStatus(List<TransactionIds> transactionIds) {
+        transactionIds.forEach(transactionId -> {
+
+            transactionRepository.findByTransactionId(transactionId.getExternalId())
+                .map(transaction -> {
+                    transaction.setInternalId(transactionId.getId());
+                    transaction.setIngested(true);
+                    return transaction;
+                })
+                .map(transactionRepository::save);
+
+        });
         log.info("Ingested transactions: {}", transactionIds.stream().map(TransactionIds::getExternalId).collect(Collectors.joining(",")));
-        if (!transactionIds.isEmpty())
-            transactionRepository.updateIngested(true, transactionIds.stream().map(TransactionIds::getExternalId).collect(Collectors.toList()));
         return transactionIds;
     }
 
@@ -253,12 +265,39 @@ public class TransactionsService {
     }
 
 
-    public List<EnrichmentResult> enrich(List<Transaction> transactions) {
-
-        return Collections.emptyList();
+    public List<EnrichmentResult> enrichTransactions(List<com.backbase.proto.plaid.service.model.Transaction> transactions) {
+        return transactions.stream()
+            .map(this::enrichTransaction)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toList());
     }
 
-    public List<EnrichmentResult> enrichTransactions(List<com.backbase.proto.plaid.service.model.Transaction> transaction) {
-        return null;
+    @NotNull
+    private Optional<EnrichmentResult> enrichTransaction(com.backbase.proto.plaid.service.model.Transaction transaction) {
+        return transactionRepository.findByInternalId(transaction.getId()).map(txn -> {
+            EnrichmentResult enrichmentResult = new EnrichmentResult()
+                .id(txn.getInternalId())
+                .description(transaction.getDescription())
+                .categoryId(txn.getCategoryId());
+
+            mapMerchant(txn).ifPresent(enrichmentResult::setMerchant);
+
+            log.info("Enriched transaction: {} with category: {}", enrichmentResult.getId(), enrichmentResult.getCategoryId());
+            return enrichmentResult;
+        });
+//        log.info("Transaction {} not found in Plaid", transaction.getId());
+    }
+
+    private Optional<Merchant> mapMerchant(Transaction transaction) {
+
+        if (transaction.getMerchantName() == null) {
+            return Optional.empty();
+        }
+
+        Merchant merchant = new Merchant();
+        merchant.setId(UUID.randomUUID().toString());
+        merchant.setName(transaction.getMerchantName());
+        return Optional.of(merchant);
     }
 }

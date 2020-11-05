@@ -88,7 +88,8 @@ public class TransactionMapper {
         // nullable data
 
         // This category is not yet refined. This will be done by the transaction enricher
-        bbTransaction.setCategory(transaction.getCategory().get(0));
+//        bbTransaction.setCategory(transaction.getCategory().get(transaction.getCategory().size()-1));
+//
         PaymentMeta paymentMeta = transaction.getPaymentMeta();
         String referenceNumber = paymentMeta.getReferenceNumber();
 
@@ -121,6 +122,13 @@ public class TransactionMapper {
      * @param institutionId the identifier for the institution that the Transaction belongs to
      */
     private void mapDescription(Transaction transaction, TransactionItemPost bbTransaction, String institutionId) {
+        String description = mapDescription(transaction, institutionId);
+
+        description = StringUtils.abbreviate(description, 140);
+        bbTransaction.setDescription(description);
+    }
+
+    public String mapDescription(Transaction transaction, String institutionId) {
         String description;
 
         PlaidConfigurationProperties.DescriptionParser descriptionParser = getDescriptionParser(institutionId);
@@ -133,9 +141,7 @@ public class TransactionMapper {
         }
 
         log.debug("Mapped transaction name: {} to description: {}", transactionName, description);
-
-        description = StringUtils.abbreviate(description, 140);
-        bbTransaction.setDescription(description);
+        return description;
     }
 
 

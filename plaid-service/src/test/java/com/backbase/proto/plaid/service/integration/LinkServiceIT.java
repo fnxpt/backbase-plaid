@@ -40,7 +40,6 @@ import org.springframework.test.context.junit4.SpringRunner;
     classes = PlaidApplication.class
 )
 @Slf4j
-@Ignore
 public class LinkServiceIT {
 
     static {
@@ -95,30 +94,6 @@ public class LinkServiceIT {
     }
 
 
-//    @Before
-//    public void setUp() throws IOException {
-//
-//        Response<AccountsBalanceGetResponse> mockResponse = null;
-//
-//        Mockito.when(accountRepository.deleteAccountsByItemId()).thenReturn(mockResponse);
-//
-//    }
-
-    @Test
-    @Ignore
-    public void testGetTransactions() {
-//        plaidTransactionsService.ingestHistoricalUpdate("***REMOVED***");
-    }
-
-
-    @Test
-    public void testResetDBS() {
-        itemService.getAllItems().forEach(item -> itemService.deleteItemFromDBS(item.getItemId()));
-//        itemService.deleteItem("***REMOVED***");
-//        itemService.deleteItem("***REMOVED***");
-    }
-
-
     @Test
     public void testIngestItem() {
         Item item = itemRepository.findByItemId("***REMOVED***").get();
@@ -167,45 +142,6 @@ public class LinkServiceIT {
         for (Item item : collect) {
             itemService.deleteItem(item.getItemId());
         }
-    }
-
-
-    @Test
-    @Ignore
-    public void testDeleteItem() {
-//        Item item = new Item();
-//        item.setItemId("4d6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr");
-//        item.setAccessToken("access-testing");
-//        item.setCreatedAt(LocalDateTime.now());
-//        item.setCreatedBy("me");
-//        itemRepository.save(item);
-
-//        itemService.deleteItem("LlpN6poaprSbWAGv69pPH5qAyBgr8EUkZjbyr");
-
-//        Assert.assertFalse(itemRepository.existsByItemId("4d6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr"));
-    }
-
-
-    @Test
-    public void testAccountMapping() {
-
-
-    }
-
-    @Test
-    @Ignore
-    public void testTransactionMapping() {
-        Transaction transaction = new Transaction();
-
-        transactionRepository.save(transaction);
-
-
-    }
-
-    @Test
-    public void testInstitutionMapping() {
-
-
     }
 
 
