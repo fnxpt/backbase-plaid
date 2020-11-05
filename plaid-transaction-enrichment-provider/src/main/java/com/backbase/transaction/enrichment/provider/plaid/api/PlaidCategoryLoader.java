@@ -6,6 +6,7 @@ import com.backbase.transaction.enrichment.provider.domain.Category;
 import com.backbase.transaction.enrichment.provider.domain.CategoryType;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +40,7 @@ public class PlaidCategoryLoader implements CategoryLoader {
      */
     @Override
     public List<Category> getAllCategories() {
-        return getAllCategories(true);
+        return getAllCategories(false);
     }
 
     /**
@@ -65,7 +66,7 @@ public class PlaidCategoryLoader implements CategoryLoader {
         return Category.builder()
             .id(Objects.requireNonNull(category.getId()))
             .name(Objects.requireNonNull(category.getName()))
-            .parentId(Objects.requireNonNull(category.getParentId()))
+            .parentId(Optional.ofNullable(category.getParentId()))
             .type(CategoryType.valueOf(Objects.requireNonNull(category.getType()).getValue()))
             .build();
     }

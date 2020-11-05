@@ -26,6 +26,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     List<Transaction> findAllByAccountId(String accountId);
 
+    Page<Transaction> findAllByItemId(String itemId, Pageable page);
+
     Page<Transaction> findAllByItemIdAndIngested(String itemId, boolean ingested, Pageable page);
 
 

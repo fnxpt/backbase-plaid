@@ -180,17 +180,17 @@ public class TransactionsService {
 
     public void ingestTransactionsToDBS(Item item) {
         int pageSize = 5;
-        Page<Transaction> page = transactionRepository.findAllByItemIdAndIngested(item.getItemId(), true, PageRequest.of(0, pageSize));
+        Page<Transaction> page = transactionRepository.findAllByItemId(item.getItemId(),  PageRequest.of(0, pageSize));
 
         List<TransactionIds> transactionIds = new ArrayList<>();
 
         // Ingest First Page
         page = ingestTransactionsPage(page, item, transactionIds);
 
-        // Ingest Subsequent pages
-//        while (page.hasNext()) {
-//            page = ingestTransactionsPage(page, item, transactionIds);
-//        }
+//         Ingest Subsequent pages
+        while (page.hasNext()) {
+            page = ingestTransactionsPage(page, item, transactionIds);
+        }
 
         updateIngestedStatus(transactionIds);
     }
@@ -216,7 +216,7 @@ public class TransactionsService {
         allTransactionIds.addAll(transactionIds);
 
         if (page.hasNext()) {
-            return transactionRepository.findAllByItemIdAndIngested(item.getItemId(), false, page.nextPageable());
+            return transactionRepository.findAllByItemIdAndIngested(item.getItemId(), true, page.nextPageable());
         } else {
             return page;
         }

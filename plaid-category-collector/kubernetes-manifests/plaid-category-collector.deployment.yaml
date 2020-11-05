@@ -76,13 +76,20 @@ spec:
                   name: backbase-env-mysql
             - name: BUILDINGBLOCKS_SECURITY_CSRF_ENABLED
               value: "false"
-            - name: "backbase.transaction.enrichment.provider"
-              value: plaid
+
             - name: BACKBASE_PLAID_CLIENT_ID
               value: "***REMOVED***"
             - name: BACKBASE_PLAID_SECRET
               value: "***REMOVED***"
             - name: BACKBASE_PLAID_ENV
               value: "development"
+            - name: "BACKBASE_PLAID_SERVICE_BASE_URL"
+              value: "http://plaid-service:8080/"
+            - name: backbase.category.loading.schedule
+              value: "0 0 * * * *"
+            - name: backbase.category.management.enabled
+              value: "true"
+            - name: "backbase.transaction.enrichment.provider"
+              value: plaid
             - name: JAVA_TOOL_OPTIONS
               value: "-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=n,quiet=y -Dlogging.level.root=info -Dbackbase.activemq.sslconfig=false -Dmanagement.health.jms.enabled=false -Dspring.sleuth.sampler.probability=1 -Dspring.zipkin.enabled=true -Dspring.zipkin.baseUrl=http://meister-collector.observability.svc.cluster.local:9411 -Dmanagement.endpoints.web.exposure.include=* -Dmanagement.endpoints.enabled-by-default=true"
