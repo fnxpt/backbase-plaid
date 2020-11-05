@@ -128,15 +128,15 @@ public class ItemService {
     public List<LinkItem> getItemsByUserId(String loggedInUserId) {
         log.info("Get all items for: {}", loggedInUserId);
         return itemRepository.findAllByCreatedBy(loggedInUserId).stream()
-                .map(linkItemMapper::map)
-                .collect(Collectors.toList());
+            .map(linkItemMapper::map)
+            .collect(Collectors.toList());
     }
 
     public List<LinkItem> getItemsByUserId(String state, String loggedInUserId) {
         log.info("Get all items for: {}", loggedInUserId);
         return itemRepository.findAllByCreatedByAndState(loggedInUserId, state).stream()
-                .map(linkItemMapper::map)
-                .collect(Collectors.toList());
+            .map(linkItemMapper::map)
+            .collect(Collectors.toList());
     }
 
     private InternalJwt getInternalJwt() {
@@ -160,7 +160,11 @@ public class ItemService {
         if (item.getExpiryDate() == null) {
             return item;
         } else {
-            throw new BadRequestException("Item is expired");
+            if (item.getExpiryDate().isBefore(LocalDate.now())) {
+                throw new BadRequestException("Item is expired");
+            } else {
+                return item;
+            }
         }
     }
 

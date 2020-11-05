@@ -37,7 +37,6 @@ import static org.mockito.Mockito.mock;
     classes = PlaidApplication.class
 )
 @Slf4j
-@Ignore
 public class WebhookServiceIT {
 
     static {

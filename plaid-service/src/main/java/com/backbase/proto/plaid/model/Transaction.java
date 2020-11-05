@@ -98,4 +98,7 @@ public class Transaction {
     @Column(name = "ingested")
     private boolean ingested;
 
+    @Column(name = "internal_id")
+    private String internalId;
+
 }

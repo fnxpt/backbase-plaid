@@ -1,5 +1,6 @@
 package com.backbase.proto.plaid.service;
 
+import com.backbase.proto.plaid.model.Transaction;
 import com.backbase.proto.plaid.service.model.Category;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.CategoriesGetRequest;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
@@ -27,6 +29,7 @@ public class CategoryService {
     private final PlaidClient plaidClient;
 
 
+    @Cacheable
     public List<Category> getAllCategories(boolean parentsOnly) {
         log.info("Get All Categories (parentsOnly={})", parentsOnly);
         List<Category> result = new ArrayList<>();
@@ -41,15 +44,15 @@ public class CategoryService {
                     category -> {
                         return map(category, parents, subParents);
                     }
-
                 ).collect(Collectors.toList());
-
 
                 if (parentsOnly) {
                     return allCategories.stream().filter(category -> category.getParentId() == null).collect(Collectors.toList());
                 } else {
                     return allCategories;
                 }
+
+
 
             }
         } catch (IOException ex) {
@@ -67,7 +70,7 @@ public class CategoryService {
      */
     public Category map(CategoriesGetResponse.Category plaidCategory, Map<String, Category> parents, Map<String, Category> subParents) {
 
-        log.info("Mapping Plaid Category: {} with Hierarchy: {}", plaidCategory.getCategoryId(), plaidCategory.getHierarchy().size());
+        log.debug("Mapping Plaid Category: {} with Hierarchy: {}", plaidCategory.getCategoryId(), plaidCategory.getHierarchy().size());
         switch (plaidCategory.getHierarchy().size()) {
             case 1:
                 return mapParent(plaidCategory, parents);

@@ -5,6 +5,7 @@ import com.backbase.proto.plaid.service.api.EnrichApi;
 import com.backbase.proto.plaid.service.model.EnrichmentResult;
 import com.backbase.proto.plaid.service.model.Transaction;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ public class TransactionEnrichController implements EnrichApi {
 
     @Override
     public ResponseEntity<List<EnrichmentResult>> enrichTransactions(@Valid List<Transaction> transaction) {
+        log.info("Enriching transactions: {}", transaction.stream().map(Transaction::getId).collect(Collectors.joining(",")));
         return ResponseEntity.ok(transactionService.enrichTransactions(transaction));
     }
 }

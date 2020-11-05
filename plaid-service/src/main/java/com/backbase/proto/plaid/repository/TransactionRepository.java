@@ -1,6 +1,7 @@
 package com.backbase.proto.plaid.repository;
 
 import com.backbase.proto.plaid.model.Transaction;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,7 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    Transaction findByTransactionId(Transaction s );
+    Optional<Transaction> findByTransactionId(String transactionId);
+
+    Optional<Transaction> findByInternalId(String internalId);
 
     boolean existsByTransactionId(String transactionId);
 

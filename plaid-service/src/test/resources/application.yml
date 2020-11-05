@@ -90,6 +90,10 @@ backbase:
     products:
       - auth
       - transactions
+    accounts:
+      accountTypeMap:
+        depository: "current-account"
+        credit: "credit-card"
     transactions:
       # Payment,Withdrawal,Loans,Fees
       transactionTypeGroupMap:

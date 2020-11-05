@@ -9,6 +9,7 @@ import com.backbase.transaction.enrichment.provider.domain.Transaction;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +47,9 @@ public class PlaidTransactionEnrichmentLoader implements TransactionEnrichmentLo
 
         List<com.backbase.proto.plaid.service.model.EnrichmentResult> enrichmentResults = enrichApi.enrichTransactions(transaction);
 
-        return mapEnrichmentResults(enrichmentResults);
+        List<EnrichmentResult> enrichmentResults1 = mapEnrichmentResults(enrichmentResults);
+        log.info("Finished enriching {} transactions", enrichmentResults1.size());
+        return enrichmentResults1;
     }
 
     List<com.backbase.proto.plaid.service.model.Transaction> mapTransactions(List<com.backbase.transaction.enrichment.provider.domain.Transaction> transactions) {
@@ -55,11 +58,15 @@ public class PlaidTransactionEnrichmentLoader implements TransactionEnrichmentLo
     }
 
     private com.backbase.proto.plaid.service.model.Transaction mapTransaction(com.backbase.transaction.enrichment.provider.domain.Transaction source) {
-        return new com.backbase.proto.plaid.service.model.Transaction()
+        com.backbase.proto.plaid.service.model.Transaction transaction = new com.backbase.proto.plaid.service.model.Transaction()
             .id(source.getId())
             .amount(source.getAmount().toString())
-            .transactionType(com.backbase.proto.plaid.service.model.Transaction.TransactionTypeEnum.fromValue(source.getType().toString()))
             .description(source.getDescription());
+
+        source.getType().ifPresent(type -> transaction.setTransactionType(com.backbase.proto.plaid.service.model.Transaction.TransactionTypeEnum.fromValue(type.toString())));
+
+        return transaction;
+
     }
 
     List<EnrichmentResult> mapEnrichmentResults(List<com.backbase.proto.plaid.service.model.EnrichmentResult> enrichmentResult) {
@@ -80,8 +87,14 @@ public class PlaidTransactionEnrichmentLoader implements TransactionEnrichmentLo
         if(source == null) {
             return Optional.empty();
         }
+        String id = source.getId();
+        if(source.getId() == null) {
+            id  = UUID.randomUUID().toString();
+        }
+
         return Optional.of(Merchant.builder()
-            .id(Objects.requireNonNull(source.getId()))
+            .id(Objects.requireNonNull(id))
+            .name(Objects.requireNonNull(source.getName()))
             .logo(Optional.ofNullable(source.getLogo()))
             .location(mapLocation(source.getLocation()))
             .website(Optional.ofNullable(source.getWebsite()))

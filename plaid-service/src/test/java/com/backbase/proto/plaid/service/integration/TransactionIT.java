@@ -2,9 +2,11 @@ package com.backbase.proto.plaid.service.integration;
 
 import com.backbase.dbs.transaction.presentation.service.api.TransactionsApi;
 import com.backbase.proto.plaid.PlaidApplication;
+import com.backbase.proto.plaid.model.Transaction;
 import com.backbase.proto.plaid.repository.TransactionRepository;
 import com.backbase.proto.plaid.service.ItemService;
 import com.backbase.proto.plaid.service.TransactionsService;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -45,6 +47,12 @@ public class TransactionIT {
         itemService.getAllItems().forEach(transactionsService::ingestTransactionsToDBS);
     }
 
+
+    @Test
+    public void testTransactionGet() {
+        Optional<Transaction> byTransactionId = transactionRepository.findByInternalId("8a80837e75930a30017598567e4007fe");
+        log.info("transaction: {}", byTransactionId);
+    }
 
 
 //    @Autowired

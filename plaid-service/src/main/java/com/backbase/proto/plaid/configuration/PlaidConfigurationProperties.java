@@ -57,6 +57,7 @@ public class PlaidConfigurationProperties {
 
 
 
+
     /**
      * Environments for the Plaid Client.
      */
@@ -80,6 +81,8 @@ public class PlaidConfigurationProperties {
 
     private TransactionConfigurationProperties transactions;
 
+    private AccountConfigurationProperties accounts;
+
     /**
      * Transaction specific Properties, Type group and Type both of which must be mapped from Plaid
      * to Backbase DBS.
@@ -99,6 +102,13 @@ public class PlaidConfigurationProperties {
 
         private Map<String, DescriptionParser> descriptionParserForInstitution;
 
+    }
+
+
+    @Data
+    public static class AccountConfigurationProperties {
+
+        private Map<String, String> accountTypeMap = new HashMap<>();
     }
 
     /**
