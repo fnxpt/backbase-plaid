@@ -7,11 +7,14 @@ import com.plaid.client.response.CategoriesGetResponse;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
@@ -31,8 +34,22 @@ public class CategoryService {
             Response<CategoriesGetResponse> response = plaidClient.service().categoriesGet(new CategoriesGetRequest()).execute();
             if (response.isSuccessful()) {
                 List<CategoriesGetResponse.Category> categories = Objects.requireNonNull(response.body(), "Can't be null").getCategories();
+                Map<String, Category> parents = new HashMap<>();
+                Map<String, Category> subParents = new HashMap<>();
 
-                return categories.stream().map(this::map).collect(Collectors.toList());
+                List<Category> allCategories = categories.stream().map(
+                    category -> {
+                        return map(category, parents, subParents);
+                    }
+
+                ).collect(Collectors.toList());
+
+
+                if (parentsOnly) {
+                    return allCategories.stream().filter(category -> category.getParentId() == null).collect(Collectors.toList());
+                } else {
+                    return allCategories;
+                }
 
             }
         } catch (IOException ex) {
@@ -40,6 +57,7 @@ public class CategoryService {
         }
         return result;
     }
+
     /**
      * maps the a plaid category to an enriched category
      * sets parents and reads in the last element of each category's hierarchy as this is the unique element
@@ -47,24 +65,40 @@ public class CategoryService {
      * @param plaidCategory the category from plaid to be added to dbs
      * @return a category that is correctly formatted to enrich a dbs a transaction
      */
-    public Category map(CategoriesGetResponse.Category plaidCategory) {
-        String parentID = null;
-        String subParent = null;
+    public Category map(CategoriesGetResponse.Category plaidCategory, Map<String, Category> parents, Map<String, Category> subParents) {
 
         log.info("Mapping Plaid Category: {} with Hierarchy: {}", plaidCategory.getCategoryId(), plaidCategory.getHierarchy().size());
         switch (plaidCategory.getHierarchy().size()) {
             case 1:
-                parentID = plaidCategory.getCategoryId();
-                return map(plaidCategory.getCategoryId(), plaidCategory.getHierarchy().get(0), null);
+                return mapParent(plaidCategory, parents);
             case 2:
-                subParent = plaidCategory.getCategoryId();
-                return map(plaidCategory.getCategoryId(), plaidCategory.getHierarchy().get(1), parentID);
+                return mapSubParent(plaidCategory, parents, subParents);
             case 3:
-                return map(plaidCategory.getCategoryId(), plaidCategory.getHierarchy().get(2), subParent);
+                return mapLeaf(plaidCategory, parents, subParents);
             default:
                 throw new IndexOutOfBoundsException("only accepts a hierarchy of height 3");
         }
 
+    }
+
+    private Category mapLeaf(CategoriesGetResponse.Category plaidCategory, Map<String, Category> parents, Map<String, Category> subParents) {
+        Category subParent = subParents.get(plaidCategory.getHierarchy().get(1));
+        return map(plaidCategory.getCategoryId(), plaidCategory.getHierarchy().get(2), subParent.getId());
+    }
+
+    @NotNull
+    private Category mapSubParent(CategoriesGetResponse.Category plaidCategory, Map<String, Category> parents, Map<String, Category> subParents) {
+        Category parent = parents.get(plaidCategory.getHierarchy().get(0));
+        Category subParent = map(plaidCategory.getCategoryId(), plaidCategory.getHierarchy().get(1), parent.getId());
+        subParents.put(subParent.getName(), subParent);
+        return subParent;
+    }
+
+    @NotNull
+    private Category mapParent(CategoriesGetResponse.Category plaidCategory, Map<String, Category> parents) {
+        Category category = map(plaidCategory.getCategoryId(), plaidCategory.getHierarchy().get(0), null);
+        parents.put(category.getName(), category);
+        return category;
     }
 
     /**
