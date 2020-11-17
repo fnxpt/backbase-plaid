@@ -1,0 +1,22 @@
+[
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/service-api/v2/arrangements/batch",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "arrangementId": "internal1",
+        "action": "update",
+        "resourceId": "DZpP9JqjRrSNnpVZArAyslbwnvQq3Btv8m9rA",
+        "status": "200",
+        "additions": {
+          "key": "additions"
+        }
+      }
+    }
+  }
+]
+

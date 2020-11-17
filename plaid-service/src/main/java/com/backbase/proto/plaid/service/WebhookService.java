@@ -71,26 +71,28 @@ public class WebhookService {
         webhookRepository.save(webhook);
         if (validateWebhook(webhook)) {
             switch (webhook.getWebhookType()) {
-                case TRANSACTIONS: {
-                    try {
-                        processTransactions(webhook);
-                    } catch (IngestionFailedException e) {
-                        log.error("Failed to ingest transactions for item: " + webhook.getItemId(), e);
-                        webhook.setError(webhook.getError());
-                    } catch (Exception e) {
-                        log.error("Failed to ingest transactions for item: " + webhook.getItemId(), e);
-                        webhook.setError(e.getMessage());
-                    }
-                }
+                case TRANSACTIONS:
+                    processTransactionsCase(webhook);
                     break;
-                case ITEM: {
+                case ITEM:
                     processItem(webhook);
                     break;
-                }
             }
             webhook.setCompleted(true);
 
             webhookRepository.save(webhook);
+        }
+    }
+
+    private void processTransactionsCase(Webhook webhook){
+        try {
+            processTransactions(webhook);
+        } catch (IngestionFailedException e) {
+            log.error("Failed to ingest transactions for item: " + webhook.getItemId(), e);
+            webhook.setError(webhook.getError());
+        } catch (Exception e) {
+            log.error("Failed to ingest transactions for item: " + webhook.getItemId(), e);
+            webhook.setError(e.getMessage());
         }
     }
 
@@ -101,7 +103,6 @@ public class WebhookService {
      */
     protected boolean validateWebhook(Webhook webhook) {
 
-        PlaidConfigurationProperties.Environment environment = plaidConfigurationProperties.getEnv();
 
         // If we recieve a webhook from an deleted item, delete the webhook
 
@@ -131,28 +132,28 @@ public class WebhookService {
         Item item = itemService.getValidItem(webhook.getItemId());
 
         switch (webhook.getWebhookCode()) {
-            case INITIAL_UPDATE: {
+            case INITIAL_UPDATE:
                 transactionsService.ingestInitialUpdate(item);
                 log.info("Process Initial Update");
                 break;
-            }
-            case HISTORICAL_UPDATE: {
+
+            case HISTORICAL_UPDATE:
                 transactionsService.ingestHistoricalUpdate(item);
                 break;
-            }
-            case DEFAULT_UPDATE: {
+
+            case DEFAULT_UPDATE:
                 log.info("Process Default Update");
                 transactionsService.ingestDefaultUpdate(item);
                 break;
-            }
-            case TRANSACTIONS_REMOVED: {
+
+            case TRANSACTIONS_REMOVED:
                 log.info("Process transactions removed");
-                transactionsService.removeTransactions(item, webhook.getRemovedTransactions());
+                transactionsService.removeTransactions( webhook.getRemovedTransactions());
                 break;
-            }
-            default: {
+
+            default:
                 throw new BadRequestException("Not a valid webhook code");
-            }
+
         }
 
     }
@@ -169,23 +170,23 @@ public class WebhookService {
         log.info("Webhook Acknowledged");
         //TODO: Update Item Database. Update Token Status HERE
         switch (webhook.getWebhookCode()) {
-            case ERROR: {
+            case ERROR:
                 log.info("Issue with Item, Resolved by going through link update");
                 break;
-            }
-            case PENDING_EXPIRATION: {
+
+            case PENDING_EXPIRATION:
                 log.info("The Items access token will expire in 7 days, Resolved by going through link update");
                 itemService.setPendingExpiration(item);
                 break;
-            }
-            case USER_PERMISSION_REVOKED: {
+
+            case USER_PERMISSION_REVOKED:
                 log.info("The end user has revoked the permission of access to an Item, Resolved by creating a new Item");
                 break;
-            }
-            case WEBHOOK_UPDATE_ACKNOWLEDGED: {
+
+            case WEBHOOK_UPDATE_ACKNOWLEDGED:
                 log.info("The Item's webhook is updated");
                 break;
-            }
+
             default:
                 throw new BadRequestException("Not a valid webhook code");
         }

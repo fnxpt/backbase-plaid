@@ -1,0 +1,20 @@
+[
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/service-api/v2/users",
+      "keepAlive": true,
+      "secure": false,
+      "body" : {
+        "externalId" : "me",
+        "legalEntityExternalId" : "C000001",
+        "fullName" : null
+      }
+    },
+    "httpResponse": {
+      "body": {
+        "id": "internalUserIdMe"
+      }
+    }
+  }
+]

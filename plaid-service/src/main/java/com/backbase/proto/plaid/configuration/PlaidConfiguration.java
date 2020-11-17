@@ -4,10 +4,15 @@ import com.backbase.dbs.transaction.presentation.service.ApiClient;
 import com.backbase.dbs.transaction.presentation.service.api.TransactionsApi;
 import com.backbase.stream.configuration.TransactionServiceConfiguration;
 import com.plaid.client.PlaidClient;
+import okhttp3.ConnectionSpec;
+import okhttp3.TlsVersion;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is used to build and set properties of Plaid Client.
@@ -54,9 +59,22 @@ public class PlaidConfiguration {
             case PRODUCTION:
                 builder = builder.productionBaseUrl();
                 break;
+            case MOCK:
+                builder = builder.baseUrl(configuration.getMockServer());
+
+                List<ConnectionSpec> connectionSpecList = new ArrayList<>();
+                connectionSpecList.add(new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+                        .tlsVersions(TlsVersion.TLS_1_2)
+                        .build());
+                connectionSpecList.add(new ConnectionSpec.Builder(ConnectionSpec.CLEARTEXT).build());
+
+                builder.okHttpClientBuilder().connectionSpecs(connectionSpecList);
+                break;
             default:
                 throw new IllegalArgumentException("unknown environment: " + configuration.getEnv());
         }
+
+
 
         return builder.build();
 

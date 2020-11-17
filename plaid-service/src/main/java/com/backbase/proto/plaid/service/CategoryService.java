@@ -1,17 +1,12 @@
 package com.backbase.proto.plaid.service;
 
-import com.backbase.proto.plaid.model.Transaction;
 import com.backbase.proto.plaid.service.model.Category;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.CategoriesGetRequest;
 import com.plaid.client.response.CategoriesGetResponse;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,9 +36,7 @@ public class CategoryService {
                 Map<String, Category> subParents = new HashMap<>();
 
                 List<Category> allCategories = categories.stream().map(
-                    category -> {
-                        return map(category, parents, subParents);
-                    }
+                    category -> map(category, parents, subParents)
                 ).collect(Collectors.toList());
 
                 if (parentsOnly) {
@@ -77,14 +70,14 @@ public class CategoryService {
             case 2:
                 return mapSubParent(plaidCategory, parents, subParents);
             case 3:
-                return mapLeaf(plaidCategory, parents, subParents);
+                return mapLeaf(plaidCategory,subParents);
             default:
                 throw new IndexOutOfBoundsException("only accepts a hierarchy of height 3");
         }
 
     }
 
-    private Category mapLeaf(CategoriesGetResponse.Category plaidCategory, Map<String, Category> parents, Map<String, Category> subParents) {
+    private Category mapLeaf(CategoriesGetResponse.Category plaidCategory, Map<String, Category> subParents) {
         Category subParent = subParents.get(plaidCategory.getHierarchy().get(1));
         return map(plaidCategory.getCategoryId(), plaidCategory.getHierarchy().get(2), subParent.getId());
     }

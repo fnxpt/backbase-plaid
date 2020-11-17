@@ -1,0 +1,33 @@
+[
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/service-api/v2/accessgroups/data-groups",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "id": "8a48e2685d787f78015d791ab69e0001"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "PUT",
+      "path": "/service-api/v2/accessgroups/users/permissions/user-permissions",
+      "keepAlive": true,
+      "secure": false,
+      "body" : []
+    },
+    "httpResponse": {
+      "body": {
+        "externalServiceAgreementId": "id",
+        "action": "add",
+        "resourceId": "DZpP9JqjRrSNnpVZArAyslbwnvQq3Btv8m9rA",
+        "status": "200",
+        "errors": []
+      }
+    }
+  }
+]

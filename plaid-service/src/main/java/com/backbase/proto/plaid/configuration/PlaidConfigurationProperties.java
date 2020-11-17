@@ -55,15 +55,17 @@ public class PlaidConfigurationProperties {
     @NotNull
     private List<String> defaultReferenceJobRoleNames;
 
-
-
+    @NotNull
+    private String mockServer;
 
     /**
      * Environments for the Plaid Client.
      */
     public enum Environment {
-        SANDBOX, DEVELOPMENT, PRODUCTION
+        SANDBOX, DEVELOPMENT, PRODUCTION, MOCK
     }
+
+
 
     /**
      * Available Product types.

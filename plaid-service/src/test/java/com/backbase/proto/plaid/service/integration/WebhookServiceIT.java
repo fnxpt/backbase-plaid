@@ -2,29 +2,33 @@ package com.backbase.proto.plaid.service.integration;
 
 import com.backbase.proto.plaid.PlaidApplication;
 import com.backbase.proto.plaid.model.Account;
+import com.backbase.proto.plaid.model.Institution;
 import com.backbase.proto.plaid.model.Item;
 import com.backbase.proto.plaid.model.Webhook;
-import com.backbase.proto.plaid.repository.AccountRepository;
-import com.backbase.proto.plaid.repository.ItemRepository;
-import com.backbase.proto.plaid.repository.TransactionRepository;
-import com.backbase.proto.plaid.repository.WebhookRepository;
+import com.backbase.proto.plaid.repository.*;
 import com.backbase.proto.plaid.service.WebhookService;
+import com.backbase.proto.plaid.service.mockserver.plaid.TestMockServer;
+import com.backbase.proto.plaid.webhook.model.PlaidWebhook;
 import com.plaid.client.PlaidClient;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.backbase.proto.plaid.model.Webhook.WebhookCode.DEFAULT_UPDATE;
-import static com.backbase.proto.plaid.model.Webhook.WebhookCode.INITIAL_UPDATE;
+import static com.backbase.proto.plaid.model.Webhook.WebhookCode.*;
 import static com.backbase.proto.plaid.model.Webhook.WebhookType.ITEM;
 import static com.backbase.proto.plaid.model.Webhook.WebhookType.TRANSACTIONS;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,7 +41,7 @@ import static org.mockito.Mockito.mock;
     classes = PlaidApplication.class
 )
 @Slf4j
-public class WebhookServiceIT {
+public class WebhookServiceIT extends TestMockServer {
 
     static {
         System.setProperty("SIG_SECRET_KEY", "***REMOVED***");
@@ -56,79 +60,51 @@ public class WebhookServiceIT {
     private AccountRepository accountRepository;
 
     @Autowired
-    private ItemRepository itemRepository;
+    private InstitutionRepository institutionRepository;
 
     @Autowired
-    private PlaidClient plaidClient;
+    private ItemRepository itemRepository;
 
-//    @Before
-//    public void setup() throws IOException {
-//        PlaidClient.Builder mockBuilder;
-//        mockBuilder = mock(PlaidClient.Builder.class);
-//        PlaidClient mockPlaidClient = mock(PlaidClient.class);
-//        when(mockBuilder.build()).thenReturn(mockPlaidClient);
-//        when(PlaidClient.newBuilder()).thenReturn(mockBuilder);
-//// ask bart
-//        Response<TransactionsGetResponse> response = mock(Response.class);
-//        when(mockPlaidClient.service().transactionsGet(any()).execute()).thenReturn(response);
-//        TransactionsGetResponse responseBody = mock(TransactionsGetResponse.class);
-//        when(response.body()).thenReturn(responseBody);
-//        when(responseBody.getItem().getInstitutionId()).thenReturn("ins_3");
-//
-//        TransactionsGetResponse.Transaction mockTransaction= mock(TransactionsGetResponse.Transaction.class);
-//
-//        when(mockTransaction.getAccountId()).thenReturn("BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp");
-//        when(mockTransaction.getAmount()).thenReturn(2307.21);
-//        when(mockTransaction.getIsoCurrencyCode()).thenReturn("USD");
-//        List<String> categories = new ArrayList<>();
-//        categories.add("Shops");
-//        categories.add("Computers and Electronics");
-//        when(mockTransaction.getCategory()).thenReturn(categories);
-//        when(mockTransaction.getCategoryId()).thenReturn("19013000");
-//        when(mockTransaction.getDate()).thenReturn("2017-01-29");
-//        when(mockTransaction.getAuthorizedDate()).thenReturn("2017-01-27");
-//
-//        TransactionsGetResponse.Transaction.Location location = mock(TransactionsGetResponse.Transaction.Location.class);
-//        when(location.getAddress()).thenReturn("300 Post St");
-//        when(location.getCity()).thenReturn("San Francisco");
-//        when(location.getCountry()).thenReturn("US");
-//        when(location.getRegion()).thenReturn("CA");
-//        when(location.getPostalCode()).thenReturn("94108");
-//        when(location.getLat()).thenReturn(40.740352);
-//        when(location.getLon()).thenReturn(-74.001761);
-//        when(location.getStoreNumber()).thenReturn("1235");
-//
-//        when(mockTransaction.getLocation()).thenReturn(location);
-//        when(mockTransaction.getName()).thenReturn("Apple Store");
-//        when(mockTransaction.getMerchantName()).thenReturn("Apple");
-//
-//        TransactionsGetResponse.Transaction.PaymentMeta mockPaymentMeta = mock(TransactionsGetResponse.Transaction.PaymentMeta.class);
-//        when(mockTransaction.getPaymentMeta()).thenReturn(mockPaymentMeta);
-//
-//        when(mockTransaction.getPaymentChannel()).thenReturn("in_store");
-//        when(mockTransaction.getPending()).thenReturn(false);
-//        when(mockTransaction.getPendingTransactionId()).thenReturn(null);
-//        when(mockTransaction.getAccountOwner()).thenReturn(null);
-//        when(mockTransaction.getTransactionId()).thenReturn("lPNjeW1nR6CDn5okmGQ6hEpMo4lLNoSrzqDje");
-//        when(mockTransaction.getTransactionCode()).thenReturn(null);
-//        when(mockTransaction.getTransactionType()).thenReturn("place");
-//
-//        List<TransactionsGetResponse.Transaction> mockTransactions = new ArrayList<>();
-//        mockTransactions.add(mockTransaction);
-//        when(responseBody.getTransactions()).thenReturn(mockTransactions);
-//
-//
-//    }
+
+    @Before
+    public void setup() {
+        Item testItem = itemRepository.findByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha").orElse(new Item());
+        testItem.setState("ACTIVE");
+        testItem.setAccessToken("access-testing");
+        testItem.setCreatedAt(LocalDateTime.now());
+        testItem.setCreatedBy("lesley.knope");
+        testItem.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
+        testItem.setInstitutionId("ins_456rfs6763");
+        itemRepository.save(testItem);
+
+        Institution institution = institutionRepository.getByInstitutionId("ins_456rfs6763").orElse(new Institution());
+        institution.setInstitutionId("ins_456rfs6763");
+        institution.setName("Bonk");
+        institution.setUrl("Bonk.com");
+        institution.setFirstRegisteredAt(LocalDateTime.now());
+        institution.setFirstCreatedBy("lesley.knope");
+        institutionRepository.save(institution);
+    }
 
     @Test
     public void testWebhookRefresh() {
-        webhookService.refresh("bvRdEEG4A6f1ov8E9KQDHomX9786b7CmNLz7L");
+        webhookService.refresh("WGYJu6gjhA6r6ygSGYI6556456gvgha");
+        Assert.assertTrue(true);
 //        webhookService.refresh("***REMOVED***");
     }
 
     @Test
     public void rerunFailedWebhooks() {
+        Webhook webhook =new Webhook();
+        webhook.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
+        webhook.setWebhookCode(WEBHOOK_UPDATE_ACKNOWLEDGED);
+        webhook.setWebhookType(TRANSACTIONS);
+        webhook.setCompleted(false);
+
+        webhookRepository.save(webhook);
+        Assert.assertTrue("proccessed",webhookRepository.findAllByCompleted(false).size()>0);
         webhookRepository.findAllByCompleted(false).stream().limit(1).forEach(webhookService::process);
+        Assert.assertEquals("proccessed", 0, webhookRepository.findAllByCompleted(false).size());
     }
 
 
@@ -139,17 +115,14 @@ public class WebhookServiceIT {
         Webhook plaidWebhook = new Webhook();
             plaidWebhook.setWebhookType(TRANSACTIONS);
             plaidWebhook.setWebhookCode(INITIAL_UPDATE);
-            plaidWebhook.setItemId("***REMOVED***");
+            plaidWebhook.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
             plaidWebhook.setNewTransactions(393);
         webhookService.process(plaidWebhook);
 
-        List<String> accounts = accountRepository.findAllByItemId("***REMOVED***").stream().map(Account::getAccountId).collect(Collectors.toList());
-        int transactions=0;
-        for(int i=0; i<accounts.size();i++ ){
-            transactions += (transactionRepository.findAllByAccountId(accounts.get(i))).size();
-        }
+        int transactions = transactionRepository.findAllByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha", PageRequest.of(0, 10)).get().collect(Collectors.toList()).size();
 
-        Assert.assertEquals("This does not match the expected", 7,transactions);
+
+        Assert.assertEquals("This does not match the expected", 1,transactions);
     }
 
     @Test
@@ -157,9 +130,15 @@ public class WebhookServiceIT {
         Webhook plaidWebhook = new Webhook();
             plaidWebhook.setWebhookType(TRANSACTIONS);
             plaidWebhook.setWebhookCode(DEFAULT_UPDATE);
-            plaidWebhook.setItemId("***REMOVED***");
+            plaidWebhook.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
             plaidWebhook.setNewTransactions(393);
         webhookService.process(plaidWebhook);
+
+        int transactions = transactionRepository.findAllByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha", PageRequest.of(0, 10)).get().collect(Collectors.toList()).size();
+
+
+        Assert.assertEquals("This does not match the expected", 1,transactions);
+
 
 
     }
@@ -170,9 +149,14 @@ public class WebhookServiceIT {
         plaidWebhook.setWebhookType(TRANSACTIONS);
         plaidWebhook.setWebhookCode(Webhook.WebhookCode.HISTORICAL_UPDATE);
         plaidWebhook.setWebhookType(TRANSACTIONS);
-        plaidWebhook.setItemId("***REMOVED***");
+        plaidWebhook.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
 
         webhookService.process(plaidWebhook);
+        int transactions = transactionRepository.findAllByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha", PageRequest.of(0, 10)).get().collect(Collectors.toList()).size();
+
+
+        Assert.assertEquals("This does not match the expected", 1,transactions);
+
     }
 
     @Test
@@ -180,24 +164,25 @@ public class WebhookServiceIT {
         Webhook plaidWebhook = new Webhook();
         plaidWebhook.setWebhookType(ITEM);
         plaidWebhook.setWebhookCode(Webhook.WebhookCode.PENDING_EXPIRATION);
-        plaidWebhook.setItemId("***REMOVED***");
+        plaidWebhook.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
 
         webhookService.process(plaidWebhook);
-        Item item = itemRepository.findByItemId("***REMOVED***").orElseThrow(() -> new IllegalStateException("Cannot get item"));
+        Item item = itemRepository.findByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha").orElseThrow(() -> new IllegalStateException("Cannot get item"));
         Assert.assertEquals("match", LocalDate.now().plusDays(7), item.getExpiryDate());
     }
 
 
-//
-//    @Test
-//    public void testRemovedTransactions() {
-//        PlaidWebhook plaidWebhook = new PlaidWebhook()
-//            .webhookType(PlaidWebhook.WebhookTypeEnum.TRANSACTIONS)
-//            .webhookCode(PlaidWebhook.WebhookCodeEnum.TRANSACTIONS_REMOVED)
-//            .itemId("***REMOVED***")
-//            .removedTransactions(Arrays.asList("transaction1","transaction2"));
-//        webhookService.process(plaidWebhook);
-//    }
+
+    @Test
+    public void testRemovedTransactions() {
+        Webhook plaidWebhook = new Webhook();
+           plaidWebhook.setWebhookType(TRANSACTIONS);
+           plaidWebhook.setWebhookCode(TRANSACTIONS_REMOVED);
+           plaidWebhook.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
+           plaidWebhook.setRemovedTransactions(Arrays.asList("VRVb7BLG1XSXv4gGZoZETMAKANggmEHWJbjkW"));
+        webhookService.process(plaidWebhook);
+        Assert.assertTrue("no errors", true);
+    }
 
 
 }

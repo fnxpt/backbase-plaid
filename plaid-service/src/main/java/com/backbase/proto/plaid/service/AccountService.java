@@ -211,7 +211,7 @@ public class AccountService {
         log.info("Deleteing account and it's transactions from Pliad");
         accountRepository.findAllByItemId(item.getItemId()).stream()
             .map(com.backbase.proto.plaid.model.Account::getAccountId)
-            .forEach(accountId -> transactionService.deleteTransactionsByAccountId(item, accountId));
+            .forEach( transactionService::deleteTransactionsByAccountId);
         accountRepository.deleteAccountsByItemId(item.getItemId());
     }
 
@@ -261,17 +261,12 @@ public class AccountService {
      * @return the Backbase product, containing all account data retrieved from Plaid
      */
     public Product mapToStream(String accessToken, ItemStatus item, Institution institution, com.plaid.client.response.Account account) {
-//        Map<String, Object> additions = new HashMap<>();
-//        additions.put("plaidInstitutionId", institution.getInstitutionId());
-//        additions.put("plaidAccountOfficialName", account.getOfficialName());
-//        additions.put("institutionName", institution.getName());
-//        additions.put("institutionLogo", institution.getLogo());
+
 
         Product product = new Product();
         product.setExternalId(account.getAccountId());
         product.setName(account.getName());
         product.setBankAlias(StringUtils.abbreviate(account.getOfficialName(), 50));
-//        product.setAdditions(additions);
 
         String productTypeExternalId = plaidConfigurationProperties.getAccounts().getAccountTypeMap()
             .getOrDefault(account.getType(), mapSubTypeId(institution, account.getSubtype()));
