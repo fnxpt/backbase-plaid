@@ -93,7 +93,7 @@ public class TransactionsService {
         this.ingestTransactions(item, startDate, endDate);
     }
 
-    public void removeTransactions(Item item, List<String> removedTransactions) {
+    public void removeTransactions( List<String> removedTransactions) {
         List<TransactionsDeleteRequestBody> deleteRequests = removedTransactions.stream().map(id -> new TransactionsDeleteRequestBody().id(id)).collect(Collectors.toList());
         transactionsApi.postDelete(deleteRequests).block();
     }
@@ -228,17 +228,13 @@ public class TransactionsService {
 
     @Transactional
     protected List<TransactionIds> updateIngestedStatus(List<TransactionIds> transactionIds) {
-        transactionIds.forEach(transactionId -> {
-
-            transactionRepository.findByTransactionId(transactionId.getExternalId())
-                .map(transaction -> {
-                    transaction.setInternalId(transactionId.getId());
-                    transaction.setIngested(true);
-                    return transaction;
-                })
-                .map(transactionRepository::save);
-
-        });
+        transactionIds.forEach(transactionId -> transactionRepository.findByTransactionId(transactionId.getExternalId())
+            .map(transaction -> {
+                transaction.setInternalId(transactionId.getId());
+                transaction.setIngested(true);
+                return transaction;
+            })
+            .map(transactionRepository::save));
         log.info("Ingested transactions: {}", transactionIds.stream().map(TransactionIds::getExternalId).collect(Collectors.joining(",")));
         return transactionIds;
     }
@@ -257,8 +253,8 @@ public class TransactionsService {
     }
 
     @Transactional
-    public void deleteTransactionsByAccountId(Item item, String accountId) {
-        removeTransactions(item, transactionRepository.findAllByAccountId(accountId).stream()
+    public void deleteTransactionsByAccountId( String accountId) {
+        removeTransactions( transactionRepository.findAllByAccountId(accountId).stream()
             .map(Transaction::getTransactionId)
             .collect(Collectors.toList()));
         transactionRepository.deleteTransactionsByAccountId(accountId);
@@ -286,7 +282,6 @@ public class TransactionsService {
             log.info("Enriched transaction: {} with category: {}", enrichmentResult.getId(), enrichmentResult.getCategoryId());
             return enrichmentResult;
         });
-//        log.info("Transaction {} not found in Plaid", transaction.getId());
     }
 
     private Optional<Merchant> mapMerchant(Transaction transaction) {

@@ -31,7 +31,6 @@ public class TransactionMapper {
     private final Map<String, String> transactionTypeGroupMap;
     private final Map<String, String> transactionTypeMap;
 
-    private final PlaidClient plaidClient;
 
     /**
      * Sets the configuration properties used for the mapping.
@@ -44,7 +43,6 @@ public class TransactionMapper {
         this.transactionConfigurationProperties = transactionConfigurationProperties;
         this.transactionTypeGroupMap = transactionConfigurationProperties.getTransactions().getTransactionTypeGroupMap();
         this.transactionTypeMap = transactionConfigurationProperties.getTransactions().getTransactionTypeMap();
-        this.plaidClient = plaidClient;
     }
     /**
      * This maps the individual fields of the Plaid transaction to the Backbase Transaction.
@@ -89,7 +87,7 @@ public class TransactionMapper {
 
         // This category is not yet refined. This will be done by the transaction enricher
 //        bbTransaction.setCategory(transaction.getCategory().get(transaction.getCategory().size()-1));
-//
+
         PaymentMeta paymentMeta = transaction.getPaymentMeta();
         String referenceNumber = paymentMeta.getReferenceNumber();
 

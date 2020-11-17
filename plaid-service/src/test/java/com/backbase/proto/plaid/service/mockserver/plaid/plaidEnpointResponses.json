@@ -1,0 +1,361 @@
+[
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/transactions/get",
+      "headers": {
+        "Plaid-Version": [
+          "2019-05-29"
+        ],
+        "User-Agent": [
+          "Plaid Java v7.0.1"
+        ],
+        "Content-Type": [
+          "application/json; charset=UTF-8"
+        ],
+        "Content-Length": [
+          "151"
+        ],
+        "Host": [
+          "localhost:9090"
+        ],
+        "Connection": [
+          "Keep-Alive"
+        ],
+        "Accept-Encoding": [
+          "gzip"
+        ]
+      },
+      "keepAlive": true,
+      "secure": false,
+      "body": {
+        "client-id": "***REMOVED***",
+        "secret": "***REMOVED***",
+        "access_token": "access-testing",
+        "start_date": "2017-01-01",
+        "end_date": "2019-05-10"
+      }
+    },
+    "httpResponse": {
+      "body": {
+        "accounts": [
+          {
+            "account_id": "DZpP9JqjRrSNnpVZArAyslbwnvQq3Btv8m9rA",
+            "balances": {
+              "available": 100,
+              "current": 110,
+              "iso_currency_code": "USD",
+              "limit": null,
+              "unofficial_currency_code": null
+            },
+            "mask": "0000",
+            "name": "Plaid Checking",
+            "official_name": "Plaid Gold Standard 0% Interest Checking",
+            "subtype": "checking",
+            "type": "depository"
+          }
+        ],
+        "item": {
+          "available_products": [
+            "assets",
+            "balance",
+            "credit_details",
+            "identity",
+            "income",
+            "investments",
+            "liabilities"
+          ],
+          "billed_products": [
+            "auth",
+            "transactions"
+          ],
+          "consent_expiration_time": null,
+          "error": null,
+          "institution_id": "ins_3",
+          "item_id": "WGYJu6gjhA6r6ygSGYI6556456gvgha",
+          "webhook": "https://www.genericwebhookurl.com/webhook"
+        },
+        "request_id": "U5Ap854DdFhW7YA",
+        "total_transactions": 112,
+        "transactions": [
+          {
+            "account_id": "5K3v1kbGxwSLQ6me9W9xfBMkLqNpXmuZDzeEB",
+            "account_owner": null,
+            "amount": 500,
+            "authorized_date": null,
+            "category": [
+              "Travel",
+              "Airlines and Aviation Services"
+            ],
+            "category_id": "22001000",
+            "date": "2019-05-06",
+            "iso_currency_code": "USD",
+            "location": {
+              "address": null,
+              "city": null,
+              "country": null,
+              "lat": null,
+              "lon": null,
+              "postal_code": null,
+              "region": null,
+              "store_number": null
+            },
+            "merchant_name": "United Airlines",
+            "name": "United Airlines",
+            "payment_channel": "in store",
+            "payment_meta": {
+              "by_order_of": null,
+              "payee": null,
+              "payer": null,
+              "payment_method": null,
+              "payment_processor": null,
+              "ppd_id": null,
+              "reason": null,
+              "reference_number": null
+            },
+            "pending": false,
+            "pending_transaction_id": null,
+            "transaction_code": null,
+            "transaction_id": "VRVb7BLG1XSXv4gGZoZETMAKANggmEHWJbjkW",
+            "transaction_type": "special",
+            "unofficial_currency_code": null
+          }
+        ]
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/accounts/balance/get",
+      "headers": {
+        "Plaid-Version": [
+          "2019-05-29"
+        ],
+        "User-Agent": [
+          "Plaid Java v7.0.1"
+        ],
+        "Content-Type": [
+          "application/json; charset=UTF-8"
+        ],
+        "Content-Length": [
+          "151"
+        ],
+        "Host": [
+          "localhost:9090"
+        ],
+        "Connection": [
+          "Keep-Alive"
+        ],
+        "Accept-Encoding": [
+          "gzip"
+        ]
+      },
+      "keepAlive": true,
+      "secure": false,
+      "body": {
+        "access_token": "access-testing",
+        "client_id": "***REMOVED***",
+        "secret": "***REMOVED***"
+      }
+    },
+    "httpResponse": {
+      "body": {
+        "accounts": [
+          {
+            "account_id": "DZpP9JqjRrSNnpVZArAyslbwnvQq3Btv8m9rA",
+            "balances": {
+              "available": 100,
+              "current": 110,
+              "iso_currency_code": "USD",
+              "limit": null,
+              "unofficial_currency_code": null
+            },
+            "mask": "0000",
+            "name": "Plaid Checking",
+            "official_name": "Plaid Gold Standard 0% Interest Checking",
+            "subtype": "checking",
+            "type": "depository"
+          }
+        ],
+        "item": {
+          "available_products": [
+            "assets",
+            "balance",
+            "credit_details",
+            "identity",
+            "income",
+            "investments",
+            "liabilities"
+          ],
+          "billed_products": [
+            "auth",
+            "transactions"
+          ],
+          "consent_expiration_time": null,
+          "error": null,
+          "institution_id": "ins_3",
+          "item_id": "WGYJu6gjhA6r6ygSGYI6556456gvgha",
+          "webhook": "https://www.genericwebhookurl.com/webhook"
+        },
+        "request_id": "Zlk81Mb7fkkrOif"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/accounts/get",
+      "headers": {
+        "Plaid-Version": [
+          "2019-05-29"
+        ],
+        "User-Agent": [
+          "Plaid Java v7.0.1"
+        ],
+        "Content-Type": [
+          "application/json; charset=UTF-8"
+        ],
+        "Content-Length": [
+          "151"
+        ],
+        "Host": [
+          "localhost:9090"
+        ],
+        "Connection": [
+          "Keep-Alive"
+        ],
+        "Accept-Encoding": [
+          "gzip"
+        ]
+      },
+      "keepAlive": true,
+      "secure": false,
+      "body": {
+        "client_id": "***REMOVED***",
+        "secret": "***REMOVED***",
+        "access_token": "access-testing"
+      }
+    },
+    "httpResponse": {
+      "body": {
+        "accounts": [
+          {
+            "account_id": "DZpP9JqjRrSNnpVZArAyslbwnvQq3Btv8m9rA",
+            "balances": {
+              "available": 100,
+              "current": 110,
+              "iso_currency_code": "USD",
+              "limit": null,
+              "unofficial_currency_code": null
+            },
+            "mask": "0000",
+            "name": "Plaid Checking",
+            "official_name": "Plaid Gold Standard 0% Interest Checking",
+            "subtype": "checking",
+            "type": "depository"
+          }
+        ],
+        "item": {
+          "available_products": [
+            "assets",
+            "balance",
+            "credit_details",
+            "identity",
+            "income",
+            "investments",
+            "liabilities"
+          ],
+          "billed_products": [
+            "auth",
+            "transactions"
+          ],
+          "consent_expiration_time": null,
+          "error": null,
+          "institution_id": "ins_3",
+          "item_id": "WGYJu6gjhA6r6ygSGYI6556456gvgha",
+          "webhook": "https://www.genericwebhookurl.com/webhook"
+        },
+        "request_id": "Zlk81Mb7fkkrOif"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/institutions/get_by_id",
+      "headers": {
+        "Plaid-Version": [
+          "2019-05-29"
+        ],
+        "User-Agent": [
+          "Plaid Java v7.0.1"
+        ],
+        "Content-Type": [
+          "application/json; charset=UTF-8"
+        ],
+        "Content-Length": [
+          "107"
+        ],
+        "Host": [
+          "localhost:9090"
+        ],
+        "Connection": [
+          "Keep-Alive"
+        ],
+        "Accept-Encoding": [
+          "gzip"
+        ]
+      },
+      "keepAlive": true,
+      "secure": false,
+      "body": {
+        "institution_id": "ins_3",
+        "client_id": "***REMOVED***",
+        "secret": "***REMOVED***"
+      }
+    },
+    "httpResponse": {
+      "body": {
+        "institution": {
+          "country_codes": [
+            "NL"
+          ],
+          "credentials": [
+            {
+              "flexible_input_spec": {
+                "id": "no_initial_input",
+                "no_initial_input_spec": {}
+              },
+              "label": "",
+              "name": "no_initial_input",
+              "type": "flexible_input"
+            }
+          ],
+          "has_mfa": true,
+          "input_spec": "flexible",
+          "institution_id": "ins_120509",
+          "mfa": [
+            "code",
+            "list",
+            "questions",
+            "selections"
+          ],
+          "mfa_code_type": "numeric",
+          "name": "ING - Particulier",
+          "oauth": true,
+          "products": [
+            "assets",
+            "auth",
+            "balance",
+            "transactions",
+            "identity",
+            "payment_initiation"
+          ],
+          "routing_numbers": []
+        },
+        "request_id": "9eqzV0vdme9EOLZ"
+      }
+    }
+  }
+]

@@ -1,14 +1,6 @@
 package com.backbase.proto.plaid.mapper;
 
 import com.backbase.proto.plaid.model.Account;
-import com.backbase.proto.plaid.model.Institution;
-import com.backbase.stream.legalentity.model.AvailableBalance;
-import com.backbase.stream.legalentity.model.BookedBalance;
-import com.backbase.stream.legalentity.model.CreditLimit;
-import com.backbase.stream.legalentity.model.Product;
-import com.plaid.client.response.ItemStatus;
-import java.math.BigDecimal;
-import java.util.Objects;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;

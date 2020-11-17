@@ -1,34 +1,37 @@
 package com.backbase.proto.plaid.service.integration;
 
 import com.backbase.proto.plaid.PlaidApplication;
-import com.backbase.proto.plaid.mapper.AccountMapper;
+import com.backbase.proto.plaid.configuration.PlaidConfigurationProperties;
 import com.backbase.proto.plaid.model.Item;
 import com.backbase.proto.plaid.repository.AccountRepository;
 import com.backbase.proto.plaid.repository.ItemRepository;
 import com.backbase.proto.plaid.service.AccountService;
-import com.backbase.proto.plaid.service.TransactionsService;
-import com.backbase.stream.legalentity.model.AvailableBalance;
+import com.backbase.proto.plaid.service.mockserver.plaid.TestMockServer;
+import com.backbase.stream.legalentity.model.*;
+import com.backbase.proto.plaid.model.Account;
+import com.google.gson.Gson;
+import com.plaid.client.PlaidClient;
+import com.plaid.client.request.AccountsBalanceGetRequest;
 import com.plaid.client.request.common.Product;
-import com.plaid.client.response.*;
+import com.plaid.client.response.ErrorResponse;
+import com.plaid.client.response.ItemStatus;
+import liquibase.pro.packaged.A;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mapstruct.factory.Mappers;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
-
 import static com.plaid.client.request.common.Product.BALANCE;
 import static com.plaid.client.request.common.Product.TRANSACTIONS;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,110 +40,78 @@ import static org.mockito.Mockito.when;
         classes = PlaidApplication.class
 )
 @Slf4j
-@Ignore
-public class AccountServiceIT {
+public class AccountServiceIT extends TestMockServer {
 
     static {
         System.setProperty("SIG_SECRET_KEY", "***REMOVED***");
     }
 
-
-    private AccountMapper accountMapper = Mappers.getMapper(AccountMapper.class);
+    @Autowired
+    private PlaidClient plaidClient;
     @Autowired
     private AccountService accountService;
-    @MockBean
+
     @Autowired
     private AccountRepository accountRepository;
-    @MockBean
+
     @Autowired
-    private TransactionsService plaidTransactionsService;
+    private  PlaidConfigurationProperties plaidConfigurationProperties;
+
     @Autowired
     private ItemRepository itemRepository;
+    private Gson gson = new Gson();
 
-
-    public void setUp() {
-        //mocked item
-        List<Product> availableProducts = new ArrayList<>();
-        availableProducts.add(TRANSACTIONS);
-        List<Product> billedProducts = new ArrayList<>();
-        billedProducts.add(TRANSACTIONS);
-        String institutionId = "ins_117650";
-        String itemId = "DWVAAPWq4RHGlEaNyGKRTAnPLaEmo8Cvq7na6";
-        String webhook = "https://www.genericwebhookurl.com/webhook";
-
-        ItemStatus mockItem = mock(ItemStatus.class);
-
-        when(mockItem.getAvailableProducts()).thenReturn(availableProducts);
-        when(mockItem.getBilledProducts()).thenReturn(billedProducts);
-        when(mockItem.getInstitutionId()).thenReturn(institutionId);
-        when(mockItem.getItemId()).thenReturn(itemId);
-        when(mockItem.getWebhook()).thenReturn(webhook);
-
-        //mocked balance
-        Double available = 100.0;
-        Double current = 110.0;
-        String isoCurrencyCode = "USD";
-
-        //mocked account
-        String accountId = "blgvvBlXw3cq5GMPwqB6s6q4dLKB9WcVqGDGo";
-        String type = "depository";
-        String subtype = "checking";
-        String name = "Plaid Checking";
-        String mask = "0000";
-        String officialName = "Plaid Gold Standard 0% Interest Checking" ;
-
-        List<Account> mockAccounts = new ArrayList<>();
-
-        Account mockAccount = mock(Account.class);
-        mockAccounts.add(mockAccount);
-        when(mockAccount.getAccountId()).thenReturn(accountId);
-        when(mockAccount.getBalances().getAvailable()).thenReturn(available);
-        when(mockAccount.getBalances().getCurrent()).thenReturn(current);
-        when(mockAccount.getBalances().getIsoCurrencyCode()).thenReturn(isoCurrencyCode);
-        when(mockAccount.getType()).thenReturn(type);
-        when(mockAccount.getSubtype()).thenReturn(subtype);
-        when(mockAccount.getName()).thenReturn(name);
-        when(mockAccount.getMask()).thenReturn(mask);
-        when(mockAccount.getOfficialName()).thenReturn(officialName);
-
-        //mocked Get accounts response
-        AccountsBalanceGetResponse mockResponse = mock(AccountsBalanceGetResponse.class);
-
-        when(mockResponse.getAccounts()).thenReturn(mockAccounts);
-        when(mockResponse.getItem()).thenReturn(mockItem);
-
-        //mocked account service
-        when(accountService.requestPlaidAccounts(any())).thenReturn(mockResponse);
-
+    @Before
+    public void setUps(){
+        Item testItem = itemRepository.findByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha").orElse(new Item());
+        testItem.setState("ACTIVE");
+        testItem.setAccessToken("access-testing");
+        testItem.setCreatedAt(LocalDateTime.now());
+        testItem.setCreatedBy("lesley.knope");
+        testItem.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
+        testItem.setInstitutionId("ins_456rfs6763");
+        itemRepository.save(testItem);
 
     }
 
     @Test
-    public void testIngestAccounts() {
+    public void testmock() throws IOException {
+        AccountsBalanceGetRequest request = new AccountsBalanceGetRequest("access-testing");
+        log.info("request: {}", gson.toJson(request));
+        log.info("account balance response from mock {}", gson.toJson(plaidClient.service().accountsBalanceGet(request).execute().body()));
+        Assert.assertEquals(gson.toJson(request),"{\"accessToken\":\"access-testing\",\"clientId\":\"***REMOVED***\",\"secret\":\"***REMOVED***\"}");
 
-        Item item = itemRepository.findByItemId("***REMOVED***").orElseThrow(() -> new NullPointerException());
-
-        accountService.ingestPlaidAccounts(item,
-                "***REMOVED***",
-                "lesley.knope",
-                "8a808094748c4ca701749668ea030012");
-        Assert.assertTrue("Mock data was not saved",accountRepository.existsByAccountId("blgvvBlXw3cq5GMPwqB6s6q4dLKB9WcVqGDGo"));
     }
+
+
 
 
     @Test
     public void testDeleteAccounts() {
-//        accountService.deleteAccountByItemId("LlpN6poaprSbWAGv69pPH5qAyBgr8EUkZjbyr");
+
+        Item testItem =itemRepository.findByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha").orElse(new Item());
+        testItem.setState("ACTIVE");
+        testItem.setAccessToken("access-testing");
+        testItem.setCreatedAt(LocalDateTime.now());
+        testItem.setCreatedBy("me");
+        testItem.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
+        testItem.setInstitutionId("ins_456rfs6763");
+
+        itemRepository.save(testItem);
+        Item item = itemRepository.findByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha").orElseThrow(() -> new NullPointerException());
+
+        accountService.deleteAccountByItemId(item);
+        Assert.assertFalse("Mock data was not deleted", accountRepository.existsByAccountId("DZpP9JqjRrSNnpVZArAyslbwnvQq3Btv8m9rA"));
     }
 
     @Test
-    public void testAccountMapping(){
-        String accessToken= "256gfcs78bga78jn8009";
+    public void testAccountMapping() {
+        String accessToken = "256gfcs78bga78jn8009";
         ItemStatus itemStatus = mock(ItemStatus.class);
         when(itemStatus.getInstitutionId()).thenReturn("in5");
         when(itemStatus.getItemId()).thenReturn("5789item");
-        when(itemStatus.getConsentExpirationTime()).thenReturn(new Date(2021,7,25));
-        List<Product> products= new ArrayList<>();
+        when(itemStatus.getConsentExpirationTime()).thenReturn(new Date(2021, 7, 25));
+        List<Product> products = new ArrayList<>();
         products.add(TRANSACTIONS);
         products.add(BALANCE);
         when(itemStatus.getBilledProducts()).thenReturn(products);
@@ -160,14 +131,14 @@ public class AccountServiceIT {
         institution.setRoutingNumbers(routingNumbers);
         institution.setUrl("url");
 
-        Account account = mock(Account.class);
+        com.plaid.client.response.Account account = mock(com.plaid.client.response.Account.class);
         when(account.getVerificationStatus()).thenReturn("automatically_verified");
         when(account.getOfficialName()).thenReturn("Plaid Gold Standard 0% Interest Checking");
         when(account.getMask()).thenReturn("0000");
         when(account.getName()).thenReturn("Plaid Checking");
         when(account.getSubtype()).thenReturn("checking");
         when(account.getType()).thenReturn("depository");
-        Account.Balances balances = mock(Account.Balances.class);
+        com.plaid.client.response.Account.Balances balances = mock(com.plaid.client.response.Account.Balances.class);
         when(balances.getUnofficialCurrencyCode()).thenReturn(null);
         when(balances.getLimit()).thenReturn(null);
         when(balances.getIsoCurrencyCode()).thenReturn("USD");
@@ -177,20 +148,67 @@ public class AccountServiceIT {
         when(account.getAccountId()).thenReturn("blgvvBlXw3cq5GMPwqB6s6q4dLKB9WcVqGDGo");
 
         com.backbase.stream.legalentity.model.Product expected = new com.backbase.stream.legalentity.model.Product();
-        Map<String, Object> additions = new HashMap<>();
-        additions.put("plaidInstitutionId","67576987y" );
-        additions.put("plaidAccountOfficialName", "Plaid Gold Standard 0% Interest Checking");
-        additions.put("institutionName", "bonk");
-        additions.put("institutionLogo", "picture");
-        expected.additions(additions);
         expected.setExternalId("blgvvBlXw3cq5GMPwqB6s6q4dLKB9WcVqGDGo");
         expected.setName("Plaid Checking");
-        expected.setBankAlias("Plaid Checking");
-        expected.setProductTypeExternalId("67576987y-checking");
+        expected.setBankAlias("Plaid Gold Standard 0% Interest Checking");
+        expected.setProductTypeExternalId("current-account");
         expected.setBBAN("0000");
-        expected.setAvailableBalance(new AvailableBalance().amount(BigDecimal.valueOf(23631.9805)).currencyCode("USD"));
-        Assert.assertEquals("doesn' match", expected, accountService.mapToStream(accessToken,itemStatus,institution,account));
+        expected.setCurrency("USD");
+        expected.setBookedBalance(new BookedBalance().amount(BigDecimal.valueOf(23631.9805)).currencyCode("USD"));
+        Assert.assertEquals("doesn't match", expected, accountService.mapToStream(accessToken, itemStatus, institution, account));
 
+    }
+
+    @Test
+    public void getAccountBalanceTest(){
+        com.backbase.proto.plaid.model.Account account;
+
+        if (accountRepository.existsByAccountId("DZpP9JqjRrSNnpVZArAyslbwnvQq3Btv8m9rA"))
+            account = accountRepository.findByAccountId("DZpP9JqjRrSNnpVZArAyslbwnvQq3Btv8m9rA");
+        else
+            account=new Account();
+
+        account.setAccountId("DZpP9JqjRrSNnpVZArAyslbwnvQq3Btv8m9rA");
+        account.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
+        account.setMask("0000");
+        account.setName("Plaid Checking");
+        account.setSubtype("checking");
+        account.setType("depository");
+
+
+        accountRepository.save(account);
+        log.info("saved account {}",accountRepository.findByAccountId("DZpP9JqjRrSNnpVZArAyslbwnvQq3Btv8m9rA"));
+        log.info("accountId {}", accountRepository.findByAccountId("DZpP9JqjRrSNnpVZArAyslbwnvQq3Btv8m9rA").getItemId());
+
+
+        List<String> accountNumber = new ArrayList<>();
+        accountNumber.add("DZpP9JqjRrSNnpVZArAyslbwnvQq3Btv8m9rA");
+        accountService.getAccountBalance(accountNumber);
+        Assert.assertEquals("account balance not gotten",1,        accountService.getAccountBalance(accountNumber).size());
+
+    }
+
+    @Test
+    public void testIngestAccounts() {
+ //       when(plaidConfigurationProperties.getAccounts().getAccountTypeMap().containsKey("key")).thenReturn(false);
+//        plaidConfigurationProperties.setAccounts(new PlaidConfigurationProperties.AccountConfigurationProperties());
+        Item testItem = itemRepository.findByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha").orElse(new Item());
+        testItem.setState("ACTIVE");
+        testItem.setAccessToken("access-testing");
+        testItem.setCreatedAt(LocalDateTime.now());
+        testItem.setCreatedBy("me");
+        testItem.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
+        testItem.setInstitutionId("ins_456rfs6763");
+
+        itemRepository.save(testItem);
+
+        Item item = itemRepository.findByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha").orElseThrow(() -> new NullPointerException("null"));
+
+        accountService.ingestPlaidAccounts(item,
+                "access-testing",
+                "me",
+                "8q73649283472");
+        Assert.assertTrue("Mock data was not saved", accountRepository.existsByAccountId("DZpP9JqjRrSNnpVZArAyslbwnvQq3Btv8m9rA"));
     }
 
 }

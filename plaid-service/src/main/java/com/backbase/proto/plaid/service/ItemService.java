@@ -82,7 +82,6 @@ public class ItemService {
             item.setExpiryDate(LocalDate.now());
             itemRepository.save(item);
 
-//            itemRepository.delete(item);
         } else {
             ErrorResponse errorResponse = plaidClient.parseError(response);
             log.error("Plaid error: {}", errorResponse.getErrorMessage());
