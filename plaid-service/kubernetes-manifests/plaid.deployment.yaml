@@ -27,17 +27,17 @@ spec:
             - name: spring.zipkin.baseUrl
               valueFrom:
                 configMapKeyRef:
-                  key:
+                  key: baseUrl
                   name: zipkin-config
             - name: SIG_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  key:
+                  key: jwt-internal-secretkey
                   name: backbase-env-dope-jwt
             - name: USERCTX_KEY
               valueFrom:
                 secretKeyRef:
-                  key:
+                  key: userctx-key
                   name: backbase-env-dope-jwt
             - name: EUREKA_CLIENT_ENABLED
               value: "false"
@@ -68,7 +68,7 @@ spec:
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  key:
+                  key: mysql-password
                   name: backbase-env-mysql
             - name: JAVA_TOOL_OPTIONS
               value: "-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=n,quiet=y -Dbackbase.activemq.sslconfig=false -Dmanagement.health.jms.enabled=false -Dspring.sleuth.sampler.probability=1 -Dspring.zipkin.enabled=true -Dspring.zipkin.baseUrl=http://meister-collector.observability.svc.cluster.local:9411 -Dmanagement.endpoints.web.exposure.include=* -Dmanagement.endpoints.enabled-by-default=true"

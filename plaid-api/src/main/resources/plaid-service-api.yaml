@@ -62,6 +62,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+
 components:
   schemas:
     Transaction:
@@ -135,6 +136,8 @@ components:
           description: Category Parent Id
           type: string
         name:
+          type: string
+        uniqueName:
           type: string
         type:
           type: string
