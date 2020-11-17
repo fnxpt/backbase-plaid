@@ -7,6 +7,7 @@ import com.backbase.proto.plaid.mapper.AccountMapper;
 import com.backbase.proto.plaid.model.Institution;
 import com.backbase.proto.plaid.model.Item;
 import com.backbase.proto.plaid.repository.AccountRepository;
+import com.backbase.proto.plaid.utils.ProductTypeUtils;
 import com.backbase.stream.configuration.AccessControlConfiguration;
 import com.backbase.stream.legalentity.model.AvailableBalance;
 import com.backbase.stream.legalentity.model.BookedBalance;
@@ -38,7 +39,9 @@ import com.plaid.client.response.ItemStatus;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +53,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import retrofit2.Response;
 
-import static com.backbase.proto.plaid.utils.ProductTypeUtils.mapProductType;
 import static com.backbase.proto.plaid.utils.ProductTypeUtils.mapSubTypeId;
 
 /**
@@ -175,32 +177,31 @@ public class AccountService {
      * @param plaidAccounts List of linked Plaid Accounts
      */
     public void setupProductCatalog(List<Account> plaidAccounts, Institution institution) {
+        Map<String, Map<String, String>> accountTypeMapping = plaidConfigurationProperties.getAccounts().getAccountTypeMapping();
         ProductCatalog productCatalog = new ProductCatalog();
         productCatalog.setProductTypes(new ArrayList<>());
         plaidAccounts.stream()
             .collect(Collectors.groupingBy(Account::getType))
             .forEach((type, accounts) -> {
-                if (!plaidConfigurationProperties.getAccounts().getAccountTypeMap().containsKey(type)) {
-                    String kindId = mapProductType(institution, type);
-                    ProductKind productKindsItem = new ProductKind()
-                        .externalKindId(kindId)
-                        .kindUri(kindId)
-                        .kindName(institution.getName() + " " + StringUtils.capitalize(type));
-                    productCatalog.addProductKindsItem(productKindsItem);
-                    productCatalog.getProductTypes().addAll((accounts.stream()
-                        .map(Account::getSubtype).collect(Collectors.toSet())
-                        .stream().map(subtype -> {
-                            String productTypeId = mapSubTypeId(institution, subtype);
-                            return new ProductType()
-                                .externalId(productTypeId)
-                                .externalProductId(productTypeId)
-                                .externalProductKindId(kindId)
-                                .productTypeName(StringUtils.capitalize(subtype));
-                        })
-                        .collect(Collectors.toList())));
-                }
+                String kindId = ProductTypeUtils.mapProductType(institution, type);
+                ProductKind productKindsItem = new ProductKind()
+                    .externalKindId(kindId)
+                    .kindUri(kindId)
+                    .kindName(institution.getName() + " " + StringUtils.capitalize(type));
+                productCatalog.addProductKindsItem(productKindsItem);
+                productCatalog.getProductTypes().addAll((accounts.stream()
+                    .map(Account::getSubtype).collect(Collectors.toSet())
+                    .stream().map(subtype -> {
+                        String productTypeId = mapSubTypeId(institution, subtype);
+                        return new ProductType()
+                            .externalId(productTypeId)
+                            .externalProductId(productTypeId)
+                            .externalProductKindId(kindId)
+                            .productTypeName(StringUtils.capitalize(subtype));
+                    })
+                    .collect(Collectors.toList())));
             });
-        if(!productCatalog.getProductTypes().isEmpty()) {
+        if (!productCatalog.getProductTypes().isEmpty()) {
             productCatalogService.setupProductCatalog(productCatalog);
         }
     }
@@ -211,7 +212,7 @@ public class AccountService {
         log.info("Deleteing account and it's transactions from Pliad");
         accountRepository.findAllByItemId(item.getItemId()).stream()
             .map(com.backbase.proto.plaid.model.Account::getAccountId)
-            .forEach( transactionService::deleteTransactionsByAccountId);
+            .forEach(accountId -> transactionService.deleteTransactionsByAccountId(item, accountId));
         accountRepository.deleteAccountsByItemId(item.getItemId());
     }
 
@@ -250,7 +251,6 @@ public class AccountService {
     }
 
 
-
     /**
      * Maps the account data parsed in from Plaid to product in Backbase using map struct pairing names and values.
      *
@@ -261,15 +261,20 @@ public class AccountService {
      * @return the Backbase product, containing all account data retrieved from Plaid
      */
     public Product mapToStream(String accessToken, ItemStatus item, Institution institution, com.plaid.client.response.Account account) {
-
+        Map<String, Object> additions = new HashMap<>();
+//        additions.put("institutionName", institution.getName());
+//        additions.put("institutionLogo", institution.getLogo());
 
         Product product = new Product();
         product.setExternalId(account.getAccountId());
         product.setName(account.getName());
         product.setBankAlias(StringUtils.abbreviate(account.getOfficialName(), 50));
+        product.setAdditions(additions);
 
-        String productTypeExternalId = plaidConfigurationProperties.getAccounts().getAccountTypeMap()
-            .getOrDefault(account.getType(), mapSubTypeId(institution, account.getSubtype()));
+        String productTypeExternalId = mapProductType(institution, account);
+        if (productTypeExternalId == null) {
+            productTypeExternalId = mapSubTypeId(institution, account.getSubtype());
+        }
 
 
         product.setProductTypeExternalId(productTypeExternalId);
@@ -297,7 +302,16 @@ public class AccountService {
         return product;
     }
 
-
+    private String mapProductType(Institution institution, Account account) {
+        String productTypeExternalId;
+        Map<String, String> accountSubTypeMapping = plaidConfigurationProperties.getAccounts().getAccountTypeMapping().get(account.getType());
+        if (accountSubTypeMapping == null) {
+            productTypeExternalId = mapSubTypeId(institution, account.getSubtype());
+        } else {
+            productTypeExternalId = accountSubTypeMapping.get(account.getSubtype());
+        }
+        return productTypeExternalId;
+    }
 
 
 }

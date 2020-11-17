@@ -92,9 +92,14 @@ backbase:
       - auth
       - transactions
     accounts:
-      accountTypeMap:
-        depository: "current-account"
-        credit: "credit-card"
+      accountTypeMapping:
+        depository:
+          checking: "current-account"
+          savings: "savings-account"
+        credit:
+          "credit-card": "credit-card"
+        loan:
+          loan: "loan"
     transactions:
       # Payment,Withdrawal,Loans,Fees
       transactionTypeGroupMap:

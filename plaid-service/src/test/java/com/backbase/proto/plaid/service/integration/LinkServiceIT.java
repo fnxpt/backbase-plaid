@@ -201,7 +201,7 @@ public class LinkServiceIT extends TestMockServer {
 
     @Test
     public void testGetAllItems() {
-        Item item = new Item();
+        Item item = itemRepository.findByItemId("Ed6bjzrDLJfGvZWwnkQlfxwoNz54B5C97ejBr").orElse(new Item());
         item.setItemId("Ed6bjzrDLJfGvZWwnkQlfxwoNz54B5C97ejBr");
         item.setAccessToken("access-testing");
         item.setCreatedAt(LocalDateTime.now());
@@ -209,7 +209,7 @@ public class LinkServiceIT extends TestMockServer {
         item.setCreatedBy("me");
         itemRepository.save(item);
 
-        Item item1 = new Item();
+        Item item1 = itemRepository.findByItemId("Ed6bjzr5LJfGvZWwnkQlfxwoNz54B5CGs57sw3").orElse(new Item());
         item1.setItemId("Ed6bjzr5LJfGvZWwnkQlfxwoNz54B5CGs57sw3");
         item1.setAccessToken("access-testing");
         item1.setCreatedAt(LocalDateTime.now());
@@ -217,7 +217,7 @@ public class LinkServiceIT extends TestMockServer {
         item1.setCreatedBy("me");
         itemRepository.save(item1);
 
-        Item item2 = new Item();
+        Item item2 = itemRepository.findByItemId("Ed6bjzrDLJfdrFD7ba3FQlfxwoNz54B5C9j6ng").orElse(new Item());
         item2.setItemId("Ed6bjzrDLJfdrFD7ba3FQlfxwoNz54B5C9j6ng");
         item2.setAccessToken("access-testing");
         item2.setCreatedAt(LocalDateTime.now());
@@ -297,5 +297,20 @@ public class LinkServiceIT extends TestMockServer {
 
 
 
+//    @Test
+//    public void testIngestItem() {
+//        Item item = itemRepository.findByItemId("***REMOVED***").get();
+//        accountService.ingestPlaidAccounts(item, item.getAccessToken(),  "lesley.knope","8a80809475c1b3af0175c1c8f679000b");
+//    }
+
+//@Test
+//public void resetSandbox() {
+//    List<Item> collect = itemRepository.findAll().stream()
+//            .filter(item -> item.getAccessToken().startsWith("access-sandbox"))
+//            .collect(Collectors.toList());
+//    for (Item item : collect) {
+//        itemService.deleteItem(item.getItemId());
+//    }
+//}
 
 }

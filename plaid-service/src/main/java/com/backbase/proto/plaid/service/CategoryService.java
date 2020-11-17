@@ -46,7 +46,6 @@ public class CategoryService {
                 }
 
 
-
             }
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
@@ -70,29 +69,30 @@ public class CategoryService {
             case 2:
                 return mapSubParent(plaidCategory, parents, subParents);
             case 3:
-                return mapLeaf(plaidCategory,subParents);
+                return mapLeaf(plaidCategory, parents, subParents);
             default:
                 throw new IndexOutOfBoundsException("only accepts a hierarchy of height 3");
         }
 
     }
 
-    private Category mapLeaf(CategoriesGetResponse.Category plaidCategory, Map<String, Category> subParents) {
+    private Category mapLeaf(CategoriesGetResponse.Category plaidCategory, Map<String, Category> parents, Map<String, Category> subParents) {
+        Category parent = parents.get(plaidCategory.getHierarchy().get(0));
         Category subParent = subParents.get(plaidCategory.getHierarchy().get(1));
-        return map(plaidCategory.getCategoryId(), plaidCategory.getHierarchy().get(2), subParent.getId());
+        return map(plaidCategory.getCategoryId(), plaidCategory.getHierarchy().get(2), subParent.getId(), parent, subParent);
     }
 
     @NotNull
     private Category mapSubParent(CategoriesGetResponse.Category plaidCategory, Map<String, Category> parents, Map<String, Category> subParents) {
         Category parent = parents.get(plaidCategory.getHierarchy().get(0));
-        Category subParent = map(plaidCategory.getCategoryId(), plaidCategory.getHierarchy().get(1), parent.getId());
+        Category subParent = map(plaidCategory.getCategoryId(), plaidCategory.getHierarchy().get(1), parent.getId(), parent, null);
         subParents.put(subParent.getName(), subParent);
         return subParent;
     }
 
     @NotNull
     private Category mapParent(CategoriesGetResponse.Category plaidCategory, Map<String, Category> parents) {
-        Category category = map(plaidCategory.getCategoryId(), plaidCategory.getHierarchy().get(0), null);
+        Category category = map(plaidCategory.getCategoryId(), plaidCategory.getHierarchy().get(0), null, null,null);
         parents.put(category.getName(), category);
         return category;
     }
@@ -105,11 +105,20 @@ public class CategoryService {
      * @param parentId category id of the parent of this category. The element above it in the hierarchy.
      * @return Category that can be used to enrich
      */
-    private Category map(String id, String name, String parentId) {
+    private Category map(String id, String name, String parentId, Category parent, Category subParent) {
+
+        String uniqueName = name;
+        if (parent != null) {
+            uniqueName = parent.getName() + " - " + name;
+        }
+        if(subParent != null && parent != null) {
+            uniqueName = parent.getName() + " - " + subParent.getName() + " - " + name;
+        }
 
         Category category = new Category();
         category.setId(id);
         category.setName(name);
+        category.setUniqueName(uniqueName);
         category.setParentId(parentId);
         category.setType(Category.TypeEnum.EXPENSE);
         return category;
