@@ -88,7 +88,7 @@ public class TransactionMapper {
         // nullable data
 
         // This category is not yet refined. This will be done by the transaction enricher
-//        bbTransaction.setCategory(transaction.getCategory().get(transaction.getCategory().size()-1));
+        bbTransaction.setCategory(transaction.getCategory().get(transaction.getCategory().size()-1));
 //
         PaymentMeta paymentMeta = transaction.getPaymentMeta();
         String referenceNumber = paymentMeta.getReferenceNumber();

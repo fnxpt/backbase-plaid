@@ -97,7 +97,7 @@ public class LinkServiceIT {
     @Test
     public void testIngestItem() {
         Item item = itemRepository.findByItemId("***REMOVED***").get();
-        accountService.ingestPlaidAccounts(item, item.getAccessToken(),  "lesley.knope","8a80807b7588a11701758940f08e001b");
+        accountService.ingestPlaidAccounts(item, item.getAccessToken(),  "lesley.knope","8a80809475c1b3af0175c1c8f679000b");
     }
 
 

@@ -29,8 +29,8 @@ spring:
         registration:
           dbs:
             authorization-grant-type: client_credentials
-            client-id:-client
-            client-secret:-secret
+            client-id:
+            client-secret:
             client-authentication-method: post
         provider:
           dbs:
@@ -91,9 +91,14 @@ backbase:
       - auth
       - transactions
     accounts:
-      accountTypeMap:
-        depository: "current-account"
-        credit: "credit-card"
+      accountTypeMapping:
+        depository:
+          checking: "current-account"
+          savings: "savings-account"
+        credit:
+          "credit-card": "credit-card"
+        loan:
+          loan: "loan"
     transactions:
       # Payment,Withdrawal,Loans,Fees
       transactionTypeGroupMap:

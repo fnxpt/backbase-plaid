@@ -65,7 +65,7 @@ public class PlaidCategoryLoader implements CategoryLoader {
     private  Category mapCategory(com.backbase.proto.plaid.service.model.Category category) {
         return Category.builder()
             .id(Objects.requireNonNull(category.getId()))
-            .name(Objects.requireNonNull(category.getName()))
+            .name(Objects.requireNonNull(category.getUniqueName()))
             .parentId(Optional.ofNullable(category.getParentId()))
             .type(CategoryType.valueOf(Objects.requireNonNull(category.getType()).getValue()))
             .build();

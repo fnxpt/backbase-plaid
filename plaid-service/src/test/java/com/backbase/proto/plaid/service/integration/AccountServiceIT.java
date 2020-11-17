@@ -37,7 +37,6 @@ import static org.mockito.Mockito.when;
         classes = PlaidApplication.class
 )
 @Slf4j
-@Ignore
 public class AccountServiceIT {
 
     static {
@@ -121,10 +120,9 @@ public class AccountServiceIT {
         Item item = itemRepository.findByItemId("***REMOVED***").orElseThrow(() -> new NullPointerException());
 
         accountService.ingestPlaidAccounts(item,
-                "***REMOVED***",
-                "lesley.knope",
-                "8a808094748c4ca701749668ea030012");
-        Assert.assertTrue("Mock data was not saved",accountRepository.existsByAccountId("blgvvBlXw3cq5GMPwqB6s6q4dLKB9WcVqGDGo"));
+                item.getAccessToken(),
+                item.getCreatedBy(),
+                "8a80809475c1b3af0175c1c8f679000b");
     }
 
 
