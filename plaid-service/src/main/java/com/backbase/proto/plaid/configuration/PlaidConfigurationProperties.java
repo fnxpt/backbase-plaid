@@ -110,7 +110,7 @@ public class PlaidConfigurationProperties {
     @Data
     public static class AccountConfigurationProperties {
 
-        private Map<String, String> accountTypeMap = new HashMap<>();
+        private Map<String, Map<String, String>> accountTypeMapping = new HashMap<>();
     }
 
     /**

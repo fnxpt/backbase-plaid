@@ -210,5 +210,15 @@ public class AccountServiceIT extends TestMockServer {
                 "8q73649283472");
         Assert.assertTrue("Mock data was not saved", accountRepository.existsByAccountId("DZpP9JqjRrSNnpVZArAyslbwnvQq3Btv8m9rA"));
     }
+//    @Test
+//    public void testIngestAccounts() {
+//
+//        Item item = itemRepository.findByItemId("***REMOVED***").orElseThrow(() -> new NullPointerException());
+//
+//        accountService.ingestPlaidAccounts(item,
+//                item.getAccessToken(),
+//                item.getCreatedBy(),
+//                "8a80809475c1b3af0175c1c8f679000b");
+//    }
 
 }

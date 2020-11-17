@@ -58,6 +58,7 @@ backbase:
     webhook-base-url:
     default-reference-job-role-names:
       - "Retail User - EU"
+      - "Retail User - USA"
     country-codes:
       - US
       - NL
@@ -65,9 +66,16 @@ backbase:
       - auth
       - transactions
     accounts:
-      accountTypeMap:
-        depository: "current-account"
-        credit: "credit-card"
+      accountTypeMapping:
+        depository:
+          checking: "current-account"
+          savings: "savings-account"
+        credit:
+          "credit-card": "credit-card"
+        loan:
+          loan: "loan"
+
+
     transactions:
       # Payment,Withdrawal,Loans,Fees
       transactionTypeGroupMap:
