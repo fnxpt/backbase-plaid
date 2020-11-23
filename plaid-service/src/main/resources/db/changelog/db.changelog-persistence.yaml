@@ -514,7 +514,7 @@ databaseChangeLog:
                   autoIncrement: true
                   constraints:
                     primaryKey: true
-                    primaryKeyName: pk_location
+                    primaryKeyName: pk_merchant
               - column:
                   name: store_number
                   type: int
@@ -530,5 +530,3 @@ databaseChangeLog:
               - column:
                   name: location
                   type: CLOB
-
-

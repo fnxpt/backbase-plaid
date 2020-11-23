@@ -3,37 +3,12 @@
     "httpRequest": {
       "method": "POST",
       "path": "/transactions/get",
-      "headers": {
-        "Plaid-Version": [
-          "2019-05-29"
-        ],
-        "User-Agent": [
-          "Plaid Java v7.0.1"
-        ],
-        "Content-Type": [
-          "application/json; charset=UTF-8"
-        ],
-        "Content-Length": [
-          "151"
-        ],
-        "Host": [
-          "localhost:9090"
-        ],
-        "Connection": [
-          "Keep-Alive"
-        ],
-        "Accept-Encoding": [
-          "gzip"
-        ]
-      },
       "keepAlive": true,
       "secure": false,
-      "body": {
-        "client-id": "***REMOVED***",
-        "secret": "***REMOVED***",
+      "body":{
         "access_token": "access-testing",
-        "start_date": "2017-01-01",
-        "end_date": "2019-05-10"
+        "client_id": "***REMOVED***",
+        "secret": "***REMOVED***"
       }
     },
     "httpResponse": {
@@ -91,22 +66,22 @@
             "date": "2019-05-06",
             "iso_currency_code": "USD",
             "location": {
-              "address": null,
-              "city": null,
-              "country": null,
-              "lat": null,
-              "lon": null,
-              "postal_code": null,
-              "region": null,
-              "store_number": null
+              "address": "300 Post St",
+              "city": "San Francisco",
+              "country": "US",
+              "lat": 40.740352,
+              "lon": -74.001761,
+              "postal_code": "94108",
+              "region": "CA",
+              "store_number": 1235
             },
             "merchant_name": "United Airlines",
             "name": "United Airlines",
             "payment_channel": "in store",
             "payment_meta": {
               "by_order_of": null,
-              "payee": null,
-              "payer": null,
+              "payee": "pete",
+              "payer": "cole",
               "payment_method": null,
               "payment_processor": null,
               "ppd_id": null,
@@ -127,30 +102,32 @@
   {
     "httpRequest": {
       "method": "POST",
+      "path": "/transactions/get",
+      "keepAlive": true,
+      "secure": false,
+      "body": {
+        "access_token": "access-sandbox-item-expired",
+        "client_id": "***REMOVED***",
+        "secret": "***REMOVED***"
+      }
+    },
+    "httpResponse": {
+      "statusCode": 400,
+      "body": {
+        "display_message": "expired item",
+        "documentation_url": "https://plaid.com/docs/?ref=error#invalid-input-errors",
+        "error_code": "ITEM_LOGIN_REQUIRED",
+        "error_message": "provided access token is in an invalid format. expected format: access-<environment>-<identifier>",
+        "error_type": "INVALID_INPUT",
+        "request_id": "RoWJK3T0MV92ISL",
+        "suggested_action": null
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
       "path": "/accounts/balance/get",
-      "headers": {
-        "Plaid-Version": [
-          "2019-05-29"
-        ],
-        "User-Agent": [
-          "Plaid Java v7.0.1"
-        ],
-        "Content-Type": [
-          "application/json; charset=UTF-8"
-        ],
-        "Content-Length": [
-          "151"
-        ],
-        "Host": [
-          "localhost:9090"
-        ],
-        "Connection": [
-          "Keep-Alive"
-        ],
-        "Accept-Encoding": [
-          "gzip"
-        ]
-      },
       "keepAlive": true,
       "secure": false,
       "body": {
@@ -199,6 +176,31 @@
           "webhook": "https://www.genericwebhookurl.com/webhook"
         },
         "request_id": "Zlk81Mb7fkkrOif"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/accounts/balance/get",
+      "keepAlive": true,
+      "secure": false,
+      "body": {
+        "access_token": "access-uTFV6v698bYd4",
+        "client_id": "***REMOVED***",
+        "secret": "***REMOVED***"
+      }
+    },
+    "httpResponse": {
+      "statusCode": 400,
+      "body": {
+        "display_message": null,
+        "documentation_url": "https://plaid.com/docs/?ref=error#invalid-input-errors",
+        "error_code": "INVALID_ACCESS_TOKEN",
+        "error_message": "provided access token is in an invalid format. expected format: access-<environment>-<identifier>",
+        "error_type": "INVALID_INPUT",
+        "request_id": "RoWJK3T0MV92ISL",
+        "suggested_action": null
       }
     }
   },
@@ -283,6 +285,26 @@
   {
     "httpRequest": {
       "method": "POST",
+      "path": "/item/public_token/exchange",
+      "keepAlive": true,
+      "secure": false,
+      "body": {
+        "client_id": "***REMOVED***",
+        "secret": "***REMOVED***",
+        "public_token": "public-token-1gywu6twqej"
+      }
+    },
+    "httpResponse": {
+      "body": {
+        "access_token": "access-testing",
+        "item_id": "WGYJu6gjhA6r6ygSGYI6556456gvgha",
+        "request_id": "Aim3b"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
       "path": "/institutions/get_by_id",
       "headers": {
         "Plaid-Version": [
@@ -334,7 +356,7 @@
           ],
           "has_mfa": true,
           "input_spec": "flexible",
-          "institution_id": "ins_120509",
+          "institution_id": "ins_3",
           "mfa": [
             "code",
             "list",
@@ -355,6 +377,576 @@
           "routing_numbers": []
         },
         "request_id": "9eqzV0vdme9EOLZ"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/item/webhook/update",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "item": {
+          "available_products": [
+            "balance",
+            "identity",
+            "payment_initiation",
+            "transactions"
+          ],
+          "billed_products": [
+            "assets",
+            "auth"
+          ],
+          "consent_expiration_time": null,
+          "error": null,
+          "institution_id": "ins_117650",
+          "item_id": "WGYJu6gjhA6r6ygSGYI6556456gvgha",
+          "webhook": "https://www.genericwebhookurl.com/webhook"
+        },
+        "request_id": "vYK11LNTfRoAMbj"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/link/token/create",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "expiration": "2021-11-17T14:45:10Z",
+        "link_token": "link-sandbox-b61203e9-2455-4fba-9cea-a438812938bb",
+        "request_id": "MBJOObuKQmouRWH"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/categories/get"
+    },
+    "httpResponse": {
+      "body": {
+        "categories": [
+          {
+            "category_id": "10000000",
+            "group": "special",
+            "hierarchy": [
+              "Bank Fees"
+            ]
+          },
+          {
+            "category_id": "10001000",
+            "group": "special",
+            "hierarchy": [
+              "Bank Fees",
+              "Overdraft"
+            ]
+          },
+          {
+            "category_id": "10002000",
+            "group": "special",
+            "hierarchy": [
+              "Bank Fees",
+              "ATM"
+            ]
+          },
+          {
+            "category_id": "10003000",
+            "group": "special",
+            "hierarchy": [
+              "Bank Fees",
+              "Late Payment"
+            ]
+          },
+          {
+            "category_id": "10004000",
+            "group": "special",
+            "hierarchy": [
+              "Bank Fees",
+              "Fraud Dispute"
+            ]
+          },
+          {
+            "category_id": "10005000",
+            "group": "special",
+            "hierarchy": [
+              "Bank Fees",
+              "Foreign Transaction"
+            ]
+          },
+          {
+            "category_id": "10006000",
+            "group": "special",
+            "hierarchy": [
+              "Bank Fees",
+              "Wire Transfer"
+            ]
+          },
+          {
+            "category_id": "10007000",
+            "group": "special",
+            "hierarchy": [
+              "Bank Fees",
+              "Insufficient Funds"
+            ]
+          },
+          {
+            "category_id": "10008000",
+            "group": "special",
+            "hierarchy": [
+              "Bank Fees",
+              "Cash Advance"
+            ]
+          },
+          {
+            "category_id": "10009000",
+            "group": "special",
+            "hierarchy": [
+              "Bank Fees",
+              "Excess Activity"
+            ]
+          },
+          {
+            "category_id": "11000000",
+            "group": "special",
+            "hierarchy": [
+              "Cash Advance"
+            ]
+          },
+          {
+            "category_id": "12000000",
+            "group": "place",
+            "hierarchy": [
+              "Community"
+            ]
+          },
+          {
+            "category_id": "12001000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Animal Shelter"
+            ]
+          },
+          {
+            "category_id": "12002000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Assisted Living Services"
+            ]
+          },
+          {
+            "category_id": "12002001",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Assisted Living Services",
+              "Facilities and Nursing Homes"
+            ]
+          },
+          {
+            "category_id": "12002002",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Assisted Living Services",
+              "Caretakers"
+            ]
+          },
+          {
+            "category_id": "12003000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Cemetery"
+            ]
+          },
+          {
+            "category_id": "12004000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Courts"
+            ]
+          },
+          {
+            "category_id": "12005000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Day Care and Preschools"
+            ]
+          },
+          {
+            "category_id": "12006000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Disabled Persons Services"
+            ]
+          },
+          {
+            "category_id": "12007000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Drug and Alcohol Services"
+            ]
+          },
+          {
+            "category_id": "12008000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Education"
+            ]
+          },
+          {
+            "category_id": "12008001",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Education",
+              "Vocational Schools"
+            ]
+          },
+          {
+            "category_id": "12008002",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Education",
+              "Tutoring and Educational Services"
+            ]
+          },
+          {
+            "category_id": "12008003",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Education",
+              "Primary and Secondary Schools"
+            ]
+          },
+          {
+            "category_id": "12008004",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Education",
+              "Fraternities and Sororities"
+            ]
+          },
+          {
+            "category_id": "12008005",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Education",
+              "Driving Schools"
+            ]
+          },
+          {
+            "category_id": "12008006",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Education",
+              "Dance Schools"
+            ]
+          },
+          {
+            "category_id": "12008007",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Education",
+              "Culinary Lessons and Schools"
+            ]
+          },
+          {
+            "category_id": "12008008",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Education",
+              "Computer Training"
+            ]
+          },
+          {
+            "category_id": "12008009",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Education",
+              "Colleges and Universities"
+            ]
+          },
+          {
+            "category_id": "12008010",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Education",
+              "Art School"
+            ]
+          },
+          {
+            "category_id": "12008011",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Education",
+              "Adult Education"
+            ]
+          },
+          {
+            "category_id": "12009000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Government Departments and Agencies"
+            ]
+          },
+          {
+            "category_id": "12010000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Government Lobbyists"
+            ]
+          },
+          {
+            "category_id": "12011000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Housing Assistance and Shelters"
+            ]
+          },
+          {
+            "category_id": "12012000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Law Enforcement"
+            ]
+          },
+          {
+            "category_id": "12012001",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Law Enforcement",
+              "Police Stations"
+            ]
+          },
+          {
+            "category_id": "12012002",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Law Enforcement",
+              "Fire Stations"
+            ]
+          },
+          {
+            "category_id": "12012003",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Law Enforcement",
+              "Correctional Institutions"
+            ]
+          },
+          {
+            "category_id": "12013000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Libraries"
+            ]
+          },
+          {
+            "category_id": "12014000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Military"
+            ]
+          },
+          {
+            "category_id": "12015000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Organizations and Associations"
+            ]
+          },
+          {
+            "category_id": "12015001",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Organizations and Associations",
+              "Youth Organizations"
+            ]
+          },
+          {
+            "category_id": "12015002",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Organizations and Associations",
+              "Environmental"
+            ]
+          },
+          {
+            "category_id": "12015003",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Organizations and Associations",
+              "Charities and Non-Profits"
+            ]
+          },
+          {
+            "category_id": "12016000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Post Offices"
+            ]
+          },
+          {
+            "category_id": "12017000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Public and Social Services"
+            ]
+          },
+          {
+            "category_id": "12018000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Religious"
+            ]
+          },
+          {
+            "category_id": "12018001",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Religious",
+              "Temple"
+            ]
+          },
+          {
+            "category_id": "12018002",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Religious",
+              "Synagogues"
+            ]
+          },
+          {
+            "category_id": "12018003",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Religious",
+              "Mosques"
+            ]
+          },
+          {
+            "category_id": "12018004",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Religious",
+              "Churches"
+            ]
+          },
+          {
+            "category_id": "12019000",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Senior Citizen Services"
+            ]
+          },
+          {
+            "category_id": "12019001",
+            "group": "place",
+            "hierarchy": [
+              "Community",
+              "Senior Citizen Services",
+              "Retirement"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/transactions/refresh",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "request_id": "7t3r73trw8y7TU90875"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/item/remove",
+      "keepAlive": true,
+      "secure": false,
+      "body": {
+        "access_token": "Access_No_Permissions",
+        "client_id": "***REMOVED***",
+        "secret": "***REMOVED***"
+      }
+    },
+    "httpResponse": {
+      "statusCode": 400,
+      "body": {
+        "display_message": "Permission not granted",
+        "documentation_url": "https://plaid.com/docs/?ref=error#invalid-input-errors",
+        "error_code": "NO_PERMISSION",
+        "error_message": "Don't have access to this Item",
+        "error_type": "INVALID_USER",
+        "request_id": "RoWJK3T0MV92ISL",
+        "suggested_action": null
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/item/remove",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "removed": true,
+        "request_id": "m8MDnv9okwxFNBV"
       }
     }
   }

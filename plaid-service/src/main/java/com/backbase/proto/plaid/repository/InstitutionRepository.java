@@ -19,6 +19,8 @@ public interface InstitutionRepository extends JpaRepository<Institution, Long> 
      */
     Optional<Institution> getByInstitutionId(String institutionId);
 
+    boolean existsByInstitutionId(String institutionId);
+
 
 
 

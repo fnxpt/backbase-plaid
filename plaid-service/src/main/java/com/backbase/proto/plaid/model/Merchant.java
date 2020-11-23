@@ -3,7 +3,6 @@ package com.backbase.proto.plaid.model;
 import com.backbase.proto.plaid.converter.LocationConverter;
 import javax.persistence.Column;
 import javax.persistence.Convert;
-import javax.persistence.Converter;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -15,7 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "location")
+@Table(name = "merchant")
 public class Merchant {
 
     @Id

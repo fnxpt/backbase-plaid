@@ -12,6 +12,7 @@ import com.plaid.client.request.TransactionsRefreshRequest;
 import com.plaid.client.response.ErrorResponse;
 import com.plaid.client.response.TransactionsRefreshResponse;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -89,7 +90,7 @@ public class WebhookService {
             processTransactions(webhook);
         } catch (IngestionFailedException e) {
             log.error("Failed to ingest transactions for item: " + webhook.getItemId(), e);
-            webhook.setError(webhook.getError());
+            webhook.setError(e.getErrorResponse().getErrorCode());
         } catch (Exception e) {
             log.error("Failed to ingest transactions for item: " + webhook.getItemId(), e);
             webhook.setError(e.getMessage());
@@ -181,16 +182,20 @@ public class WebhookService {
 
             case USER_PERMISSION_REVOKED:
                 log.info("The end user has revoked the permission of access to an Item, Resolved by creating a new Item");
+                itemService.expireItem(item);
                 break;
 
             case WEBHOOK_UPDATE_ACKNOWLEDGED:
                 log.info("The Item's webhook is updated");
+                itemService.setItemToUpdated(item);
                 break;
 
             default:
                 throw new BadRequestException("Not a valid webhook code");
         }
     }
+
+
 
 
     /**

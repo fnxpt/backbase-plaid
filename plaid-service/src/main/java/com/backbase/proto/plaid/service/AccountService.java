@@ -177,7 +177,6 @@ public class AccountService {
      * @param plaidAccounts List of linked Plaid Accounts
      */
     public void setupProductCatalog(List<Account> plaidAccounts, Institution institution) {
-        Map<String, Map<String, String>> accountTypeMapping = plaidConfigurationProperties.getAccounts().getAccountTypeMapping();
         ProductCatalog productCatalog = new ProductCatalog();
         productCatalog.setProductTypes(new ArrayList<>());
         plaidAccounts.stream()
@@ -212,7 +211,7 @@ public class AccountService {
         log.info("Deleteing account and it's transactions from Pliad");
         accountRepository.findAllByItemId(item.getItemId()).stream()
             .map(com.backbase.proto.plaid.model.Account::getAccountId)
-            .forEach(accountId -> transactionService.deleteTransactionsByAccountId(item, accountId));
+            .forEach(transactionService::deleteTransactionsByAccountId);
         accountRepository.deleteAccountsByItemId(item.getItemId());
     }
 

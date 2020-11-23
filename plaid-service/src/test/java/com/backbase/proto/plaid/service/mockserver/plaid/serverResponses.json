@@ -4,7 +4,12 @@
       "method": "POST",
       "path": "/transactions/get",
       "keepAlive": true,
-      "secure": false
+      "secure": false,
+      "body":{
+        "access_token": "access-testing",
+        "client_id": "***REMOVED***",
+        "secret": "***REMOVED***"
+      }
     },
     "httpResponse": {
       "body": {
@@ -97,6 +102,31 @@
   {
     "httpRequest": {
       "method": "POST",
+      "path": "/transactions/get",
+      "keepAlive": true,
+      "secure": false,
+      "body": {
+        "access_token": "access-sandbox-item-expired",
+        "client_id": "***REMOVED***",
+        "secret": "***REMOVED***"
+      }
+    },
+    "httpResponse": {
+      "statusCode": 400,
+      "body": {
+        "display_message": "expired item",
+        "documentation_url": "https://plaid.com/docs/?ref=error#invalid-input-errors",
+        "error_code": "ITEM_LOGIN_REQUIRED",
+        "error_message": "provided access token is in an invalid format. expected format: access-<environment>-<identifier>",
+        "error_type": "INVALID_INPUT",
+        "request_id": "RoWJK3T0MV92ISL",
+        "suggested_action": null
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
       "path": "/accounts/balance/get",
       "keepAlive": true,
       "secure": false,
@@ -146,6 +176,31 @@
           "webhook": "https://www.genericwebhookurl.com/webhook"
         },
         "request_id": "Zlk81Mb7fkkrOif"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/accounts/balance/get",
+      "keepAlive": true,
+      "secure": false,
+      "body": {
+        "access_token": "access-uTFV6v698bYd4",
+        "client_id": "***REMOVED***",
+        "secret": "***REMOVED***"
+      }
+    },
+    "httpResponse": {
+      "statusCode": 400,
+      "body": {
+        "display_message": null,
+        "documentation_url": "https://plaid.com/docs/?ref=error#invalid-input-errors",
+        "error_code": "INVALID_ACCESS_TOKEN",
+        "error_message": "provided access token is in an invalid format. expected format: access-<environment>-<identifier>",
+        "error_type": "INVALID_INPUT",
+        "request_id": "RoWJK3T0MV92ISL",
+        "suggested_action": null
       }
     }
   },
@@ -301,7 +356,7 @@
           ],
           "has_mfa": true,
           "input_spec": "flexible",
-          "institution_id": "ins_120509",
+          "institution_id": "ins_3",
           "mfa": [
             "code",
             "list",
@@ -858,6 +913,45 @@
   },
   {
     "httpRequest": {
+      "method": "POST",
+      "path": "/item/remove",
+      "keepAlive": true,
+      "secure": false,
+      "body": {
+        "access_token": "Access_No_Permissions",
+        "client_id": "***REMOVED***",
+        "secret": "***REMOVED***"
+      }
+    },
+    "httpResponse": {
+      "statusCode": 400,
+      "body": {
+        "display_message": "Permission not granted",
+        "documentation_url": "https://plaid.com/docs/?ref=error#invalid-input-errors",
+        "error_code": "NO_PERMISSION",
+        "error_message": "Don't have access to this Item",
+        "error_type": "INVALID_USER",
+        "request_id": "RoWJK3T0MV92ISL",
+        "suggested_action": null
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/item/remove",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "removed": true,
+        "request_id": "m8MDnv9okwxFNBV"
+      }
+    }
+  },
+  {
+    "httpRequest": {
       "method": "GET",
       "path": "/service-api/v2/legalentities/8q73649283472",
       "keepAlive": true,
@@ -946,6 +1040,34 @@
           ]
         }
       ]
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/service-api/v2/accesscontrol/accessgroups/data-groups",
+      "queryStringParameters": {
+        "includeItems": [
+          "true"
+        ],
+        "serviceAgreementId": [
+          "error"
+        ]
+      },
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "statusCode": 400,
+      "body": {
+        "display_message": "Permission not granted",
+        "documentation_url": "https://plaid.com/docs/?ref=error#invalid-input-errors",
+        "error_code": "NO_PERMISSION",
+        "error_message": "Don't have access to this Item",
+        "error_type": "INVALID_USER",
+        "request_id": "RoWJK3T0MV92ISL",
+        "suggested_action": null
+      }
     }
   },
   {
@@ -1057,20 +1179,6 @@
   {
     "httpRequest": {
       "method": "POST",
-      "path": "/item/remove",
-      "keepAlive": true,
-      "secure": false
-    },
-    "httpResponse": {
-      "body": {
-        "removed": true,
-        "request_id": "m8MDnv9okwxFNBV"
-      }
-    }
-  },
-  {
-    "httpRequest": {
-      "method": "POST",
       "path": "/service-api/v2/transactions/delete",
       "keepAlive": true,
       "secure": false
@@ -1143,7 +1251,7 @@
             "kindUri": "ins-120509-depository",
             "translations": null
           }
-          ],
+        ],
         "additions": {
           "key": "additions"
         }
@@ -1159,10 +1267,46 @@
     },
     "httpResponse": {
       "body": {
-        "additions" : {
-          "key" : "additions"
+        "additions": {
+          "key": "additions"
         },
-        "id" : "id"
+        "id": "id"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/service-api/v2/users/externalId/lesley.knope",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "preferredLanguage": "en",
+        "additions": {
+          "key": "additions"
+        },
+        "legalEntityId": "8q73649283472",
+        "externalId": "lesley.knope",
+        "fullName": "Lesley Knope",
+        "id": "id"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/service-api/v2/product-kinds",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "additions": {
+          "key": "additions"
+        },
+        "id": 677
       }
     }
   }

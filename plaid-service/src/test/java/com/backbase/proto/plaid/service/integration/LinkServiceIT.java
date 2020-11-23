@@ -4,6 +4,7 @@ import com.backbase.buildingblocks.jwt.internal.authentication.InternalJwtAuthen
 import com.backbase.buildingblocks.jwt.internal.token.InternalJwt;
 import com.backbase.buildingblocks.jwt.internal.token.InternalJwtClaimsSet;
 import com.backbase.buildingblocks.presentation.errors.BadRequestException;
+import com.backbase.buildingblocks.presentation.errors.UnauthorizedException;
 import com.backbase.dbs.transaction.presentation.service.api.TransactionsApi;
 import com.backbase.dbs.transaction.presentation.service.model.TransactionIds;
 import com.backbase.proto.plaid.PlaidApplication;
@@ -25,11 +26,9 @@ import com.backbase.proto.plaid.service.TransactionsService;
 import com.backbase.proto.plaid.service.WebhookService;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.backbase.proto.plaid.service.mockserver.plaid.TestMockServer;
@@ -109,15 +108,8 @@ public class LinkServiceIT extends TestMockServer {
         InternalJwtClaimsSet internalJwtClaimsSet = new InternalJwtClaimsSet(claims);
         InternalJwt internalJwt = new InternalJwt("", internalJwtClaimsSet);
         SecurityContextHolder.getContext().setAuthentication(new InternalJwtAuthentication(internalJwt));
+        createItem("WGYJu6gjhA6r6ygSGYI6556456gvgha", "lesley.knope", "ins_456rfs6763");
 
-        Item testItem = itemRepository.findByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha").orElse(new Item());
-        testItem.setState("ACTIVE");
-        testItem.setAccessToken("access-testing");
-        testItem.setCreatedAt(LocalDateTime.now());
-        testItem.setCreatedBy("lesley.knope");
-        testItem.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
-        testItem.setInstitutionId("ins_456rfs6763");
-        itemRepository.save(testItem);
 
         Institution institution = institutionRepository.getByInstitutionId("ins_456rfs6763").orElse(new Institution());
         institution.setInstitutionId("ins_456rfs6763");
@@ -127,6 +119,18 @@ public class LinkServiceIT extends TestMockServer {
         institution.setFirstCreatedBy("lesley.knope");
         institutionRepository.save(institution);
 
+    }
+
+    private Item createItem(String itemId, String userId, String institutionId){
+        Item testItem = itemRepository.findByItemId(itemId).orElse(new Item());
+        testItem.setState("ACTIVE");
+        testItem.setAccessToken("access-testing");
+        testItem.setCreatedAt(LocalDateTime.now());
+        testItem.setCreatedBy(userId);
+        testItem.setItemId(itemId);
+        testItem.setInstitutionId(institutionId);
+        itemRepository.save(testItem);
+        return itemRepository.findByItemId(itemId).orElseThrow(()-> new BadRequestException("Item not found"));
     }
 
 
@@ -201,43 +205,43 @@ public class LinkServiceIT extends TestMockServer {
 
     @Test
     public void testGetAllItems() {
-        Item item = itemRepository.findByItemId("Ed6bjzrDLJfGvZWwnkQlfxwoNz54B5C97ejBr").orElse(new Item());
-        item.setItemId("Ed6bjzrDLJfGvZWwnkQlfxwoNz54B5C97ejBr");
-        item.setAccessToken("access-testing");
-        item.setCreatedAt(LocalDateTime.now());
-        item.setInstitutionId("ins_3");
-        item.setCreatedBy("me");
-        itemRepository.save(item);
-
-        Item item1 = itemRepository.findByItemId("Ed6bjzr5LJfGvZWwnkQlfxwoNz54B5CGs57sw3").orElse(new Item());
-        item1.setItemId("Ed6bjzr5LJfGvZWwnkQlfxwoNz54B5CGs57sw3");
-        item1.setAccessToken("access-testing");
-        item1.setCreatedAt(LocalDateTime.now());
-        item1.setInstitutionId("ins_3");
-        item1.setCreatedBy("me");
-        itemRepository.save(item1);
-
-        Item item2 = itemRepository.findByItemId("Ed6bjzrDLJfdrFD7ba3FQlfxwoNz54B5C9j6ng").orElse(new Item());
-        item2.setItemId("Ed6bjzrDLJfdrFD7ba3FQlfxwoNz54B5C9j6ng");
-        item2.setAccessToken("access-testing");
-        item2.setCreatedAt(LocalDateTime.now());
-        item2.setInstitutionId("ins_3");
-        item2.setCreatedBy("me");
-        itemRepository.save(item2);
-
-        Institution institution = new Institution();
-        institution.setInstitutionId("ins_3");
-        institution.setName("Bank");
-        institution.setUrl("Bank.com");
-        institution.setFirstRegisteredAt(LocalDateTime.now());
-        institution.setFirstCreatedBy("me");
-        institutionRepository.save(institution);
 
 
-        // already added 3 under me
+
+
+        Institution ins_3 = institutionRepository.getByInstitutionId("ins_3").orElseGet(() -> {
+            Institution institution = new Institution();
+            institution.setInstitutionId("ins_3");
+            institution.setName("Bank");
+            institution.setUrl("Bank.com");
+            institution.setFirstRegisteredAt(LocalDateTime.now());
+            institution.setFirstCreatedBy("me");
+            return institutionRepository.save(institution);
+        });
+
+        createItem("Ed6bjzrDLJfGvZWwnkQlfxwoNz54B5C97ejBr","me", "ins_3");
+        createItem("Ed6bjzr5LJfGvZWwnkQlfxwoNz54B5CGs57sw3","me", "ins_3");
+        createItem("Ed6bjzrDLJfdrFD7ba3FQlfxwoNz54B5C9j6ng", "me", "ins_3");
+
         Assert.assertEquals("Expected 3 items: ", 3, itemService.getItemsByUserId("me").size());
 
+        Assert.assertEquals("Expected 5 items", 5, itemService.getAllItems().size());
+
     }
+
+    @Test
+    public void errorCatchingDeleteItemTest(){
+        Item item = new Item();
+        item.setAccessToken("Access_No_Permissions");
+        item.setItemId("ErrorCatching");
+        item.setCreatedAt(LocalDateTime.now());
+        item.setCreatedBy("lesley.knope");
+        itemRepository.save(item);
+        itemService.deleteItem("ErrorCatching");
+        Item deletedItem = itemRepository.findByItemId("ErrorCatching").orElseThrow(()->new BadRequestException("Item Not Found"));
+        Assert.assertNotEquals("In valid Item was deleted","DELETED",deletedItem.getState());
+    }
+
 
 //    @Test
 //    public void resetSandbox() {
@@ -249,19 +253,6 @@ public class LinkServiceIT extends TestMockServer {
 //        }
 //    }
 
-
-//    @Test
-//    @Ignore
-//    public void testDeleteItem() {
-//        Item item = new Item();
-//        item.setItemId("4d6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr");
-//        item.setAccessToken("access-testing");
-//        item.setCreatedAt(LocalDateTime.now());
-//        item.setCreatedBy("me");
-//        itemRepository.save(item);
-//        itemService.deleteItem("LlpN6poaprSbWAGv69pPH5qAyBgr8EUkZjbyr");
-//        Assert.assertFalse(itemRepository.existsByItemId("4d6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr"));
-//    }
 
 
 
@@ -294,6 +285,40 @@ public class LinkServiceIT extends TestMockServer {
 
 
     }
+
+    @Test
+    public void testDeleteItemWithInvalidUser(){
+        Item badUser = new Item();
+        badUser.setItemId("badUser");
+        badUser.setCreatedBy("jeff");
+        badUser.setAccessToken("access");
+        badUser.setCreatedAt(LocalDateTime.now());
+        itemRepository.save(badUser);
+        Assert.assertThrows("doesn't throw expected", UnauthorizedException.class,()->itemService.deleteItem("badUser"));
+
+
+    }
+
+    @Test
+    public void testGetAllItemsByCreator(){
+
+
+        Assert.assertEquals("not found", 1, itemService.getAllItemsByCreator().size());
+    }
+
+    @Test
+    public void testGetValidItem(){
+        Item badDate = new Item();
+        badDate.setItemId("invalid_date");
+        badDate.setCreatedBy("bart.veenstr");
+        badDate.setAccessToken("access");
+        badDate.setCreatedAt(LocalDateTime.now().minusDays(7));
+        badDate.setExpiryDate(LocalDate.now().minusDays(2));
+        itemRepository.save(badDate);
+        Assert.assertThrows("expected not there", BadRequestException.class, ()->itemService.getValidItem("invalid_date"));
+
+    }
+
 
 
 

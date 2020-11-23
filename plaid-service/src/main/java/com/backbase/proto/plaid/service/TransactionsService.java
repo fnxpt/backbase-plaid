@@ -68,31 +68,34 @@ public class TransactionsService {
 
     private final ObjectMapper objectMapper;
 
-    private ErrorHandler errorHandler;
 
     /**
      * Ingests the Transactions of an Item.
      *
      * @param item identifies item the transaction belong to
      */
+    @Transactional
     public void ingestInitialUpdate(Item item) throws IngestionFailedException {
         LocalDate startDate = LocalDate.now().minusDays(30);
         LocalDate endDate = LocalDate.now();
         this.ingestTransactions(item, startDate, endDate);
     }
 
+    @Transactional
     public void ingestHistoricalUpdate(Item item) throws IngestionFailedException {
         LocalDate startDate = LocalDate.now().minusYears(2);
         LocalDate endDate = LocalDate.now();
         this.ingestTransactions(item, startDate, endDate);
     }
 
+    @Transactional
     public void ingestDefaultUpdate(Item item) throws IngestionFailedException {
         LocalDate startDate = LocalDate.now().minusDays(14);
         LocalDate endDate = LocalDate.now();
         this.ingestTransactions(item, startDate, endDate);
     }
 
+    @Transactional
     public void removeTransactions( List<String> removedTransactions) {
         List<TransactionsDeleteRequestBody> deleteRequests = removedTransactions.stream().map(id -> new TransactionsDeleteRequestBody().id(id)).collect(Collectors.toList());
         transactionsApi.postDelete(deleteRequests).block();
@@ -106,6 +109,7 @@ public class TransactionsService {
      * @param startDate the earliest Transaction date being requested
      * @param endDate   the latest Transaction being requested
      */
+
     public void ingestTransactions(Item item, LocalDate startDate, LocalDate endDate) throws IngestionFailedException {
         String accessToken = accessTokenService.getAccessToken(item.getItemId());
         this.storePlaidTransactions(item, accessToken, startDate, endDate, 100, 0);
@@ -174,14 +178,13 @@ public class TransactionsService {
 
         } else {
             ErrorResponse errorResponse = plaidClient.parseError(response);
-            errorHandler.handleErrorResponse(errorResponse, item);
             log.error("Failed to ingest transactions for: {}. Message: {}", item.getItemId(), errorResponse.getErrorMessage());
             throw new IngestionFailedException(errorResponse);
         }
     }
 
 
-    public void ingestTransactionsToDBS(Item item) {
+    private void ingestTransactionsToDBS(Item item) {
         int pageSize = 10;
         Page<Transaction> page = transactionRepository.findAllByItemIdAndIngested(item.getItemId(),false, PageRequest.of(0, pageSize));
 
@@ -226,7 +229,7 @@ public class TransactionsService {
     }
 
 
-    @Transactional
+
     protected List<TransactionIds> updateIngestedStatus(List<TransactionIds> transactionIds) {
         transactionIds.forEach(transactionId -> transactionRepository.findByTransactionId(transactionId.getExternalId())
             .map(transaction -> {
@@ -253,7 +256,7 @@ public class TransactionsService {
     }
 
     @Transactional
-    public void deleteTransactionsByAccountId( String accountId) {
+    public void deleteTransactionsByAccountId(  String accountId) {
         removeTransactions( transactionRepository.findAllByAccountId(accountId).stream()
             .map(Transaction::getTransactionId)
             .collect(Collectors.toList()));
