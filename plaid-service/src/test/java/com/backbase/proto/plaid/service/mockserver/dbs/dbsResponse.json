@@ -1,0 +1,362 @@
+[
+{
+    "httpRequest": {
+      "method": "GET",
+      "path": "/service-api/v2/legalentities/8q73649283472",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "id": "8q73649283472",
+        "externalId": "C000001",
+        "name": "me",
+        "parentId": "e9299302-56d3-40e8-a070-585dabbdc4aa",
+        "type": "CUSTOMER",
+        "isParent": true
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/service-api/v2/accesscontrol/legalentities/8q73649283472/serviceagreements/master",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "additions": {
+          "key": "additions"
+        },
+        "isMaster": true,
+        "creatorLegalEntity": "creatorLegalEntity",
+        "name": "name",
+        "externalId": "id",
+        "description": "description",
+        "validUntil": "2000-01-23T04:56:07.000+00:00",
+        "id": "id",
+        "validFrom": "2000-01-23T04:56:07.000+00:00",
+        "status": "ENABLED"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/service-api/v2/arrangements/batch",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "arrangementId": "internal1",
+        "action": "update",
+        "resourceId": "DZpP9JqjRrSNnpVZArAyslbwnvQq3Btv8m9rA",
+        "status": "200",
+        "additions": {
+          "key": "additions"
+        }
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/service-api/v2/accesscontrol/accessgroups/data-groups",
+      "queryStringParameters": {
+        "includeItems": [
+          "true"
+        ],
+        "serviceAgreementId": [
+          "id"
+        ]
+      },
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": [
+        {
+          "id": "8a48e2685d787f78015d791ab69e0001",
+          "name": "Data group 1",
+          "description": "Data group 1 description",
+          "serviceAgreementId": "id",
+          "type": "ARRANGEMENTS",
+          "approvalId": "0955e686-d3ae-4216-b3dd-5d66161d5399",
+          "items": [
+            "me"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/service-api/v2/accesscontrol/accessgroups/data-groups",
+      "queryStringParameters": {
+        "includeItems": [
+          "true"
+        ],
+        "serviceAgreementId": [
+          "error"
+        ]
+      },
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "statusCode": 400,
+      "body": {
+        "display_message": "Permission not granted",
+        "documentation_url": "https://plaid.com/docs/?ref=error#invalid-input-errors",
+        "error_code": "NO_PERMISSION",
+        "error_message": "Don't have access to this Item",
+        "error_type": "INVALID_USER",
+        "request_id": "RoWJK3T0MV92ISL",
+        "suggested_action": null
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/service-api/v2/accessgroups/data-groups",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "id": "8a48e2685d787f78015d791ab69e0001"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/service-api/v2/accesscontrol/accessgroups/function-groups",
+      "queryStringParameters": {
+        "serviceAgreementId": [
+          "id"
+        ]
+      },
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": [
+        {
+          "id": "8a48e2685d787f78015d791b1c59002b",
+          "name": "Manage Entitlements - (1)",
+          "description": "Group for controlling entitlements only.",
+          "legalEntityId": "8q73649283472",
+          "serviceAgreementId": "id",
+          "type": "DEFAULT",
+          "permissions": [
+            {
+              "functionId": "1004",
+              "assignedPrivileges": [
+                {
+                  "privilege": "view"
+                },
+                {
+                  "privilege": "execute"
+                }
+              ]
+            },
+            {
+              "functionId": "1006",
+              "assignedPrivileges": [
+                {
+                  "privilege": "view"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/service-api/v2/users",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "id": "internalUserIdMe"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "PUT",
+      "path": "/service-api/v2/accessgroups/users/permissions/user-permissions",
+      "keepAlive": true,
+      "secure": false,
+      "body": []
+    },
+    "httpResponse": {
+      "body": {
+        "externalServiceAgreementId": "id",
+        "action": "add",
+        "resourceId": "DZpP9JqjRrSNnpVZArAyslbwnvQq3Btv8m9rA",
+        "status": "200",
+        "errors": []
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/service-api/v2/transactions",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "id": "627621",
+        "externalId": "VRVb7BLG1XSXv4gGZoZETMAKANggmEHWJbjkW",
+        "additions": {
+        }
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/service-api/v2/transactions/delete",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "status": "204"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/service-api/v2/products",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": [
+        {
+          "id": "1",
+          "externalProductId": "external-product-12tgw6tu",
+          "externalProductKindId": "external-prod-kind-67t78wqg",
+          "productKindName": "ProductTest",
+          "externalProductTypeId": "banksId",
+          "productTypeName": "testType",
+          "productKind": {
+            "translations": null,
+            "externalKindId": "ins-120509-depository",
+            "kindName": "ING - Particulier Depository",
+            "kindUri": "ins-120509-depository",
+            "additions": {}
+          },
+          "translations": [
+            {
+              "locale": "US",
+              "localeTranslations": [
+                {
+                  "fieldName": "field",
+                  "fieldValue": "value",
+                  "additions": {
+                  }
+                }
+              ]
+            }
+          ],
+          "externalId": "external-6tdwag7w",
+          "externalTypeId": "external-type-7t3eqgqyui",
+          "typeName": "type-banking",
+          "additions": {
+          }
+        }
+      ]
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/service-api/v2/product-kinds",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "productKinds": [
+          {
+            "id": 57,
+            "externalKindId": "ins-120509-depository",
+            "kindName": "ING - Particulier Depository",
+            "kindUri": "ins-120509-depository",
+            "translations": null
+          }
+        ],
+        "additions": {
+          "key": "additions"
+        }
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/service-api/v2/products",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "additions": {
+          "key": "additions"
+        },
+        "id": "id"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/service-api/v2/users/externalId/lesley.knope",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "preferredLanguage": "en",
+        "additions": {
+          "key": "additions"
+        },
+        "legalEntityId": "8q73649283472",
+        "externalId": "lesley.knope",
+        "fullName": "Lesley Knope",
+        "id": "id"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/service-api/v2/product-kinds",
+      "keepAlive": true,
+      "secure": false
+    },
+    "httpResponse": {
+      "body": {
+        "additions": {
+          "key": "additions"
+        },
+        "id": 677
+      }
+    }
+  }
+]

@@ -1,6 +1,8 @@
 package com.backbase.proto.plaid.service.integration;
 
+import com.backbase.buildingblocks.presentation.errors.BadRequestException;
 import com.backbase.proto.plaid.PlaidApplication;
+import com.backbase.proto.plaid.exceptions.IngestionFailedException;
 import com.backbase.proto.plaid.model.Account;
 import com.backbase.proto.plaid.model.Institution;
 import com.backbase.proto.plaid.model.Item;
@@ -9,12 +11,14 @@ import com.backbase.proto.plaid.repository.*;
 import com.backbase.proto.plaid.service.WebhookService;
 import com.backbase.proto.plaid.service.mockserver.plaid.TestMockServer;
 import com.backbase.proto.plaid.webhook.model.PlaidWebhook;
+import com.google.gson.Gson;
 import com.plaid.client.PlaidClient;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -50,6 +54,8 @@ public class WebhookServiceIT extends TestMockServer {
     @Autowired
     private WebhookService webhookService;
 
+    private Gson gson = new Gson();
+
     @Autowired
     private WebhookRepository webhookRepository;
 
@@ -64,6 +70,7 @@ public class WebhookServiceIT extends TestMockServer {
 
     @Autowired
     private ItemRepository itemRepository;
+
 
 
     @Before
@@ -86,6 +93,11 @@ public class WebhookServiceIT extends TestMockServer {
         institutionRepository.save(institution);
     }
 
+    @BeforeEach
+    public void clearWebhookRepo(){
+        webhookRepository.deleteAll();
+    }
+
     @Test
     public void testWebhookRefresh() {
         webhookService.refresh("WGYJu6gjhA6r6ygSGYI6556456gvgha");
@@ -102,9 +114,32 @@ public class WebhookServiceIT extends TestMockServer {
         webhook.setCompleted(false);
 
         webhookRepository.save(webhook);
-        Assert.assertTrue("proccessed",webhookRepository.findAllByCompleted(false).size()>0);
+        Assert.assertTrue("processed",webhookRepository.findAllByCompleted(false).size()>0);
         webhookRepository.findAllByCompleted(false).stream().limit(1).forEach(webhookService::process);
-        Assert.assertEquals("proccessed", 0, webhookRepository.findAllByCompleted(false).size());
+        Assert.assertEquals("processed", 0, webhookRepository.findAllByCompleted(false).size());
+    }
+
+    @Test
+    public void failWebhook(){
+        webhookRepository.deleteAll();
+        Item item = new Item();
+        item.setItemId("invaildItem");
+        item.setCreatedBy("ron.swanson");
+        item.setCreatedAt(LocalDateTime.now());
+        item.setAccessToken("access-sandbox-item-expired");
+        item.setInstitutionId("ins_456rfs6763");
+        item.setState("ACTIVE");
+        itemRepository.save(item);
+
+        Webhook webhook =new Webhook();
+        webhook.setItemId("invaildItem");
+        webhook.setWebhookCode(INITIAL_UPDATE);
+        webhook.setWebhookType(TRANSACTIONS);
+        webhook.setCompleted(false);
+        webhookService.process(webhook);
+
+       Webhook webhookProcessed =webhookRepository.findAllByCompleted(true).get(0);
+        Assert.assertEquals("not registered error", "ITEM_LOGIN_REQUIRED",webhookProcessed.getError());
     }
 
 
@@ -175,13 +210,58 @@ public class WebhookServiceIT extends TestMockServer {
 
     @Test
     public void testRemovedTransactions() {
+        webhookRepository.deleteAll();
         Webhook plaidWebhook = new Webhook();
            plaidWebhook.setWebhookType(TRANSACTIONS);
            plaidWebhook.setWebhookCode(TRANSACTIONS_REMOVED);
            plaidWebhook.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
            plaidWebhook.setRemovedTransactions(Arrays.asList("VRVb7BLG1XSXv4gGZoZETMAKANggmEHWJbjkW"));
         webhookService.process(plaidWebhook);
-        Assert.assertTrue("no errors", true);
+        plaidWebhook.setCompleted(true);
+        log.info("expected webhook {}", plaidWebhook);
+        Assert.assertEquals(" errors", gson.toJson(plaidWebhook),gson.toJson(webhookRepository.findAllByCompleted(true).get(0)));
+    }
+
+    @Test
+    public void testValidateWebhook(){
+        webhookRepository.deleteAll();
+        Webhook invalidWebhook = new Webhook();
+            invalidWebhook.setWebhookType(TRANSACTIONS);
+            invalidWebhook.setWebhookCode(TRANSACTIONS_REMOVED);
+            invalidWebhook.setItemId("InvalidItem");
+        webhookService.process(invalidWebhook);
+        invalidWebhook.setCompleted(true);
+        invalidWebhook.setError("WEBHOOK REFERS TO NON EXISTING ITEM");
+        log.info("expected invalid webhook");
+      //  Assert.assertEquals("was not errored",gson.toJson(invalidWebhook),gson.toJson(webhookRepository.findAllByCompleted(false).get(0)));
+        Assert.assertTrue(true);
+    }
+
+    @Test
+    public void testWebhookUpdateAcknowledged(){
+        Webhook webhookAcknowledged = new Webhook();
+        webhookAcknowledged.setWebhookType(ITEM);
+        webhookAcknowledged.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
+        webhookAcknowledged.setWebhookCode(WEBHOOK_UPDATE_ACKNOWLEDGED);
+        webhookService.process(webhookAcknowledged);
+
+        Item item = itemRepository.findByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha").orElseThrow(()-> new BadRequestException("Item not found"));
+
+        Assert.assertEquals("Item update not acknowledged", "UPDATED", item.getState());
+    }
+
+    @Test
+    public void testWebhookPermissionRevoked(){
+        Webhook webhookAcknowledged = new Webhook();
+        webhookAcknowledged.setWebhookType(ITEM);
+        webhookAcknowledged.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
+        webhookAcknowledged.setWebhookCode(USER_PERMISSION_REVOKED);
+        webhookService.process(webhookAcknowledged);
+
+        Item item = itemRepository.findByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha").orElseThrow(()-> new BadRequestException("Item not found"));
+
+        Assert.assertEquals("Item not revoked", LocalDate.now(), item.getExpiryDate());
+
     }
 
 

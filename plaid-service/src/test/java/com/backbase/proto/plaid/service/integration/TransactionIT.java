@@ -8,8 +8,10 @@ import com.backbase.dbs.transaction.presentation.service.model.TransactionIds;
 import com.backbase.dbs.transaction.presentation.service.model.TransactionItemPost;
 import com.backbase.dbs.transaction.presentation.service.api.TransactionsApi;
 import com.backbase.proto.plaid.PlaidApplication;
+import com.backbase.proto.plaid.configuration.PlaidConfigurationProperties;
 import com.backbase.proto.plaid.converter.LocationConverter;
 import com.backbase.proto.plaid.converter.PaymentMetaConverter;
+import com.backbase.proto.plaid.exceptions.IngestionFailedException;
 import com.backbase.proto.plaid.mapper.PlaidToModelTransactionsMapper;
 import com.backbase.proto.plaid.model.*;
 import com.backbase.proto.plaid.model.Transaction;
@@ -25,8 +27,7 @@ import com.plaid.client.request.TransactionsGetRequest;
 import com.plaid.client.response.TransactionsGetResponse;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 import liquibase.pro.packaged.S;
 import liquibase.pro.packaged.T;
@@ -34,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -49,8 +51,6 @@ import retrofit2.Response;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -78,12 +78,16 @@ public class TransactionIT extends TestMockServer {
     @Autowired
     ObjectMapper objectMapper = new ObjectMapper();
 
-    LocationConverter locationConverter= new LocationConverter(objectMapper);
+    LocationConverter locationConverter = new LocationConverter(objectMapper);
 
     PaymentMetaConverter paymentMetaConverter = new PaymentMetaConverter();
 
     @Autowired
     ItemRepository itemRepository;
+
+    @Autowired
+    private PlaidConfigurationProperties transactionConfigurationProperties;
+
 
     @Autowired
     InstitutionRepository institutionRepository;
@@ -96,16 +100,8 @@ public class TransactionIT extends TestMockServer {
 
 
     @Before
-    public void setup() throws IOException {
-        Item testItem = itemRepository.findByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha").orElse(new Item());
-        testItem.setState("ACTIVE");
-        testItem.setAccessToken("access-testing");
-        testItem.setCreatedAt(LocalDateTime.now());
-        testItem.setCreatedBy("lesley.knope");
-        testItem.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
-        testItem.setInstitutionId("ins_456rfs6763");
-        itemRepository.save(testItem);
-
+    public void setup() {
+        createTestItem();
         Institution institution = institutionRepository.getByInstitutionId("ins_456rfs6763").orElse(new Institution());
         institution.setInstitutionId("ins_456rfs6763");
         institution.setName("Bonk");
@@ -117,7 +113,20 @@ public class TransactionIT extends TestMockServer {
         createTransaction();
     }
 
-    private Transaction createTransaction(){
+    private Item createTestItem() {
+        Item testItem = itemRepository.findByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha").orElse(new Item());
+        testItem.setState("ACTIVE");
+        testItem.setAccessToken("access-testing");
+        testItem.setCreatedAt(LocalDateTime.now());
+        testItem.setCreatedBy("lesley.knope");
+        testItem.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
+        testItem.setInstitutionId("ins_456rfs6763");
+        itemRepository.save(testItem);
+
+        return itemRepository.findByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha").orElseThrow(() -> new BadRequestException("No Item"));
+    }
+
+    private Transaction createTransaction() {
         Transaction transaction = transactionRepository.findByTransactionId("VRVb7BLG1XSXv4gGZoZETMAKANggmEHWJbjkW").orElse(new Transaction());
 
         transaction.setAccountId("5K3v1kbGxwSLQ6me9W9xfBMkLqNpXmuZDzeEB");
@@ -166,24 +175,10 @@ public class TransactionIT extends TestMockServer {
         transactionRepository.save(transaction);
 
 
-        return transactionRepository.findByTransactionId("VRVb7BLG1XSXv4gGZoZETMAKANggmEHWJbjkW").orElseThrow(()-> new BadRequestException("transaction not saved properly"));
+        return transactionRepository.findByTransactionId("VRVb7BLG1XSXv4gGZoZETMAKANggmEHWJbjkW").orElseThrow(() -> new BadRequestException("transaction not saved properly"));
 
     }
-//        Response<TransactionsGetResponse> response = mock(Response.class);
-//        when(plaidClient.service().transactionsGet(any()).execute()).thenReturn(response);
-//
-//
-//
-//        when(response.body()).thenReturn(mockTransactionResponse());
-//        TransactionIds transactionId = new TransactionIds();
-//        transactionId.setExternalId("k93yMQ99QBFJQJyVOkQdueb4n6gz67hRO6NZZ");
-//        transactionId.setId("5vQnOAvvA7cqRqoXjYRrIV0k7Yj6zXHBkqzYZ");
-//        List<TransactionIds> tst = new ArrayList<>();
-//        tst.add(transactionId);
-//        Flux<TransactionIds> transactionIds = Flux.fromIterable(tst);
-//        when(transactionsApi.postTransactions(any())).thenReturn(transactionIds);
-//
-//    }
+
 
     @Test
     public void testTransactionMappingModelToDBS() {
@@ -246,9 +241,49 @@ public class TransactionIT extends TestMockServer {
         expected.setValueDate(LocalDate.parse("2017-01-27"));
 
 
-        //Assert.assertEquals("incorrect transaction mapping", expected,
-         //       modelToDBSMapper.map(mockTransaction, "ins_117650"));
-        Assert.assertTrue(true);
+        Assert.assertEquals("incorrect transaction mapping", expected,
+                modelToDBSMapper.map(mockTransaction, "ins_117650"));
+
+        mockTransaction.setMerchantName(null);
+        mockTransaction.setAmount(-6789.00);
+
+
+        expected.creditDebitIndicator(CreditDebitIndicator.CRDT);
+        expectedCurrency.amount(String.valueOf(6789.00));
+        expected.transactionAmountCurrency(expectedCurrency);
+        expected.counterPartyName("Apple Store");
+
+
+        Assert.assertEquals("incorrect transaction mapping", expected,
+                modelToDBSMapper.map(mockTransaction, "ins_117650"));
+
+
+        mockPaymentMeta.setPayer("Lesley");
+        mockPaymentMeta.setPayee("Ron     ygkugujsgexgesuyeguygskgxfkksyjgefnxksuyegflweguyfkwefguykufygkgeksufsydkgcbfysgjgfekuygfusyegfskuxygsueghjgdfdhdfgjdsjysffjghsdffss");
+        mockPaymentMeta.setReason("Paying");
+        mockTransaction.setPaymentMeta(mockPaymentMeta);
+        expected.setCounterPartyName("Ron     ygkugujsgexgesuyeguygskgxfkksyjgefnxksuyegflweguyfkwefguykufygkgeksufsydkgcbfysgjgfekuygfusyegfskuxygsueghjgdfdhdfgjd...");
+
+        Assert.assertEquals("incorrect transaction mapping", expected,
+                modelToDBSMapper.map(mockTransaction, "ins_117650"));
+        List<String> description = new ArrayList<>();
+        description.add("description");
+        List<String> counterPartyBan = new ArrayList<>();
+        counterPartyBan.add("ban");
+        List<String> counterPartyName = new ArrayList<>();
+        counterPartyName.add("name");
+
+        PlaidConfigurationProperties.DescriptionParser descriptionParser = new PlaidConfigurationProperties.DescriptionParser();
+        descriptionParser.setDescription(description);
+        descriptionParser.setCounterPartyBBAN(counterPartyBan);
+        descriptionParser.setCounterPartyName(counterPartyName);
+
+        Map<String, PlaidConfigurationProperties.DescriptionParser> institutionDescriptionParser = new HashMap<>();
+        institutionDescriptionParser.put("ins_117650",descriptionParser);
+        transactionConfigurationProperties.getTransactions().setDescriptionParserForInstitution(institutionDescriptionParser);
+
+        Assert.assertEquals("incorrect transaction mapping", expected,
+                modelToDBSMapper.map(mockTransaction, "ins_117650"));
     }
 
     @Autowired
@@ -262,13 +297,37 @@ public class TransactionIT extends TestMockServer {
     }
 
     @Test
-    public void testTransactionIngestion() {
+    public void testTransactionIngestion() throws IngestionFailedException {
+        LocalDate startDate = LocalDate.now().minusDays(30);
+        LocalDate endDate = LocalDate.now();
 
+        transactionsService.ingestTransactions(createTestItem(), startDate, endDate);
 
-        itemService.getAllItems().forEach(transactionsService::ingestTransactionsToDBS);
         List<Transaction> transactions = transactionRepository.findAllByItemIdAndIngested("WGYJu6gjhA6r6ygSGYI6556456gvgha", true, PageRequest.of(0, 10)).get().collect(Collectors.toList());
         Assert.assertEquals("not ingested", 1, transactions.size());
 
+    }
+
+    private Item expiredItem() {
+        Item item = new Item();
+        item.setItemId("invaildItem");
+        item.setCreatedBy("ron.swanson");
+        item.setCreatedAt(LocalDateTime.now());
+        item.setAccessToken("access-sandbox-item-expired");
+        item.setInstitutionId("ins_456rfs6763");
+        item.setState("ACTIVE");
+        itemRepository.save(item);
+        return itemRepository.findByItemId("invaildItem").orElseThrow(() -> new BadRequestException("Item not found"));
+
+    }
+
+    @Test
+    public void testTransactionErrorCatching() {
+        LocalDate startDate = LocalDate.now().minusDays(30);
+        LocalDate endDate = LocalDate.now();
+        Assert.assertThrows("expected exception not thrown", IngestionFailedException.class, () -> transactionsService.ingestTransactions(expiredItem(), startDate, endDate));
+        Item itemToDelete = itemRepository.findByItemId("invaildItem").orElseThrow(() -> new BadRequestException("Item not found"));
+        itemRepository.delete(itemToDelete);
     }
 
     @Test
@@ -316,17 +375,17 @@ public class TransactionIT extends TestMockServer {
         Assert.assertTrue("transaction doesn't match", transactionEquals(expected, plaidToModelTransactionsMapper.mapToDomain(transaction, itemId)));
     }
 
-    private boolean transactionEquals(Transaction transaction, Transaction transaction1){
+    private boolean transactionEquals(Transaction transaction, Transaction transaction1) {
         return (transaction.getAccountId().equals(transaction1.getAccountId())
-                &&transaction.getAmount().equals(transaction1.getAmount())
-                &&transaction.getCategory().equals(transaction1.getCategory())
-                &&transaction.getDate().equals(transaction1.getDate())
-                &&transaction.getIsoCurrencyCode().equals(transaction1.getIsoCurrencyCode())
-                &&transaction.getItemId().equals(transaction1.getItemId())
-                &&transaction.getMerchantName().equals(transaction1.getMerchantName())
-                &&transaction.getName().equals(transaction1.getName())
-                &&transaction.getPaymentChannel().equals(transaction1.getPaymentChannel())
-                &&transaction.getTransactionType().equals(transaction1.getTransactionType()));
+                && transaction.getAmount().equals(transaction1.getAmount())
+                && transaction.getCategory().equals(transaction1.getCategory())
+                && transaction.getDate().equals(transaction1.getDate())
+                && transaction.getIsoCurrencyCode().equals(transaction1.getIsoCurrencyCode())
+                && transaction.getItemId().equals(transaction1.getItemId())
+                && transaction.getMerchantName().equals(transaction1.getMerchantName())
+                && transaction.getName().equals(transaction1.getName())
+                && transaction.getPaymentChannel().equals(transaction1.getPaymentChannel())
+                && transaction.getTransactionType().equals(transaction1.getTransactionType()));
     }
 
 
@@ -345,24 +404,25 @@ public class TransactionIT extends TestMockServer {
 
         String jsonLocation = "{\"id\":null,\"storeNumber\":456,\"address\":\"33 Street st\",\"city\":\"City\",\"region\":\"region\",\"postalCode\":\"P05T\",\"country\":\"Country\",\"latitude\":69.0,\"longitude\":42.0}";
         Assert.assertEquals("no match", jsonLocation, locationConverter.convertToDatabaseColumn(location));
-        Assert.assertTrue("no match",locationEquals(locationConverter.convertToEntityAttribute(jsonLocation),location));
+        Assert.assertTrue("no match", locationEquals(locationConverter.convertToEntityAttribute(jsonLocation), location));
     }
-    private boolean locationEquals(Location location1, Location location2){
+
+    private boolean locationEquals(Location location1, Location location2) {
         return (location1.getAddress().equals(location2.getAddress())
-                &&location1.getCity().equals(location2.getCity())
-                &&location1.getCountry().equals(location2.getCountry())
-                &&location1.getLatitude().equals(location2.getLatitude())
-                &&location1.getLongitude().equals(location2.getLongitude())
-                &&location1.getPostalCode().equals(location2.getPostalCode())
-                &&location1.getRegion().equals(location2.getRegion())
-                &&location1.getStoreNumber()==location2.getStoreNumber());
+                && location1.getCity().equals(location2.getCity())
+                && location1.getCountry().equals(location2.getCountry())
+                && location1.getLatitude().equals(location2.getLatitude())
+                && location1.getLongitude().equals(location2.getLongitude())
+                && location1.getPostalCode().equals(location2.getPostalCode())
+                && location1.getRegion().equals(location2.getRegion())
+                && location1.getStoreNumber() == location2.getStoreNumber());
     }
 
     @Test
     public void testTransactionGet() {
         Transaction byTransactionId = transactionRepository.findByInternalId("8a80837e75930a30017598567e4007fe").orElse(createTransaction());
         log.info("transaction: {}", byTransactionId);
-        Assert.assertEquals("transaction not retrieved", "8a80837e75930a30017598567e4007fe",byTransactionId.getInternalId());
+        Assert.assertEquals("transaction not retrieved", "8a80837e75930a30017598567e4007fe", byTransactionId.getInternalId());
     }
 
     @Test
@@ -394,8 +454,8 @@ public class TransactionIT extends TestMockServer {
         List<com.backbase.proto.plaid.service.model.Transaction> transactions = new ArrayList<>();
         transactions.add(transaction);
         List<EnrichmentResult> enrichmentResults = transactionsService.enrichTransactions(transactions);
-        log.info("enriched transactions {}",enrichmentResults);
-        Assert.assertEquals("transaction not Enriched", 1 ,enrichmentResults.size());
+        log.info("enriched transactions {}", enrichmentResults);
+        Assert.assertEquals("transaction not Enriched", 1, enrichmentResults.size());
 
     }
 

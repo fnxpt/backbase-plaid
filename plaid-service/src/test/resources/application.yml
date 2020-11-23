@@ -105,7 +105,7 @@ backbase:
       transactionTypeGroupMap:
         online: "Withdrawal"
         store: "Withdrawal"
-        "in store": "Withdrawal"
+        "in_store": "Withdrawal"
         other: "Fees"
       # ATM, ACH, Bill Payment, Cash, Cheques, Credit/Debit Card, Check, Deposit, Fee, POS, Withdrawal
       transactionTypeMap:

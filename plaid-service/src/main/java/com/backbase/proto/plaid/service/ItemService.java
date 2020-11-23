@@ -176,4 +176,15 @@ public class ItemService {
         item.setExpiryDate(LocalDate.now().plusDays(7));
         itemRepository.save(item);
     }
+
+    public void expireItem(Item item){
+        item.setExpiryDate(LocalDate.now());
+        itemRepository.save(item);
+    }
+
+    public void setItemToUpdated(Item item){
+        item.setState("UPDATED");
+        itemRepository.save(item);
+    }
+
 }

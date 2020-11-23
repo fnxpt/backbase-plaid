@@ -3,6 +3,7 @@ package com.backbase.proto.plaid.exceptions;
 import com.plaid.client.response.ErrorResponse;
 
 
+@SuppressWarnings("java:S1948")
 public class AccountBalanceException extends RuntimeException {
     private final ErrorResponse errorResponse;
 
