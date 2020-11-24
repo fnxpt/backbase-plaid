@@ -1,0 +1,16 @@
+apiVersion: v1
+data:
+  spring-activemq-brokerurl:
+  spring-activemq-user: admin
+  spring-activemq-password:
+  spring-datasource-categories-url:
+  spring-datasource-categories-driverclass: com.mysql.jdbc.Driver
+  spring-datasource-categories-username:
+  plaid-client-id:
+  plaid-client-secret:
+
+
+kind: ConfigMap
+metadata:
+  name: category-collector-sensitive-data
+  namespace: dope

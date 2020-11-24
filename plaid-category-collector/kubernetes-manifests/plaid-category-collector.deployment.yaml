@@ -27,17 +27,17 @@ spec:
             - name: spring.zipkin.baseUrl
               valueFrom:
                 configMapKeyRef:
-                  key:
+                  key: baseUrl
                   name: zipkin-config
             - name: SIG_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  key:
+                  key: jwt-internal-secretkey
                   name: backbase-env-dope-jwt
             - name: USERCTX_KEY
               valueFrom:
                 secretKeyRef:
-                  key:
+                  key: userctx-key
                   name: backbase-env-dope-jwt
             - name: EUREKA_CLIENT_ENABLED
               value: "false"
@@ -50,11 +50,20 @@ spec:
             - name: SPRING_CLOUD_STREAM_DEFAULT_BINDER
               value: "activemq"
             - name: SPRING_ACTIVEMQ_BROKER_URL
-              value: ssl://b-9d1ef816-ccb2-4ec5-a4e8-3e2c2c9bbda0-1.mq.eu-central-1.amazonaws.com:61617
+              valueFrom:
+                configMapKeyRef:
+                  key: spring-activemq-brokerurl
+                  name: category-collector-sensitive-data
             - name: SPRING_ACTIVEMQ_USER
-              value: admin
+              valueFrom:
+                configMapKeyRef:
+                  key: spring-activemq-user
+                  name: category-collector-sensitive-data
             - name: SPRING_ACTIVEMQ_PASSWORD
-              value: ***REMOVED***1
+              valueFrom:
+                configMapKeyRef:
+                  key: spring-activemq-password
+                  name: category-collector-sensitive-data
             - name: SPRING_DATASOURCE_VALIDATIONQUERY
               value: SELECT 1
             - name: SPRING_LIQUIBASE_ENABLED
@@ -64,23 +73,37 @@ spec:
             - name: spring.cloud.loadbalancer.ribbon.enabled
               value: "false"
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://proto.cdem7uw0kede.eu-central-1.rds.amazonaws.com/dbs_categories?useSSL=false
+              valueFrom:
+                configMapKeyRef:
+                  key: spring-datasource-categories-url
+                  name: category-collector-sensitive-data
             - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
-              value: com.mysql.jdbc.Driver
+              valueFrom:
+                configMapKeyRef:
+                  key: spring-datasource-categories-driverclass
+                  name: category-collector-sensitive-data
             - name: SPRING_DATASOURCE_USERNAME
-              value: backbase
+              valueFrom:
+                configMapKeyRef:
+                  key: spring-datasource-categories-username
+                  name: category-collector-sensitive-data
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  key:
+                  key: mysql-password
                   name: backbase-env-mysql
             - name: BUILDINGBLOCKS_SECURITY_CSRF_ENABLED
               value: "false"
-
             - name: BACKBASE_PLAID_CLIENT_ID
-              value: "***REMOVED***"
+              valueFrom:
+                configMapKeyRef:
+                  key: plaid-client-id
+                  name: category-collector-sensitive-data
             - name: BACKBASE_PLAID_SECRET
-              value: "***REMOVED***"
+              valueFrom:
+                configMapKeyRef:
+                  key: plaid-client-secret
+                  name: category-collector-sensitive-data
             - name: BACKBASE_PLAID_ENV
               value: "development"
             - name: "BACKBASE_PLAID_SERVICE_BASE_URL"

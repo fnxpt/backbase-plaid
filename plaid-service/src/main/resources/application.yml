@@ -24,8 +24,8 @@ spring:
         registration:
           dbs:
             authorization-grant-type: client_credentials
-            client-id:-client
-            client-secret:-secret
+            client-id:
+            client-secret:
             client-authentication-method: post
         provider:
           dbs:
@@ -53,7 +53,7 @@ backbase:
   plaid:
     client-name: "Backbase"
     client-id:
-    secret:
+    secret: ${PLAID_CLIENT_SECRET}
     env: sandbox
     webhook-base-url:
     default-reference-job-role-names:

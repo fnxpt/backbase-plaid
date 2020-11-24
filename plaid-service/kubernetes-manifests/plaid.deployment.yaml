@@ -27,17 +27,17 @@ spec:
             - name: spring.zipkin.baseUrl
               valueFrom:
                 configMapKeyRef:
-                  key:
+                  key: baseUrl
                   name: zipkin-config
             - name: SIG_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  key:
+                  key: jwt-internal-secretkey
                   name: backbase-env-dope-jwt
             - name: USERCTX_KEY
               valueFrom:
                 secretKeyRef:
-                  key:
+                  key: userctx-key
                   name: backbase-env-dope-jwt
             - name: EUREKA_CLIENT_ENABLED
               value: "false"
@@ -58,17 +58,29 @@ spec:
             - name: spring.cloud.loadbalancer.ribbon.enabled
               value: "false"
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://proto.cdem7uw0kede.eu-central-1.rds.amazonaws.com/plaid?useSSL=false
+              valueFrom:
+                configMapKeyRef:
+                  key: spring-datasource-url
+                  name: plaid-service-sensitive-data
             - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
-              value: com.mysql.jdbc.Driver
+              valueFrom:
+                configMapKeyRef:
+                  key: spring-datasource-driverclass
+                  name: plaid-service-sensitive-data
             - name: SPRING_DATASOURCE_USERNAME
-              value: backbase
+              valueFrom:
+                configMapKeyRef:
+                  key: spring-datasource-username
+                  name: plaid-service-sensitive-data
             - name: SPRING_DATASOURCE_PLATFORM
-              value: mysql
+              valueFrom:
+                configMapKeyRef:
+                  key: spring-datasource-platform
+                  name: plaid-service-sensitive-data
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  key:
+                  key: mysql-password
                   name: backbase-env-mysql
             - name: JAVA_TOOL_OPTIONS
               value: "-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=n,quiet=y -Dbackbase.activemq.sslconfig=false -Dmanagement.health.jms.enabled=false -Dspring.sleuth.sampler.probability=1 -Dspring.zipkin.enabled=true -Dspring.zipkin.baseUrl=http://meister-collector.observability.svc.cluster.local:9411 -Dmanagement.endpoints.web.exposure.include=* -Dmanagement.endpoints.enabled-by-default=true"
