@@ -17,9 +17,9 @@ spring:
       ddl-auto: none
 
 #  datasource:
-#    url:
-#    username:
-#    password:
+#    url: ${DATASOURCE_URL}
+#    username: ${DATASOURCE_USERNAME}
+#    password: ${DATASOURCE_PASSWORD}
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-persistence.yaml
     enabled: true
@@ -29,12 +29,12 @@ spring:
         registration:
           dbs:
             authorization-grant-type: client_credentials
-            client-id:
-            client-secret:
+            client-id: ${DBS_CLIENT_ID}
+            client-secret: ${DBS_CLIENT_SECRET}
             client-authentication-method: post
         provider:
           dbs:
-            token-uri:
+            token-uri: ${DBS_TOKEN_URI}
   cloud:
     config:
       enabled: false
@@ -63,10 +63,10 @@ backbase:
       enabled: false
   stream:
     dbs:
-      user-manager-base-url:
-      access-control-base-url:
-      arrangement-manager-base-url:
-      transaction-manager-base-url:
+      user-manager-base-url: http://localhost:9090
+      access-control-base-url: http://localhost:9090
+      arrangement-manager-base-url: http://localhost:9090
+      transaction-manager-base-url: http://localhost:9090
     transaction:
       worker:
         group-per-arrangement-id: true
@@ -78,11 +78,11 @@ backbase:
 
   plaid:
     client-name: "Backbase"
-    client-id:
+    client-id: ${PLAID_CLIENT_ID}
     secret: ${PLAID_CLIENT_SECRET}
     env: mock
     mock-server: http://localhost:9090
-    webhook-base-url:
+    webhook-base-url: ${PLAID_WEBHOOK_BASE}
     default-reference-job-role-names:
       - "Retail User - EU"
     country-codes:
