@@ -61,22 +61,22 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: spring-datasource-url
-                  name: plaid-service-sensitive-data
+                  name: plaid-spring-datasource
             - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
               valueFrom:
                 configMapKeyRef:
                   key: spring-datasource-driverclass
-                  name: plaid-service-sensitive-data
+                  name: plaid-spring-datasource
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 configMapKeyRef:
                   key: spring-datasource-username
-                  name: plaid-service-sensitive-data
+                  name: plaid-spring-datasource
             - name: SPRING_DATASOURCE_PLATFORM
               valueFrom:
                 configMapKeyRef:
                   key: spring-datasource-platform
-                  name: plaid-service-sensitive-data
+                  name: plaid-spring-datasource
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
