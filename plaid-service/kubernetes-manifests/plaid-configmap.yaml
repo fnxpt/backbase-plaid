@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  spring-datasource-url:
+  spring-datasource-driverclass: com.mysql.jdbc.Driver
+  spring-datasource-username:
+  spring-datasource-platform: mysql
+
+kind: ConfigMap
+metadata:
+  name: plaid-service-sensitive-data
+  namespace: dope
