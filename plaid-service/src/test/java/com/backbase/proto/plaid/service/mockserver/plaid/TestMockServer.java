@@ -20,46 +20,13 @@ public class TestMockServer {
 
     @BeforeClass
     public static void setUp() {
-//        new MockServerClient("localhost",1080).when(
-//                request()
-//        ).respond(
-//                response().withBody("heyp")
-//        );
 
         String initializationJsonPath = "src/test/java/com/backbase/proto/plaid/service/mockserver/plaid/serverResponses.json";
         ConfigurationProperties.initializationJsonPath(initializationJsonPath);
-        plaidMockServer= startClientAndServer(9090);
-
+        plaidMockServer = startClientAndServer(9090);
 
 
     }
-//    @Test
-//    public void testMock() throws IOException {
-//        Expectation[] expectations = mockServer.retrieveActiveExpectations(request().withMethod("GET").withPath("/transactions/get").withBody("\"client_id\": \"***REMOVED***\",\n" +
-//                "        \"secret\": \"***REMOVED***\",\n" +
-//                "        \"access_token\": \"access-testing\",\n" +
-//                "        \"start_date\": \"2017-01-01\",\n" +
-//                "        \"end_date\": \"2019-05-10\""));
-//        log.info("exceptions: {}",expectations);
-//        HttpRequest httpRequest = request("/transactions/get");
-//        HttpResponse response = response();
-//        log.info("request {}, response{}", httpRequest, response);
-////        URL url = new URL("http://localhost:1080/mockserver");
-////        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//    }
 
 
     @AfterClass
