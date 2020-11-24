@@ -108,17 +108,14 @@ You must make your own for this with your data source passwords saved in them. T
 The config file should look something like this in the end.
 ````
 apiVersion: v1
-data:
-  ACTIVEMQ_PASSWORD: examplePasswordEncrypted
 kind: Secret
 metadata:
-  creationTimestamp: "2020-04-20T10:01:51Z"
   name: activemq-password
-  namespace: dope
-  resourceVersion: "125822656"
-  selfLink: /api/v1/namespaces/dope/secrets/activemq-password
-  uid: b62d090d-d772-4840-b077-0a5407a71630
+  namespace: exampleNamespace
 type: Opaque
+data:
+  ACTIVEMQ_PASSWORD: examplePasswordEncrypted
+
 ````
 
 

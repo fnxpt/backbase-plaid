@@ -12,9 +12,9 @@ spring:
       ddl-auto: none
 
   datasource:
-    url:
-    username:
-    password:
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-persistence.yaml
     enabled: true
@@ -24,12 +24,12 @@ spring:
         registration:
           dbs:
             authorization-grant-type: client_credentials
-            client-id:
-            client-secret:
+            client-id: ${DBS_CLIENT_ID}
+            client-secret: ${DBS_CLIENT_SECRET}
             client-authentication-method: post
         provider:
           dbs:
-            token-uri:
+            token-uri: ${DBS_TOKEN_URI}
 
 backbase:
   security:
@@ -44,18 +44,18 @@ backbase:
       enabled: false
   stream:
     dbs:
-      user-manager-base-url:
-      access-control-base-url:
-      arrangement-manager-base-url:
-      transaction-manager-base-url:
-      limits-manager-base-url:
+      user-manager-base-url: ${USER_MANAGER_BASE_URL}
+      access-control-base-url: ${ACCESS_CONTROL_BASE_URL}
+      arrangement-manager-base-url: ${ARRANGEMENT_MANAGER_BASE_URL}
+      transaction-manager-base-url: ${TRANSCATION_MANGER_BASE_URL}
+      limits-manager-base-url: ${LIMITS_MANAGER_BASE_URL}
 
   plaid:
     client-name: "Backbase"
-    client-id:
+    client-id: ${PLAID_CLIENT_ID}
     secret: ${PLAID_CLIENT_SECRET}
     env: sandbox
-    webhook-base-url:
+    webhook-base-url: ${PLAID_WEBHOOK_BASE}
     default-reference-job-role-names:
       - "Retail User - EU"
       - "Retail User - USA"
