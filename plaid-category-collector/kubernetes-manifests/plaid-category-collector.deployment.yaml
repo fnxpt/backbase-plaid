@@ -53,17 +53,17 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: spring-activemq-brokerurl
-                  name: category-collector-sensitive-data
+                  name: category-collector-database-configurations
             - name: SPRING_ACTIVEMQ_USER
               valueFrom:
                 configMapKeyRef:
                   key: spring-activemq-user
-                  name: category-collector-sensitive-data
+                  name: category-collector-database-configurations
             - name: SPRING_ACTIVEMQ_PASSWORD
               valueFrom:
-                configMapKeyRef:
-                  key: spring-activemq-password
-                  name: category-collector-sensitive-data
+                secretKeyRef:
+                  key: ACTIVEMQ_PASSWORD
+                  name: activemq-password
             - name: SPRING_DATASOURCE_VALIDATIONQUERY
               value: SELECT 1
             - name: SPRING_LIQUIBASE_ENABLED
@@ -76,17 +76,17 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: spring-datasource-categories-url
-                  name: category-collector-sensitive-data
+                  name: category-collector-database-configurations
             - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
               valueFrom:
                 configMapKeyRef:
                   key: spring-datasource-categories-driverclass
-                  name: category-collector-sensitive-data
+                  name: category-collector-database-configurations
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 configMapKeyRef:
                   key: spring-datasource-categories-username
-                  name: category-collector-sensitive-data
+                  name: category-collector-database-configurations
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -98,12 +98,12 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: plaid-client-id
-                  name: category-collector-sensitive-data
+                  name: category-collector-database-configurations
             - name: BACKBASE_PLAID_SECRET
               valueFrom:
                 configMapKeyRef:
                   key: plaid-client-secret
-                  name: category-collector-sensitive-data
+                  name: category-collector-database-configurations
             - name: BACKBASE_PLAID_ENV
               value: "development"
             - name: "BACKBASE_PLAID_SERVICE_BASE_URL"

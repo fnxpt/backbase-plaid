@@ -53,17 +53,17 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: spring-activemq-enricher-brokerurl
-                  name: enricher-sensitive-data
+                  name: enricher-database-settings
             - name: SPRING_ACTIVEMQ_USER
               valueFrom:
                 configMapKeyRef:
                   key: spring-activemq-enricher-user
-                  name: enricher-sensitive-data
+                  name: enricher-database-settings
             - name: SPRING_ACTIVEMQ_PASSWORD
               valueFrom:
-                configMapKeyRef:
-                  key: activemq-enricher-password
-                  name: enricher-sensitive-data
+                secretKeyRef:
+                  key: ACTIVEMQ_PASSWORD
+                  name: activemq-password
             - name: SPRING_DATASOURCE_VALIDATIONQUERY
               value: SELECT 1
             - name: SPRING_LIQUIBASE_ENABLED

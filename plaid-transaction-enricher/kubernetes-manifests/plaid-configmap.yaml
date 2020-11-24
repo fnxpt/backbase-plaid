@@ -2,12 +2,11 @@ apiVersion: v1
 data:
   spring-activemq-enricher-brokerurl:
   spring-activemq-enricher-user: admin
-  activemq-enricher-password:
   spring-datasource-enricher-url:
   spring-datasource-enricher-driverclass: com.mysql.jdbc.Driver
   spring-datasource-enricher-username:
 
 kind: ConfigMap
 metadata:
-  name: enricher-sensitive-data
+  name: enricher-database-settings
   namespace: dope
