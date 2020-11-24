@@ -243,18 +243,6 @@ public class LinkServiceIT extends TestMockServer {
     }
 
 
-//    @Test
-//    public void resetSandbox() {
-//        List<Item> collect = itemRepository.findAll().stream()
-//            .filter(item -> item.getAccessToken().startsWith("access-sandbox"))
-//            .collect(Collectors.toList());
-//        for (Item item : collect) {
-//            itemService.deleteItem(item.getItemId());
-//        }
-//    }
-
-
-
 
     @Test
     public void testCreatePlaidLink(){
@@ -319,14 +307,6 @@ public class LinkServiceIT extends TestMockServer {
 
     }
 
-
-
-
-//    @Test
-//    public void testIngestItem() {
-//        Item item = itemRepository.findByItemId("***REMOVED***").get();
-//        accountService.ingestPlaidAccounts(item, item.getAccessToken(),  "lesley.knope","8a80809475c1b3af0175c1c8f679000b");
-//    }
 
 //@Test
 //public void resetSandbox() {
