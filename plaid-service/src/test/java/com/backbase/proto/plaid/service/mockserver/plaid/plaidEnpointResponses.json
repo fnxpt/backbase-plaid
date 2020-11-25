@@ -106,7 +106,7 @@
       "keepAlive": true,
       "secure": false,
       "body": {
-        "access_token": "access-sandbox-item-expired",
+        "access_token": "test-token-item-expired",
         "client_id": "***REMOVED***",
         "secret": "***REMOVED***"
       }
@@ -131,7 +131,7 @@
       "keepAlive": true,
       "secure": false,
       "body": {
-        "access_token": "access-testing",
+        "access_token": "test-token-cd143f16-3e37-40a1-a269-d65e911312c4",
         "client_id": "***REMOVED***",
         "secret": "***REMOVED***"
       }
@@ -236,7 +236,7 @@
       "body": {
         "client_id": "***REMOVED***",
         "secret": "***REMOVED***",
-        "access_token": "access-testing"
+        "access_token": "test-token-cd143f16-3e37-40a1-a269-d65e911312c4"
       }
     },
     "httpResponse": {
@@ -296,7 +296,7 @@
     },
     "httpResponse": {
       "body": {
-        "access_token": "access-testing",
+        "access_token": "test-token-cd143f16-3e37-40a1-a269-d65e911312c4",
         "item_id": "WGYJu6gjhA6r6ygSGYI6556456gvgha",
         "request_id": "Aim3b"
       }

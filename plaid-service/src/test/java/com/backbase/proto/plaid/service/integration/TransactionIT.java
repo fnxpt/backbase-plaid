@@ -116,7 +116,7 @@ public class TransactionIT extends TestMockServer {
     private Item createTestItem() {
         Item testItem = itemRepository.findByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha").orElse(new Item());
         testItem.setState("ACTIVE");
-        testItem.setAccessToken("access-testing");
+        testItem.setAccessToken("test-token-cd143f16-3e37-40a1-a269-d65e911312c4");
         testItem.setCreatedAt(LocalDateTime.now());
         testItem.setCreatedBy("lesley.knope");
         testItem.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
@@ -313,7 +313,7 @@ public class TransactionIT extends TestMockServer {
         item.setItemId("invaildItem");
         item.setCreatedBy("ron.swanson");
         item.setCreatedAt(LocalDateTime.now());
-        item.setAccessToken("access-sandbox-item-expired");
+        item.setAccessToken("test-token-item-expired");
         item.setInstitutionId("ins_456rfs6763");
         item.setState("ACTIVE");
         itemRepository.save(item);
@@ -369,7 +369,7 @@ public class TransactionIT extends TestMockServer {
         expectedLocation.setLongitude(BigDecimal.valueOf(-74.001761));
         expectedLocation.setStoreNumber(1235);
 
-        TransactionsGetResponse.Transaction transaction = plaidClient.service().transactionsGet(new TransactionsGetRequest("access-testing", new Date(), new Date())).execute().body().getTransactions().get(0);
+        TransactionsGetResponse.Transaction transaction = plaidClient.service().transactionsGet(new TransactionsGetRequest("test-token-cd143f16-3e37-40a1-a269-d65e911312c4", new Date(), new Date())).execute().body().getTransactions().get(0);
         Assert.assertTrue("Location doesn't match", locationEquals(expectedLocation, plaidToModelTransactionsMapper.map(transaction.getLocation())));
         Assert.assertEquals("Payment Meta doesn't match", expectedPaymentMeta, plaidToModelTransactionsMapper.map(transaction.getPaymentMeta()));
         Assert.assertTrue("transaction doesn't match", transactionEquals(expected, plaidToModelTransactionsMapper.mapToDomain(transaction, itemId)));

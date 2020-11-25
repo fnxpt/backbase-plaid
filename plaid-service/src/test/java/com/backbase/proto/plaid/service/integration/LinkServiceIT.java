@@ -124,7 +124,7 @@ public class LinkServiceIT extends TestMockServer {
     private Item createItem(String itemId, String userId, String institutionId){
         Item testItem = itemRepository.findByItemId(itemId).orElse(new Item());
         testItem.setState("ACTIVE");
-        testItem.setAccessToken("access-testing");
+        testItem.setAccessToken("test-token-cd143f16-3e37-40a1-a269-d65e911312c4");
         testItem.setCreatedAt(LocalDateTime.now());
         testItem.setCreatedBy(userId);
         testItem.setItemId(itemId);
@@ -140,7 +140,7 @@ public class LinkServiceIT extends TestMockServer {
     public void testItemEndpoint() {
 //        Item testItem = new Item();
 //        testItem.setState("ACTIVE");
-//        testItem.setAccessToken("access-testing");
+//        testItem.setAccessToken("test-token-cd143f16-3e37-40a1-a269-d65e911312c4");
 //        testItem.setCreatedAt(LocalDateTime.now());
 //        testItem.setCreatedBy("lesley.knope");
 //        testItem.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
@@ -175,7 +175,7 @@ public class LinkServiceIT extends TestMockServer {
 //        item.setInstitutionId("ins7");
 //        item.setCreatedBy("me");
 //        item.setCreatedAt(LocalDateTime.now());
-//        item.setAccessToken("access-testing");
+//        item.setAccessToken("test-token-cd143f16-3e37-40a1-a269-d65e911312c4");
 //
 //        itemRepository.save(item);
 
@@ -311,7 +311,7 @@ public class LinkServiceIT extends TestMockServer {
 //@Test
 //public void resetSandbox() {
 //    List<Item> collect = itemRepository.findAll().stream()
-//            .filter(item -> item.getAccessToken().startsWith("access-sandbox"))
+//            .filter(item -> item.getAccessToken().startsWith("test-token"))
 //            .collect(Collectors.toList());
 //    for (Item item : collect) {
 //        itemService.deleteItem(item.getItemId());
