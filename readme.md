@@ -1,5 +1,5 @@
 # Backbase Plaid Proof of Concept
-##NOTE: This is a Proof of Concept! No secure storage for access tokens. DO NOT USE IN PRODUCTION 
+## NOTE: This is a Proof of Concept! No secure storage for access tokens. DO NOT USE IN PRODUCTION 
 
 - This project makes use of Plaid a third party software to aggregate external accounts. It gets accounts from a core 
 banking system through this third party and then ingests them into backbase dbs to be processed. This processed data can
