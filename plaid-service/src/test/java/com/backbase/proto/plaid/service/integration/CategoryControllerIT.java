@@ -23,7 +23,7 @@ import java.util.List;
 public class CategoryControllerIT extends TestMockServer {
 
     static {
-        System.setProperty("SIG_SECRET_KEY", "***REMOVED***");
+        System.setProperty("SIG_SECRET_KEY", "test!");
     }
 
     @Autowired

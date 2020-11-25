@@ -25,7 +25,7 @@ import java.util.ArrayList;
 @Slf4j
 public class InstitutionServiceIT extends TestMockServer {
     static {
-        System.setProperty("SIG_SECRET_KEY", "***REMOVED***");
+        System.setProperty("SIG_SECRET_KEY", "test!");
     }
     @Autowired
     private InstitutionService institutionService;

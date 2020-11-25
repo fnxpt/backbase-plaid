@@ -50,7 +50,7 @@ public class WebhookService {
     public void setupWebhook(String accessToken, Item item) {
 
         String webhookUrl = plaidConfigurationProperties.getWebhookBaseUrl() + "/webhook/" + item.getItemId();
-        log.info("Setting up webhook for item: {} with url:
+        log.info("Setting up webhook for item: {} with url:", item.getItemId(), webhookUrl);
         try {
             plaidClient.service().itemWebhookUpdate(new ItemWebhookUpdateRequest(accessToken, webhookUrl)).execute().body();
             log.info("Webhook Setup");
