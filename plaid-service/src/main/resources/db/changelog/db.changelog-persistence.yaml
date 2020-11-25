@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: create-table
-      author: lesley.knope
+      author: bart.veenstra
       changes:
         - createTable:
             tableName: item
@@ -120,7 +120,7 @@ databaseChangeLog:
                   type: NCLOB
   - changeSet:
       id: create-institution-table
-      author: lesley.knope
+      author: bart.veenstra
       changes:
         - createTable:
             tableName: institution
@@ -167,7 +167,7 @@ databaseChangeLog:
                   type: NCLOB
   - changeSet:
       id: add-instition-column
-      author: lesley.knope
+      author: bart.veenstra
       changes:
         - addColumn:
             tableName: item
@@ -177,7 +177,7 @@ databaseChangeLog:
                   type: VARCHAR(64)
   - changeSet:
       id: fix-webhook-typo
-      author: lesley.knope
+      author: bart.veenstra
       changes:
         - deleteColumn:
             tableName: webhook
@@ -192,7 +192,7 @@ databaseChangeLog:
                   type: DATETIME
   - changeSet:
       id: create-transaction-table
-      author: ron.swanson
+      author: sophie.janssens
       changes:
         - createTable:
             tableName: transcation
@@ -259,7 +259,7 @@ databaseChangeLog:
                   type: VARCHAR(512)
   - changeSet:
       id: recreate-transaction-table
-      author: ron.swanson
+      author: sophie.janssens
       changes:
         - dropTable:
             tableName: transcation
@@ -328,7 +328,7 @@ databaseChangeLog:
                   type: NCLOB
   - changeSet:
       id: add-expiry-date-to-item
-      author: ron.swanson
+      author: sophie.janssens
       changes:
         - addColumn:
             tableName: item
@@ -338,7 +338,7 @@ databaseChangeLog:
                   type: DATETIME
   - changeSet:
       id: add-item-state-columns
-      author: lesley.knope
+      author: bart.veenstra
       changes:
         - addColumn:
             tableName: item
@@ -360,7 +360,7 @@ databaseChangeLog:
                   type: NCLOB
   - changeSet:
       id: change-error-column
-      author: lesley.knope
+      author: bart.veenstra
       changes:
         - modifyDataType:
             columnName: error
@@ -368,7 +368,7 @@ databaseChangeLog:
             tableName: webhook
   - changeSet:
       id: location-can-be-nullable
-      author: lesley.knope
+      author: bart.veenstra
       changes:
         - dropNotNullConstraint:
             columnName: location
@@ -376,7 +376,7 @@ databaseChangeLog:
             tableName: transaction
   - changeSet:
       id: add-item-id-column-to-transactions
-      author: lesley.knope
+      author: bart.veenstra
       changes:
         - addColumn:
             tableName: transaction
@@ -386,7 +386,7 @@ databaseChangeLog:
                   type: varchar(128)
   - changeSet:
       id: add-indexes
-      author: lesley.knope
+      author: bart.veenstra
       changes:
         - createIndex:
             columns:
@@ -406,7 +406,7 @@ databaseChangeLog:
             unique: true
   - changeSet:
       id: add-ingested-column
-      author: lesley.knope
+      author: bart.veenstra
       changes:
         - addColumn:
             tableName: transaction
@@ -416,7 +416,7 @@ databaseChangeLog:
                   type: boolean
   - changeSet:
       id: add-missing-transaction-column
-      author: lesley.knope
+      author: bart.veenstra
       changes:
         - addColumn:
             tableName: transaction
@@ -444,7 +444,7 @@ databaseChangeLog:
                   type: varchar(512)
   - changeSet:
       id: add-missing-pending-transaction-id-column
-      author: lesley.knope
+      author: bart.veenstra
       changes:
         - addColumn:
             tableName: transaction
@@ -455,7 +455,7 @@ databaseChangeLog:
 
   - changeSet:
       id: add-location-database
-      author: lesley.knope
+      author: bart.veenstra
       changes:
         - createTable:
             tableName: location
@@ -493,7 +493,7 @@ databaseChangeLog:
                   type: decimal(10,6)
   - changeSet:
       id: add-trasnaction-internal-id
-      author: lesley.knope
+      author: bart.veenstra
       changes:
         - addColumn:
             tableName: transaction
@@ -503,7 +503,7 @@ databaseChangeLog:
                   type: varchar(48)
   - changeSet:
       id: add-merchant-table
-      author: lesley.knope
+      author: bart.veenstra
       changes:
         - createTable:
             tableName: merchant

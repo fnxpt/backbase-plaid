@@ -48,7 +48,7 @@ import static org.mockito.Mockito.mock;
 public class WebhookServiceIT extends TestMockServer {
 
     static {
-        System.setProperty("SIG_SECRET_KEY", "***REMOVED***");
+        System.setProperty("SIG_SECRET_KEY", "test!");
     }
 
     @Autowired
@@ -102,7 +102,7 @@ public class WebhookServiceIT extends TestMockServer {
     public void testWebhookRefresh() {
         webhookService.refresh("WGYJu6gjhA6r6ygSGYI6556456gvgha");
         Assert.assertTrue(true);
-//        webhookService.refresh("***REMOVED***");
+//        webhookService.refresh("7Xn1ZNdJkXf6VBoZwdbgcja6rqdkqZH08Qp4a");
     }
 
     @Test

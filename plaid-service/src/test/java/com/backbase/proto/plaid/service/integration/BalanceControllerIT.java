@@ -29,7 +29,7 @@ import java.time.LocalDateTime;
 public class BalanceControllerIT extends TestMockServer {
 
     static {
-        System.setProperty("SIG_SECRET_KEY", "***REMOVED***");
+        System.setProperty("SIG_SECRET_KEY", "test!");
     }
 
     @Autowired

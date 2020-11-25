@@ -7,8 +7,8 @@
       "secure": false,
       "body":{
         "access_token": "test-token-cd143f16-3e37-40a1-a269-d65e911312c4",
-        "client_id": "***REMOVED***",
-        "secret": "***REMOVED***"
+        "client_id": "clientId",
+        "secret": "secretValue"
       }
     },
     "httpResponse": {
@@ -107,8 +107,8 @@
       "secure": false,
       "body": {
         "access_token": "test-token-item-expired",
-        "client_id": "***REMOVED***",
-        "secret": "***REMOVED***"
+        "client_id": "clientId",
+        "secret": "secretValue"
       }
     },
     "httpResponse": {
@@ -131,9 +131,10 @@
       "keepAlive": true,
       "secure": false,
       "body": {
+
         "access_token": "test-token-cd143f16-3e37-40a1-a269-d65e911312c4",
-        "client_id": "***REMOVED***",
-        "secret": "***REMOVED***"
+        "client_id": "clientId",
+        "secret": "secretValue"
       }
     },
     "httpResponse": {
@@ -187,8 +188,8 @@
       "secure": false,
       "body": {
         "access_token": "access-uTFV6v698bYd4",
-        "client_id": "***REMOVED***",
-        "secret": "***REMOVED***"
+        "client_id": "clientId",
+        "secret": "secretValue"
       }
     },
     "httpResponse": {
@@ -234,8 +235,9 @@
       "keepAlive": true,
       "secure": false,
       "body": {
-        "client_id": "***REMOVED***",
-        "secret": "***REMOVED***",
+        "client_id": "clientId",
+        "secret": "secretValue",
+
         "access_token": "test-token-cd143f16-3e37-40a1-a269-d65e911312c4"
       }
     },
@@ -289,8 +291,8 @@
       "keepAlive": true,
       "secure": false,
       "body": {
-        "client_id": "***REMOVED***",
-        "secret": "***REMOVED***",
+        "client_id": "clientId",
+        "secret": "secretValue",
         "public_token": "public-token-1gywu6twqej"
       }
     },
@@ -333,8 +335,8 @@
       "secure": false,
       "body": {
         "institution_id": "ins_3",
-        "client_id": "***REMOVED***",
-        "secret": "***REMOVED***"
+        "client_id": "clientId",
+        "secret": "secretValue"
       }
     },
     "httpResponse": {
@@ -919,8 +921,8 @@
       "secure": false,
       "body": {
         "access_token": "Access_No_Permissions",
-        "client_id": "***REMOVED***",
-        "secret": "***REMOVED***"
+        "client_id": "clientId",
+        "secret": "secretValue"
       }
     },
     "httpResponse": {

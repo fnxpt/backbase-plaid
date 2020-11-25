@@ -5,8 +5,6 @@ data:
   spring-datasource-categories-url: jdbc:mysql://proto.cdem7uw0kede.eu-central-1.rds.amazonaws.com/dbs_categories?useSSL=false
   spring-datasource-categories-driverclass: com.mysql.jdbc.Driver
   spring-datasource-categories-username: backbase
-  plaid-client-id: "***REMOVED***"
-  plaid-client-secret: "***REMOVED***"
 
 
 kind: ConfigMap

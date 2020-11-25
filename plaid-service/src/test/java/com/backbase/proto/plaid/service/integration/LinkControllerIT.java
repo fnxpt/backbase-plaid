@@ -36,7 +36,7 @@ import java.util.Map;
 public class LinkControllerIT extends TestMockServer {
 
     static {
-        System.setProperty("SIG_SECRET_KEY", "***REMOVED***");
+        System.setProperty("SIG_SECRET_KEY", "test!");
     }
 
     @Autowired

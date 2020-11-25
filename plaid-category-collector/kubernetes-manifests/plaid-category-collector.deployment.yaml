@@ -97,13 +97,13 @@ spec:
             - name: BACKBASE_PLAID_CLIENT_ID
               valueFrom:
                 configMapKeyRef:
-                  key: plaid-client-id
-                  name: category-collector-database-configurations
+                  key: PLAID_CLIENT_ID
+                  name: client-secrets
             - name: BACKBASE_PLAID_SECRET
               valueFrom:
                 configMapKeyRef:
-                  key: plaid-client-secret
-                  name: category-collector-database-configurations
+                  key: PLAID_CLIENT_SECRET
+                  name: client-secrets
             - name: BACKBASE_PLAID_ENV
               value: "development"
             - name: "BACKBASE_PLAID_SERVICE_BASE_URL"
