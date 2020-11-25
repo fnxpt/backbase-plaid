@@ -61,10 +61,9 @@ For the [application.yaml](plaid-service/src/main/resources/application.yml) fil
  variables here with values for your datasource.
 How to configure this for the Kubernetes manifests is explained below.
 #### Configurations
-The configurations for this are found in the Kubernetes-manifests directories in each project, this is where the 
-plaid-configmap.yaml files can be found.
-It is in these files that datasource url, driver class, username and plaform values are set. You must remember to set 
-the in all the projects, here are the links to the files where they should be confiured:
+The configurations for this are found in the Kubernetes-manifests directories in the project, this is where the 
+plaid-configmap.yaml file can be found.
+It is in this file that datasource url, driver class, username and plaform values are set. Here is the link to the file where they should be confiured:
 - [plaid service config map](plaid-service/kubernetes-manifests/plaid-configmap.yaml)
 
 There are already some example values set in here.\
