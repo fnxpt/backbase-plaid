@@ -75,7 +75,7 @@ public class LinkControllerIT extends TestMockServer {
                 .metadata(new Metadata().institution(new PlaidInstitution().institutionId("ins_3")));
         linkController.setPublicAccessToken(setAccessTokenRequest);
         Item actual = itemRepository.findByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha").orElseThrow(()-> new BadRequestException("Item not saved"));
-        Assert.assertEquals("not linked","access-testing",actual.getAccessToken());
+        Assert.assertEquals("not linked","test-token-cd143f16-3e37-40a1-a269-d65e911312c4",actual.getAccessToken());
 
         Assert.assertTrue("not linked accounts ",accountRepository.existsByAccountId("DZpP9JqjRrSNnpVZArAyslbwnvQq3Btv8m9rA"));
 

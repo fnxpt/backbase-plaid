@@ -75,7 +75,7 @@ public class AccountServiceIT extends TestMockServer {
 
         Item testItem = itemRepository.findByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha").orElse(new Item());
         testItem.setState("ACTIVE");
-        testItem.setAccessToken("access-testing");
+        testItem.setAccessToken("test-token-cd143f16-3e37-40a1-a269-d65e911312c4");
         testItem.setCreatedAt(LocalDateTime.now());
         testItem.setCreatedBy("lesley.knope");
         testItem.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
@@ -88,12 +88,12 @@ public class AccountServiceIT extends TestMockServer {
     @Test
     public void testmock() throws IOException {
 
-        AccountsBalanceGetRequest request = new AccountsBalanceGetRequest("access-testing");
+        AccountsBalanceGetRequest request = new AccountsBalanceGetRequest("test-token-cd143f16-3e37-40a1-a269-d65e911312c4");
 
         log.info("request: {}", gson.toJson(request));
         log.info("account balance response from mock {}", gson.toJson(plaidClient.service().accountsBalanceGet(request).execute().body()));
 
-        Assert.assertEquals("mock server is not correctly initialised", "{\"accessToken\":\"access-testing\",\"clientId\":\"***REMOVED***\",\"secret\":\"***REMOVED***\"}", gson.toJson(request));
+        Assert.assertEquals("mock server is not correctly initialised", "{\"accessToken\":\"test-token-cd143f16-3e37-40a1-a269-d65e911312c4\",\"clientId\":\"***REMOVED***\",\"secret\":\"***REMOVED***\"}", gson.toJson(request));
 
     }
 

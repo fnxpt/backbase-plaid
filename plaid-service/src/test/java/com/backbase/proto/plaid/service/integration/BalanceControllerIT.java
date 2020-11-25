@@ -50,7 +50,7 @@ public class BalanceControllerIT extends TestMockServer {
 
         Item testItem = itemRepository.findByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha").orElse(new Item());
         testItem.setState("ACTIVE");
-        testItem.setAccessToken("access-testing");
+        testItem.setAccessToken("test-token-cd143f16-3e37-40a1-a269-d65e911312c4");
         testItem.setCreatedAt(LocalDateTime.now());
         testItem.setCreatedBy("lesley.knope");
         testItem.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
