@@ -18,7 +18,6 @@ connects the institutions core bank to our DBS platform.
 - Ingest External Accounts using Backbase Stream
 - Ingest Transactions for Linked Accounts
 - Register Webhook for continuous updates
-- Enrich Transactions
 ---
 ## Plaid Service
 
@@ -87,7 +86,6 @@ type: Opaque
 data:
   ACTIVEMQ_PASSWORD: examplePasswordEncrypted
 
-````
 
 
 
