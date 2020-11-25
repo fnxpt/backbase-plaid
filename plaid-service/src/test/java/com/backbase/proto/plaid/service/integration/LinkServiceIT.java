@@ -68,7 +68,7 @@ import static org.mockito.Mockito.when;
 public class LinkServiceIT extends TestMockServer {
 
     static {
-        System.setProperty("SIG_SECRET_KEY", "***REMOVED***");
+        System.setProperty("SIG_SECRET_KEY", "test!");
     }
 
     @Autowired
