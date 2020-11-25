@@ -290,11 +290,11 @@ public class TransactionIT extends TestMockServer {
     public TransactionRepository transactionRepository;
 
 
-    @Test
-    public void reset() {
-
+//    @Test
+//    public void reset() {
+//
 //        transactionsApi.postDelete()
-    }
+//    }
 
     @Test
     public void testTransactionIngestion() throws IngestionFailedException {

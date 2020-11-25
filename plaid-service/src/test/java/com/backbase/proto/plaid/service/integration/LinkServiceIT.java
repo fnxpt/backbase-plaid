@@ -138,24 +138,6 @@ public class LinkServiceIT extends TestMockServer {
 
     @Test
     public void testItemEndpoint() {
-//        Item testItem = new Item();
-//        testItem.setState("ACTIVE");
-//        testItem.setAccessToken("test-token-cd143f16-3e37-40a1-a269-d65e911312c4");
-//        testItem.setCreatedAt(LocalDateTime.now());
-//        testItem.setCreatedBy("lesley.knope");
-//        testItem.setItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha");
-//        testItem.setInstitutionId("ins_456rfs6763");
-//
-//        Institution institution = new Institution();
-//        institution.setInstitutionId("ins_456rfs6763");
-//        institution.setName("Bonk");
-//        institution.setUrl("Bonk.com");
-//        institution.setFirstRegisteredAt(LocalDateTime.now());
-//        institution.setFirstCreatedBy("lesley.knope");
-//
-//        institutionRepository.save(institution);
-//        itemRepository.save(testItem);
-
 
         ResponseEntity<List<LinkItem>> items = itemController.getItems("ACTIVE");
         log.info("get Items endpoint response body: {}", items.getBody());
@@ -170,14 +152,6 @@ public class LinkServiceIT extends TestMockServer {
 
     @Test
     public void testGetTransactions() throws IngestionFailedException {
-//        Item item = new Item();
-//        item.setItemId("7387bfejh6ds98n2gc33");
-//        item.setInstitutionId("ins7");
-//        item.setCreatedBy("me");
-//        item.setCreatedAt(LocalDateTime.now());
-//        item.setAccessToken("test-token-cd143f16-3e37-40a1-a269-d65e911312c4");
-//
-//        itemRepository.save(item);
 
         Item item = itemRepository.findByItemId("WGYJu6gjhA6r6ygSGYI6556456gvgha").orElseThrow(() -> new BadRequestException("Item not found"));
 
@@ -247,7 +221,6 @@ public class LinkServiceIT extends TestMockServer {
     @Test
     public void testCreatePlaidLink(){
         PlaidLinkRequest plaidLinkRequest = new PlaidLinkRequest().language("en").name("bart");
-       // linkService.createPlaidLink(plaidLinkRequest);
         PlaidLinkResponse plaidLink = linkService.createPlaidLink(plaidLinkRequest);
         Assert.assertEquals("not expected link", "link-sandbox-b61203e9-2455-4fba-9cea-a438812938bb", plaidLink.getToken());
     }

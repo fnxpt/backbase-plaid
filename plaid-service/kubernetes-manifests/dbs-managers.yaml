@@ -1,0 +1,13 @@
+apiVersion: v1
+data:
+  dbs-user-manager-base-url: http://user-manager:8080
+  dbs-access-control-manager-base-url: http://access-control:8080
+  dbs-arrangement-manager-base-url: http://arrangement-manager:8080
+  dbs-transaction-manager-base-url: http://transaction-manager:8080
+  dbs-limits-manager-base-url: http://limits-manager:8080
+
+
+kind: ConfigMap
+metadata:
+  name: dbs-managers
+  namespace: dope

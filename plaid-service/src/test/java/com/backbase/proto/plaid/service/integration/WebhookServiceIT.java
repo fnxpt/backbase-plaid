@@ -102,7 +102,6 @@ public class WebhookServiceIT extends TestMockServer {
     public void testWebhookRefresh() {
         webhookService.refresh("WGYJu6gjhA6r6ygSGYI6556456gvgha");
         Assert.assertTrue(true);
-//        webhookService.refresh("7Xn1ZNdJkXf6VBoZwdbgcja6rqdkqZH08Qp4a");
     }
 
     @Test
@@ -231,7 +230,7 @@ public class WebhookServiceIT extends TestMockServer {
             invalidWebhook.setItemId("InvalidItem");
         webhookService.process(invalidWebhook);
         invalidWebhook.setCompleted(true);
-        invalidWebhook.setError("WEBHOOK REFERS TO NON EXISTING ITEM");
+        invalidWebhook.setError("WEBHOOK REFERS TO NO EXISTING ITEM");
         log.info("expected invalid webhook");
       //  Assert.assertEquals("was not errored",gson.toJson(invalidWebhook),gson.toJson(webhookRepository.findAllByCompleted(false).get(0)));
         Assert.assertTrue(true);

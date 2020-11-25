@@ -29,12 +29,12 @@ spring:
         registration:
           dbs:
             authorization-grant-type: client_credentials
-            client-id: ${DBS_CLIENT_ID}
-            client-secret: ${DBS_CLIENT_SECRET}
+            client-id: <dbs-client-id>
+            client-secret: <dbs-client-secret>
             client-authentication-method: post
         provider:
           dbs:
-            token-uri: ${DBS_TOKEN_URI}
+            token-uri: <dbs-token-uri>
   cloud:
     config:
       enabled: false
@@ -77,12 +77,12 @@ backbase:
 
 
   plaid:
-    client-name: "Backbase"
-    client-id: ${PLAID_CLIENT_ID}
-    secret: ${PLAID_CLIENT_SECRET}
+    client-name: <plaid-client-name>
+    client-id: <PLAID_CLIENT_ID>
+    secret: <PLAID_CLIENT_SECRET>
     env: mock
     mock-server: http://localhost:9090
-    webhook-base-url: ${PLAID_WEBHOOK_BASE}
+    webhook-base-url: <webhook-base-url>
     default-reference-job-role-names:
       - "Retail User - EU"
     country-codes:

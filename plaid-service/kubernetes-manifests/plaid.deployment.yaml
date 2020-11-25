@@ -82,5 +82,71 @@ spec:
                 secretKeyRef:
                   key: mysql-password
                   name: backbase-env-mysql
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_DBS_CLIENT-ID
+              valueFrom:
+                configMapKeyRef:
+                  key: dbs-client-id
+                  name: dbs-client-credentials
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_DBS_CLIENT-SECRET
+              valueFrom:
+                configMapKeyRef:
+                  key: dbs-client-secret
+                  name: dbs-client-credentials
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_DBS_TOKEN-URI
+              valueFrom:
+                configMapKeyRef:
+                  key: dbs-token-uri
+                  name: dbs-client-credentials
             - name: JAVA_TOOL_OPTIONS
               value: "-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=n,quiet=y -Dbackbase.activemq.sslconfig=false -Dmanagement.health.jms.enabled=false -Dspring.sleuth.sampler.probability=1 -Dspring.zipkin.enabled=true -Dspring.zipkin.baseUrl=http://meister-collector.observability.svc.cluster.local:9411 -Dmanagement.endpoints.web.exposure.include=* -Dmanagement.endpoints.enabled-by-default=true"
+            - name: BACKBASE_STREAM_DBS_USER_MANAGER_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: dbs-user-manager-base-url
+                  name: dbs-managers
+            - name: BACKBASE_STREAM_DBS_ACCESS_CONTROL_MANAGER_BASE_URL
+              valueFrom:
+               configMapKeyRef:
+                  key: dbs-access-control-manager-base-url
+                  name: dbs-managers
+            - name: BACKBASE_STREAM_DBS_ARRANGEMENT_MANAGER_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: dbs-arrangement-manager-base-url
+                  name: dbs-managers
+            - name: BACKBASE_STREAM_DBS_TRANSACTION_MANAGER_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: dbs-transaction-manager-base-url
+                  name: dbs-managers
+            - name: BACKBASE_STREAM_DBS_LIMITS_MANAGER_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: dbs-limits-manager-base-url
+                  name: dbs-managers
+            - name: BACKBASE_PLAID_CLIENT_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: plaid-client-name
+                  name: plaid-client-credentials
+            - name: BACKBASE_PLAID_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: PLAID_CLIENT_ID
+                  name: client-secrets
+            - name: BACKBASE_PLAID_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: PLAID_CLIENT_SECRET
+                  name: client-secrets
+            - name: BACKBASE_PLAID_ENV
+              valueFrom:
+                configMapKeyRef:
+                  key: plaid-env
+                  name: plaid-client-credentials
+            - name: BACKBASE_PLAID_WEBHOOK_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: webhook-base-url
+                  name: plaid-client-credentials
+

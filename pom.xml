@@ -13,9 +13,6 @@
 
     <modules>
         <module>plaid-service</module>
-        <module>plaid-transaction-enrichment-provider</module>
-        <module>plaid-transaction-enricher</module>
-        <module>plaid-category-collector</module>
     </modules>
 
 </project>
